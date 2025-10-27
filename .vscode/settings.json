@@ -5,7 +5,12 @@
   "dotnet.defaultSolution": "Fabrikam.sln",
   "omnisharp.enableAsyncCompletion": false,
   "files.autoSave": "off",
-  "chat.mcp.discovery.enabled": false,
+  "chat.mcp.discovery.enabled": {
+    "claude-desktop": false,
+    "windsurf": false,
+    "cursor-global": false,
+    "cursor-workspace": false
+  },
   "extensions.autoUpdate": false,
   "rest-client.environmentVariables": {
     "local": {

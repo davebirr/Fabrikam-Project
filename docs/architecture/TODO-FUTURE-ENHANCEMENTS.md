@@ -1,6 +1,27 @@
 # 🚀 Fabrikam Project - Future Enhancements & TODO Items
 
-## 🎯 **Asset Management System**
+---
+
+## 🎯 **PRIORITY: November 6th Agent-a-thon Workshop (Oct 26 - Nov 1)**
+
+### **🔥 Critical Path Items (Must Complete by Nov 1)**
+- [ ] **Enhanced Sample Data**: Realistic product catalog with photos, diverse customer personas, comprehensive business scenarios
+- [ ] **Complete CRUD API**: Add POST/PUT/DELETE endpoints for customers, orders, products, support tickets
+- [ ] **Enhanced MCP Tools**: Action-capable tools beyond read-only (create tickets, process orders, update customer data)
+- [ ] **Business Simulator**: Automated generation of orders and support tickets to create realistic workload
+- [ ] **Employee Dashboard**: Real-time web app showing current problems and agent effectiveness metrics
+- [ ] **Workshop Mode**: Controls for proctors to manage sessions and monitor participant progress
+
+### **📋 Workshop Success Requirements**
+- **Data Quality**: 20+ house models, 100+ customers, 200+ orders, 50+ support tickets
+- **API Performance**: Full CRUD operations supporting 100 concurrent users with <2s response times
+- **MCP Integration**: All tools working seamlessly in Copilot Studio with proper error handling
+- **Real-time Features**: Live business simulation and dashboard updates every 30 seconds
+- **Workshop Controls**: Proctor tools for session management and participant monitoring
+
+---
+
+## 🏗️ **Asset Management System** *(Post-Workshop Priority)*
 
 ### **In Progress**
 - ✅ **Asset Directory Structure**: Created organized wwwroot/assets structure for images, blueprints, brochures
@@ -8,7 +29,7 @@
 - ✅ **Asset Management Guide**: Complete documentation with specifications and examples
 - ✅ **Sample Asset**: Downloaded and saved `adu-terrazia-main.png` following naming convention
 
-### **Next Steps**
+### **Next Steps** *(After November 6th)*
 - [ ] **Database Integration**: Implement ProductImage and ProductDocument entities
 - [ ] **API Endpoints**: Add asset endpoints (`/api/products/{id}/images`, `/api/products/{id}/documents`)
 - [ ] **File Upload**: Implement secure file upload endpoints with validation
