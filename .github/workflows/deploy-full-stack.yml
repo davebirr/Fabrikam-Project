@@ -1,0 +1,244 @@
+name: Deploy Full Stack to Azure
+
+on:
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Environment to deploy'
+        required: true
+        type: choice
+        options:
+          - proctor
+          - team-01
+          - team-02
+          - team-03
+          - team-04
+          - team-05
+          - team-06
+          - team-07
+          - team-08
+          - team-09
+          - team-10
+          - team-11
+          - team-12
+          - team-13
+          - team-14
+          - team-15
+          - team-16
+          - team-17
+          - team-18
+          - team-19
+          - team-20
+      deploy_api:
+        description: 'Deploy FabrikamApi'
+        required: true
+        type: boolean
+        default: true
+      deploy_mcp:
+        description: 'Deploy FabrikamMcp'
+        required: true
+        type: boolean
+        default: true
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  
+jobs:
+  setup:
+    runs-on: ubuntu-latest
+    outputs:
+      resource_group: ${{ steps.config.outputs.resource_group }}
+      api_app_name: ${{ steps.config.outputs.api_app_name }}
+      mcp_app_name: ${{ steps.config.outputs.mcp_app_name }}
+    steps:
+      - name: Set environment configuration
+        id: config
+        run: |
+          if [ "${{ github.event.inputs.environment }}" = "proctor" ]; then
+            echo "resource_group=rg-agentathon-proctor" >> $GITHUB_OUTPUT
+            echo "api_app_name=fabrikam-api-proctor" >> $GITHUB_OUTPUT
+            echo "mcp_app_name=fabrikam-mcp-proctor" >> $GITHUB_OUTPUT
+          else
+            echo "resource_group=rg-agentathon-${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "api_app_name=fabrikam-api-${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            echo "mcp_app_name=fabrikam-mcp-${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+          fi
+
+  build-api:
+    if: ${{ github.event.inputs.deploy_api == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore Fabrikam.sln
+
+      - name: Build solution
+        run: dotnet build Fabrikam.sln --configuration Release --no-restore
+
+      - name: Publish FabrikamApi
+        run: dotnet publish FabrikamApi/src/FabrikamApi.csproj --configuration Release --no-build --output ./api-publish
+
+      - name: Upload API artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: api-artifact
+          path: ./api-publish
+          retention-days: 1
+
+  build-mcp:
+    if: ${{ github.event.inputs.deploy_mcp == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore Fabrikam.sln
+
+      - name: Build solution
+        run: dotnet build Fabrikam.sln --configuration Release --no-restore
+
+      - name: Publish FabrikamMcp
+        run: dotnet publish FabrikamMcp/src/FabrikamMcp.csproj --configuration Release --no-build --output ./mcp-publish
+
+      - name: Upload MCP artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mcp-artifact
+          path: ./mcp-publish
+          retention-days: 1
+
+  deploy-api:
+    if: ${{ github.event.inputs.deploy_api == 'true' }}
+    needs: [setup, build-api]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}
+      url: https://${{ needs.setup.outputs.api_app_name }}.azurewebsites.net
+    steps:
+      - name: Download API artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: api-artifact
+          path: ./api-publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ needs.setup.outputs.api_app_name }}
+          package: ./api-publish
+
+      - name: Test API Health
+        run: |
+          echo "Waiting for app to start..."
+          sleep 30
+          
+          API_URL="https://${{ needs.setup.outputs.api_app_name }}.azurewebsites.net"
+          
+          # Test health endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/api/info")
+          
+          if [ $response -eq 200 ]; then
+            echo "✅ API is healthy and responding"
+            curl -s "$API_URL/api/info" | jq .
+          else
+            echo "⚠️ API returned status code: $response"
+            echo "Deployment may need time to fully start. Check Azure Portal for details."
+          fi
+
+  deploy-mcp:
+    if: ${{ github.event.inputs.deploy_mcp == 'true' }}
+    needs: [setup, build-mcp, deploy-api]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}-mcp
+      url: https://${{ needs.setup.outputs.mcp_app_name }}.azurewebsites.net
+    steps:
+      - name: Download MCP artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: mcp-artifact
+          path: ./mcp-publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update MCP App Settings
+        run: |
+          az webapp config appsettings set \
+            --resource-group ${{ needs.setup.outputs.resource_group }} \
+            --name ${{ needs.setup.outputs.mcp_app_name }} \
+            --settings \
+              FabrikamApi__BaseUrl="https://${{ needs.setup.outputs.api_app_name }}.azurewebsites.net"
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ needs.setup.outputs.mcp_app_name }}
+          package: ./mcp-publish
+
+      - name: Test MCP Health
+        run: |
+          echo "Waiting for MCP server to start..."
+          sleep 30
+          
+          MCP_URL="https://${{ needs.setup.outputs.mcp_app_name }}.azurewebsites.net"
+          
+          # Test MCP info endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" "$MCP_URL/mcp/v1/info")
+          
+          if [ $response -eq 200 ]; then
+            echo "✅ MCP server is healthy and responding"
+          else
+            echo "⚠️ MCP returned status code: $response"
+            echo "Deployment may need time to fully start. Check Azure Portal for details."
+          fi
+
+  summary:
+    needs: [setup, deploy-api, deploy-mcp]
+    if: always()
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "## 🚀 Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Environment**: ${{ github.event.inputs.environment }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Resource Group**: ${{ needs.setup.outputs.resource_group }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ github.event.inputs.deploy_api }}" = "true" ]; then
+            echo "### ✅ FabrikamApi" >> $GITHUB_STEP_SUMMARY
+            echo "- **App Name**: ${{ needs.setup.outputs.api_app_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **URL**: https://${{ needs.setup.outputs.api_app_name }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: ${{ needs.deploy-api.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ github.event.inputs.deploy_mcp }}" = "true" ]; then
+            echo "### ✅ FabrikamMcp" >> $GITHUB_STEP_SUMMARY
+            echo "- **App Name**: ${{ needs.setup.outputs.mcp_app_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **URL**: https://${{ needs.setup.outputs.mcp_app_name }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: ${{ needs.deploy-mcp.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "---" >> $GITHUB_STEP_SUMMARY
+          echo "*Deployed from commit: ${{ github.sha }}*" >> $GITHUB_STEP_SUMMARY
