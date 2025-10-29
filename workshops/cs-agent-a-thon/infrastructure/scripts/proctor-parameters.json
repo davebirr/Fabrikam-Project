@@ -1,0 +1,27 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "baseName": {
+      "value": "fabrikam"
+    },
+    "environment": {
+      "value": "proctor"
+    },
+    "authenticationMode": {
+      "value": "Disabled"
+    },
+    "databaseProvider": {
+      "value": "InMemory"
+    },
+    "userObjectId": {
+      "value": "6b0e39f7-5639-4bba-8b8f-c3a0c9695f68"
+    },
+    "location": {
+      "value": "westus2"
+    },
+    "skuName": {
+      "value": "S1"
+    }
+  }
+}

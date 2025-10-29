@@ -1,570 +1,302 @@
-# 🚀 Workshop Infrastructure Deployment Scripts
+# 🚀 Workshop Infrastructure Provisioning Scripts
 **Automated provisioning for cs-agent-a-thon workshop**
 
 ---
 
-## 📋 **Script Overview**
+## 📋 **Overview**
 
-This folder contains PowerShell scripts for automated deployment and management of the workshop infrastructure across 2 BAMI tenants and 20 Fabrikam instances.
+This directory contains PowerShell scripts to provision and manage a complete workshop environment including:
+
+- **126 Entra ID user accounts** (19 proctors + 107 participants)
+- **21 Azure resource groups** (one per team)
+- **RBAC role assignments** (proctors as Global Admin, participants as Contributor)
+- **Validation and cleanup** utilities
+
+## 🏗️ Workshop Environment
+
+### Tenant Configuration
+
+- **Tenant ID**: `fd268415-22a5-4064-9b5e-d039761c5971`
+- **Domain**: `levelupcspfy26cs01.onmicrosoft.com`
+- **Primary Domain**: `csfabrikam1.cspsecurityaccelerate.com`
+- **Workshop Date**: November 6, 2025
+
+### User Structure
+
+- **Proctors**: 19 Microsoft employees (B2B guests) with Global Administrator role
+- **Participants**: 107 Microsoft employees (B2B guests) divided into 21 teams (5-6 members each)
+- **Authentication**: @microsoft.com accounts (existing Microsoft credentials)
+- **Licensing**: Zero cost - participants use existing Microsoft licenses
+
+### Azure Structure
+
+- **Subscription**: Workshop-AgentAThon-Nov2025
+- **Resource Groups**: 21 team resource groups (`rg-agentathon-team-01` through `rg-agentathon-team-21`)
+- **RBAC**: Each team member has Contributor access to their team's resource group
+
+
+## 🚀 Quick Start
+
+### Prerequisites
+
+```powershell
+# Install required PowerShell modules
+Install-Module -Name Az.Accounts -Scope CurrentUser -Force
+Install-Module -Name Az.Resources -Scope CurrentUser -Force
+Install-Module -Name Microsoft.Graph -Scope CurrentUser -Force
+```
+
+### Complete Provisioning (Recommended)
+
+Run the B2B-optimized master orchestrator script for complete automated provisioning:
+
+```powershell
+cd workshops/cs-agent-a-thon/infrastructure/scripts
+
+# Dry run first (recommended)
+.\Provision-WorkshopB2B.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025" `
+    -DryRun
+
+# Actual provisioning
+.\Provision-WorkshopB2B.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025"
+```
+
+This will:
+1. ✅ Check prerequisites
+2. ✅ Invite 126 Microsoft employees as B2B guests
+3. ✅ Assign Global Admin to 19 proctors
+4. ✅ Create 21 resource groups
+5. ✅ Assign RBAC permissions
+6. ✅ Validate complete environment
+
+**Why B2B Guests?**
+- ✅ Zero licensing costs (participants use Microsoft licenses)
+- ✅ No password management (use @microsoft.com)
+- ✅ Familiar login experience
+- ✅ Simple post-workshop cleanup
+
+## 📜 Script Reference
+
+### 1. Provision-WorkshopB2B.ps1 (Master Orchestrator) ⭐ **RECOMMENDED**
+
+**Purpose**: One-click provisioning using B2B guest invitations for Microsoft employees.
+
+**Features**:
+- Prerequisites validation
+- Dry-run capability
+- B2B guest invitations (no native accounts)
+- Progress tracking
+- Comprehensive validation
+
+**Usage**:
+```powershell
+.\Provision-WorkshopB2B.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025" `
+    [-DryRun]
+```
+
+**Why B2B?**
+- Zero licensing costs
+- No password management
+- Familiar @microsoft.com login
+- Simple cleanup
 
 ---
 
-## 🏗️ **Core Deployment Scripts**
+### 2. Invite-WorkshopUsers.ps1
 
-### **1. provision-tenants.ps1**
-**Purpose**: Set up BAMI tenants with M365 licensing and Azure subscriptions
+**Purpose**: Invite all 126 Microsoft employees as B2B guests.
 
+**Creates**:
+- 19 proctor B2B guests with Global Administrator role
+- 107 participant B2B guests with Contributor RBAC
+- Email invitations to @microsoft.com addresses
+
+**Usage**:
 ```powershell
-<#
-.SYNOPSIS
-    Provisions BAMI tenants for cs-agent-a-thon workshop
-.DESCRIPTION
-    Sets up 2 BAMI tenants with M365 E5 licensing, Azure subscriptions,
-    and basic security groups for workshop participants
-.PARAMETER TenantCount
-    Number of tenants to provision (default: 2)
-.PARAMETER ParticipantsPerTenant
-    Number of participants per tenant (default: 50)
-.EXAMPLE
-    .\provision-tenants.ps1 -TenantCount 2 -ParticipantsPerTenant 50
-#>
-
-param(
-    [int]$TenantCount = 2,
-    [int]$ParticipantsPerTenant = 50,
-    [string]$WorkshopName = "cs-agent-a-thon",
-    [switch]$WhatIf
-)
-
-# Tenant configuration
-$TenantConfigs = @(
-    @{
-        Name = "$WorkshopName-tenant-a"
-        Domain = "workshopa.onmicrosoft.com"
-        Participants = 1..50
-        Teams = "A01", "A02", "A03", "A04", "A05", "A06", "A07", "A08", "A09", "A10"
-    },
-    @{
-        Name = "$WorkshopName-tenant-b"
-        Domain = "workshopb.onmicrosoft.com"
-        Participants = 51..100
-        Teams = "B01", "B02", "B03", "B04", "B05", "B06", "B07", "B08", "B09", "B10"
-    }
-)
-
-ForEach ($Config in $TenantConfigs) {
-    Write-Host "Provisioning tenant: $($Config.Name)" -ForegroundColor Yellow
-    
-    if (-not $WhatIf) {
-        # Request BAMI tenant (manual process - output instructions)
-        Write-Host "📝 Manual Action Required:" -ForegroundColor Red
-        Write-Host "  1. Request BAMI tenant: $($Config.Name)" -ForegroundColor White
-        Write-Host "  2. Configure M365 E5 licensing for $ParticipantsPerTenant users" -ForegroundColor White
-        Write-Host "  3. Link Azure subscription to tenant" -ForegroundColor White
-        Write-Host "  4. Update this script with actual tenant details" -ForegroundColor White
-        
-        Read-Host "Press Enter when tenant $($Config.Name) is ready"
-    }
-    
-    # Create security groups for teams
-    ForEach ($Team in $Config.Teams) {
-        $GroupName = "Workshop-Team-$Team"
-        
-        if ($WhatIf) {
-            Write-Host "Would create security group: $GroupName" -ForegroundColor Cyan
-        } else {
-            try {
-                $Group = New-AzureADGroup `
-                    -DisplayName $GroupName `
-                    -Description "Workshop team $Team participants" `
-                    -MailEnabled $false `
-                    -SecurityEnabled $true `
-                    -MailNickName "workshop-team-$($Team.ToLower())"
-                
-                Write-Host "✅ Created security group: $GroupName" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to create group $GroupName : $($_.Exception.Message)" -ForegroundColor Red
-            }
-        }
-    }
-}
-
-Write-Host "✅ Tenant provisioning complete!" -ForegroundColor Green
+.\Invite-WorkshopUsers.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025"
 ```
 
 ---
 
-### **2. deploy-instances.ps1**
-**Purpose**: Deploy 20 Fabrikam instances across both Azure subscriptions
+### 3. New-TeamResourceGroups.ps1
 
+**Purpose**: Create Azure resource groups for each team (21 resource groups).
+
+**Usage**:
 ```powershell
-<#
-.SYNOPSIS
-    Deploys Fabrikam instances for workshop
-.DESCRIPTION
-    Deploys 20 Fabrikam instances (10 per tenant) with all required Azure resources
-.PARAMETER SubscriptionA
-    Azure subscription ID for tenant A
-.PARAMETER SubscriptionB
-    Azure subscription ID for tenant B
-.PARAMETER Location
-    Azure region for deployment (default: East US 2)
-.EXAMPLE
-    .\deploy-instances.ps1 -SubscriptionA "xxx-xxx" -SubscriptionB "yyy-yyy"
-#>
-
-param(
-    [Parameter(Mandatory)]
-    [string]$SubscriptionA,
-    [Parameter(Mandatory)]
-    [string]$SubscriptionB,
-    [string]$Location = "East US 2",
-    [string]$ResourceGroupPrefix = "rg-fabrikam",
-    [switch]$WhatIf
-)
-
-# Instance configurations
-$InstanceConfigs = @()
-
-# Tenant A instances (A01-A10)
-For ($i = 1; $i -le 10; $i++) {
-    $InstanceId = "A" + $i.ToString("D2")
-    $InstanceConfigs += @{
-        InstanceId = $InstanceId
-        Subscription = $SubscriptionA
-        ResourceGroup = "$ResourceGroupPrefix-$($InstanceId.ToLower())-workshop"
-        ApiAppName = "fabrikam-api-$($InstanceId.ToLower())"
-        McpAppName = "fabrikam-mcp-$($InstanceId.ToLower())"
-        SqlServerName = "sql-fabrikam-$($InstanceId.ToLower())"
-        KeyVaultName = "kv-fabrikam-$($InstanceId.ToLower())"
-    }
-}
-
-# Tenant B instances (B01-B10)
-For ($i = 1; $i -le 10; $i++) {
-    $InstanceId = "B" + $i.ToString("D2")
-    $InstanceConfigs += @{
-        InstanceId = $InstanceId
-        Subscription = $SubscriptionB
-        ResourceGroup = "$ResourceGroupPrefix-$($InstanceId.ToLower())-workshop"
-        ApiAppName = "fabrikam-api-$($InstanceId.ToLower())"
-        McpAppName = "fabrikam-mcp-$($InstanceId.ToLower())"
-        SqlServerName = "sql-fabrikam-$($InstanceId.ToLower())"
-        KeyVaultName = "kv-fabrikam-$($InstanceId.ToLower())"
-    }
-}
-
-# Deploy each instance
-ForEach ($Config in $InstanceConfigs) {
-    Write-Host "Deploying Fabrikam instance: $($Config.InstanceId)" -ForegroundColor Yellow
-    
-    if (-not $WhatIf) {
-        # Set subscription context
-        Set-AzContext -SubscriptionId $Config.Subscription
-        
-        # Create resource group
-        $ResourceGroup = New-AzResourceGroup `
-            -Name $Config.ResourceGroup `
-            -Location $Location `
-            -Force
-        
-        Write-Host "✅ Created resource group: $($Config.ResourceGroup)" -ForegroundColor Green
-        
-        # Deploy via Bicep template
-        $DeploymentParams = @{
-            instanceId = $Config.InstanceId.ToLower()
-            location = $Location
-            apiAppName = $Config.ApiAppName
-            mcpAppName = $Config.McpAppName
-            sqlServerName = $Config.SqlServerName
-            keyVaultName = $Config.KeyVaultName
-        }
-        
-        try {
-            $Deployment = New-AzResourceGroupDeployment `
-                -ResourceGroupName $Config.ResourceGroup `
-                -TemplateFile "..\deployment\bicep\fabrikam-instance.bicep" `
-                -TemplateParameterObject $DeploymentParams `
-                -Name "fabrikam-$($Config.InstanceId.ToLower())-deployment"
-            
-            Write-Host "✅ Deployed instance $($Config.InstanceId): $($Deployment.ProvisioningState)" -ForegroundColor Green
-            
-            # Store instance details for team assignment
-            $InstanceDetails = @{
-                InstanceId = $Config.InstanceId
-                ResourceGroup = $Config.ResourceGroup
-                ApiUrl = "https://$($Config.ApiAppName).azurewebsites.net"
-                McpUrl = "https://$($Config.McpAppName).eastus2.azurecontainerapps.io"
-                SqlServer = $Config.SqlServerName
-                Subscription = $Config.Subscription
-            }
-            
-            # Export for team assignment
-            $InstanceDetails | Export-Csv -Path "deployed-instances.csv" -Append -NoTypeInformation
-        }
-        catch {
-            Write-Host "❌ Failed to deploy instance $($Config.InstanceId): $($_.Exception.Message)" -ForegroundColor Red
-        }
-    } else {
-        Write-Host "Would deploy instance: $($Config.InstanceId) to $($Config.ResourceGroup)" -ForegroundColor Cyan
-    }
-}
-
-Write-Host "✅ Instance deployment complete!" -ForegroundColor Green
-Write-Host "📄 Instance details exported to: deployed-instances.csv" -ForegroundColor Cyan
+.\New-TeamResourceGroups.ps1 `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025" `
+    -Location "eastus"
 ```
 
 ---
 
-### **3. manage-users.ps1**
-**Purpose**: Manage workshop participant accounts (B2B or native users)
+### 4. Grant-TeamAccess.ps1
 
+**Purpose**: Assign RBAC permissions to team members.
+
+**Usage**:
 ```powershell
-<#
-.SYNOPSIS
-    Manages workshop participant user accounts
-.DESCRIPTION
-    Creates B2B guest invitations or native users for workshop participants
-.PARAMETER UserType
-    Type of user creation: "B2B" or "Native"
-.PARAMETER ParticipantList
-    CSV file with participant email addresses
-.PARAMETER TenantDomain
-    Target tenant domain
-.EXAMPLE
-    .\manage-users.ps1 -UserType "B2B" -ParticipantList "participants.csv" -TenantDomain "workshopa.onmicrosoft.com"
-#>
-
-param(
-    [Parameter(Mandatory)]
-    [ValidateSet("B2B", "Native")]
-    [string]$UserType,
-    [Parameter(Mandatory)]
-    [string]$ParticipantList,
-    [Parameter(Mandatory)]
-    [string]$TenantDomain,
-    [string]$DefaultPassword = "Workshop2025!@#",
-    [switch]$WhatIf
-)
-
-# Import participant list
-$Participants = Import-Csv -Path $ParticipantList
-
-# Team assignment logic (5 participants per team)
-$TeamsPerTenant = if ($TenantDomain -like "*workshopa*") { 
-    @("A01","A02","A03","A04","A05","A06","A07","A08","A09","A10") 
-} else { 
-    @("B01","B02","B03","B04","B05","B06","B07","B08","B09","B10") 
-}
-
-$ParticipantIndex = 0
-$Results = @()
-
-ForEach ($Participant in $Participants) {
-    $TeamIndex = [Math]::Floor($ParticipantIndex / 5)
-    $TeamId = $TeamsPerTenant[$TeamIndex]
-    
-    if ($UserType -eq "B2B") {
-        # B2B Guest Invitation
-        if ($WhatIf) {
-            Write-Host "Would invite B2B guest: $($Participant.Email) to team $TeamId" -ForegroundColor Cyan
-        } else {
-            try {
-                $Invitation = New-AzureADMSInvitation `
-                    -InvitedUserEmailAddress $Participant.Email `
-                    -InviteRedirectUrl "https://fabrikam-api-$($TeamId.ToLower()).azurewebsites.net" `
-                    -InvitedUserDisplayName "$($Participant.Name) - Team $TeamId" `
-                    -SendInvitationMessage $true
-                
-                # Add to team security group
-                Start-Sleep -Seconds 2
-                $TeamGroup = Get-AzureADGroup -Filter "DisplayName eq 'Workshop-Team-$TeamId'"
-                if ($TeamGroup) {
-                    Add-AzureADGroupMember -ObjectId $TeamGroup.ObjectId -RefObjectId $Invitation.InvitedUser.Id
-                }
-                
-                $Results += [PSCustomObject]@{
-                    Email = $Participant.Email
-                    Name = $Participant.Name
-                    TeamId = $TeamId
-                    UserType = "B2B Guest"
-                    Status = "Invited"
-                    LoginUrl = "https://portal.azure.com"
-                    FabrikamInstance = "https://fabrikam-api-$($TeamId.ToLower()).azurewebsites.net"
-                }
-                
-                Write-Host "✅ Invited B2B guest: $($Participant.Email) (Team $TeamId)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to invite $($Participant.Email): $($_.Exception.Message)" -ForegroundColor Red
-                
-                $Results += [PSCustomObject]@{
-                    Email = $Participant.Email
-                    Name = $Participant.Name
-                    TeamId = $TeamId
-                    UserType = "B2B Guest"
-                    Status = "Failed"
-                    Error = $_.Exception.Message
-                }
-            }
-        }
-    }
-    elseif ($UserType -eq "Native") {
-        # Native User Creation
-        $UserPrincipalName = "$($Participant.Email.Split('@')[0])@$TenantDomain"
-        
-        if ($WhatIf) {
-            Write-Host "Would create native user: $UserPrincipalName for team $TeamId" -ForegroundColor Cyan
-        } else {
-            try {
-                $SecurePassword = ConvertTo-SecureString $DefaultPassword -AsPlainText -Force
-                
-                $NewUser = New-AzureADUser `
-                    -UserPrincipalName $UserPrincipalName `
-                    -Password $SecurePassword `
-                    -DisplayName "$($Participant.Name) - Team $TeamId" `
-                    -MailNickName $Participant.Email.Split('@')[0] `
-                    -UsageLocation "US" `
-                    -AccountEnabled $true `
-                    -ForceChangePasswordNextLogin $false
-                
-                # Assign M365 E5 license
-                Start-Sleep -Seconds 3
-                Set-AzureADUserLicense `
-                    -ObjectId $NewUser.ObjectId `
-                    -AssignedLicenses @{
-                        AddLicenses = @("SPE_E5")
-                        RemoveLicenses = @()
-                    }
-                
-                # Add to team security group
-                $TeamGroup = Get-AzureADGroup -Filter "DisplayName eq 'Workshop-Team-$TeamId'"
-                if ($TeamGroup) {
-                    Add-AzureADGroupMember -ObjectId $TeamGroup.ObjectId -RefObjectId $NewUser.ObjectId
-                }
-                
-                $Results += [PSCustomObject]@{
-                    Email = $Participant.Email
-                    Name = $Participant.Name
-                    TeamId = $TeamId
-                    UserType = "Native User"
-                    Username = $UserPrincipalName
-                    Password = $DefaultPassword
-                    Status = "Created"
-                    LoginUrl = "https://portal.azure.com"
-                    FabrikamInstance = "https://fabrikam-api-$($TeamId.ToLower()).azurewebsites.net"
-                }
-                
-                Write-Host "✅ Created native user: $UserPrincipalName (Team $TeamId)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to create user for $($Participant.Email): $($_.Exception.Message)" -ForegroundColor Red
-                
-                $Results += [PSCustomObject]@{
-                    Email = $Participant.Email
-                    Name = $Participant.Name
-                    TeamId = $TeamId
-                    UserType = "Native User"
-                    Status = "Failed"
-                    Error = $_.Exception.Message
-                }
-            }
-        }
-    }
-    
-    $ParticipantIndex++
-}
-
-# Export results
-$OutputFile = "workshop-users-$UserType-$(Get-Date -Format 'yyyyMMdd-HHmm').csv"
-$Results | Export-Csv -Path $OutputFile -NoTypeInformation
-
-Write-Host "✅ User management complete!" -ForegroundColor Green
-Write-Host "📄 Results exported to: $OutputFile" -ForegroundColor Cyan
-
-if ($UserType -eq "Native") {
-    Write-Host "🔑 IMPORTANT: Distribute credentials securely to participants" -ForegroundColor Yellow
-}
+.\Grant-TeamAccess.ps1 `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025"
 ```
 
 ---
 
-### **4. cleanup-workshop.ps1**
-**Purpose**: Clean up all workshop resources post-event
+### 5. Test-WorkshopReadiness.ps1
 
+**Purpose**: Validate complete workshop environment.
+
+**Validates**:
+- ✅ All 126 B2B guests invited and accepted invitations
+- ✅ All 21 resource groups exist with proper tags
+- ✅ RBAC assignments are correct (samples teams 1, 10, 21)
+- ✅ Proctors have Global Admin access
+
+**Usage**:
 ```powershell
-<#
-.SYNOPSIS
-    Cleans up workshop resources after event
-.DESCRIPTION
-    Removes user accounts, deletes Azure resources, and generates cleanup report
-.PARAMETER SubscriptionA
-    Azure subscription ID for tenant A
-.PARAMETER SubscriptionB
-    Azure subscription ID for tenant B
-.PARAMETER UserType
-    Type of users to clean up: "B2B" or "Native" or "Both"
-.EXAMPLE
-    .\cleanup-workshop.ps1 -SubscriptionA "xxx" -SubscriptionB "yyy" -UserType "Both"
-#>
-
-param(
-    [Parameter(Mandatory)]
-    [string]$SubscriptionA,
-    [Parameter(Mandatory)]
-    [string]$SubscriptionB,
-    [ValidateSet("B2B", "Native", "Both")]
-    [string]$UserType = "Both",
-    [switch]$WhatIf,
-    [switch]$Force
-)
-
-Write-Host "🧹 Starting workshop cleanup..." -ForegroundColor Yellow
-
-# Cleanup user accounts
-if ($UserType -in @("B2B", "Both")) {
-    Write-Host "Removing B2B guest users..." -ForegroundColor Yellow
-    
-    $GuestUsers = Get-AzureADUser -Filter "UserType eq 'Guest'" | Where-Object {
-        $_.DisplayName -like "*Workshop*" -or $_.DisplayName -like "*Team*"
-    }
-    
-    ForEach ($Guest in $GuestUsers) {
-        if ($WhatIf) {
-            Write-Host "Would remove B2B guest: $($Guest.DisplayName)" -ForegroundColor Cyan
-        } else {
-            try {
-                Remove-AzureADUser -ObjectId $Guest.ObjectId
-                Write-Host "✅ Removed B2B guest: $($Guest.DisplayName)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to remove guest $($Guest.DisplayName): $($_.Exception.Message)" -ForegroundColor Red
-            }
-        }
-    }
-}
-
-if ($UserType -in @("Native", "Both")) {
-    Write-Host "Removing native workshop users..." -ForegroundColor Yellow
-    
-    $WorkshopUsers = Get-AzureADUser -All $true | Where-Object {
-        $_.UserPrincipalName -like "*workshop*" -or $_.DisplayName -like "*Workshop*"
-    }
-    
-    ForEach ($User in $WorkshopUsers) {
-        if ($WhatIf) {
-            Write-Host "Would remove native user: $($User.DisplayName)" -ForegroundColor Cyan
-        } else {
-            try {
-                Remove-AzureADUser -ObjectId $User.ObjectId
-                Write-Host "✅ Removed native user: $($User.DisplayName)" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to remove user $($User.DisplayName): $($_.Exception.Message)" -ForegroundColor Red
-            }
-        }
-    }
-}
-
-# Cleanup Azure resources
-$Subscriptions = @($SubscriptionA, $SubscriptionB)
-$TotalCost = 0
-
-ForEach ($Subscription in $Subscriptions) {
-    Write-Host "Cleaning up resources in subscription: $Subscription" -ForegroundColor Yellow
-    
-    Set-AzContext -SubscriptionId $Subscription
-    
-    # Get workshop resource groups
-    $WorkshopResourceGroups = Get-AzResourceGroup | Where-Object {
-        $_.ResourceGroupName -like "*fabrikam*workshop*"
-    }
-    
-    ForEach ($ResourceGroup in $WorkshopResourceGroups) {
-        if ($WhatIf) {
-            Write-Host "Would remove resource group: $($ResourceGroup.ResourceGroupName)" -ForegroundColor Cyan
-        } else {
-            try {
-                # Get cost estimate before deletion
-                $ResourceCosts = Get-AzConsumptionUsageDetail -ResourceGroup $ResourceGroup.ResourceGroupName -StartDate (Get-Date).AddDays(-7) -EndDate (Get-Date) -ErrorAction SilentlyContinue
-                $GroupCost = ($ResourceCosts | Measure-Object -Property PretaxCost -Sum).Sum
-                $TotalCost += $GroupCost
-                
-                # Remove resource group
-                Remove-AzResourceGroup -Name $ResourceGroup.ResourceGroupName -Force:$Force
-                Write-Host "✅ Removed resource group: $($ResourceGroup.ResourceGroupName) (Cost: $($GroupCost:C))" -ForegroundColor Green
-            }
-            catch {
-                Write-Host "❌ Failed to remove resource group $($ResourceGroup.ResourceGroupName): $($_.Exception.Message)" -ForegroundColor Red
-            }
-        }
-    }
-}
-
-# Cleanup security groups
-Write-Host "Removing workshop security groups..." -ForegroundColor Yellow
-
-$WorkshopGroups = Get-AzureADGroup -All $true | Where-Object {
-    $_.DisplayName -like "*Workshop-Team*"
-}
-
-ForEach ($Group in $WorkshopGroups) {
-    if ($WhatIf) {
-        Write-Host "Would remove security group: $($Group.DisplayName)" -ForegroundColor Cyan
-    } else {
-        try {
-            Remove-AzureADGroup -ObjectId $Group.ObjectId
-            Write-Host "✅ Removed security group: $($Group.DisplayName)" -ForegroundColor Green
-        }
-        catch {
-            Write-Host "❌ Failed to remove group $($Group.DisplayName): $($_.Exception.Message)" -ForegroundColor Red
-        }
-    }
-}
-
-# Generate cleanup report
-$CleanupReport = @{
-    CleanupDate = Get-Date
-    SubscriptionsProcessed = $Subscriptions
-    UserTypesProcessed = $UserType
-    EstimatedCostSavings = $TotalCost
-    ResourceGroupsRemoved = $WorkshopResourceGroups.Count
-    UsersRemoved = ($GuestUsers.Count + $WorkshopUsers.Count)
-    SecurityGroupsRemoved = $WorkshopGroups.Count
-}
-
-$CleanupReport | ConvertTo-Json | Out-File -FilePath "workshop-cleanup-report-$(Get-Date -Format 'yyyyMMdd-HHmm').json"
-
-Write-Host "✅ Workshop cleanup complete!" -ForegroundColor Green
-Write-Host "💰 Estimated cost savings: $($TotalCost:C)" -ForegroundColor Cyan
-Write-Host "📄 Cleanup report saved" -ForegroundColor Cyan
+.\Test-WorkshopReadiness.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025"
 ```
 
 ---
 
-## 📋 **Usage Instructions**
+### 7. Remove-WorkshopResources.ps1
 
-### **Pre-Workshop Setup**
+**Purpose**: Post-workshop cleanup of all resources.
+
+**Safety Features**:
+- WhatIf mode for previewing deletions
+- Confirmation prompt requiring "DELETE" input
+- Progress tracking
+
+**Usage**:
 ```powershell
-# 1. Provision BAMI tenants (manual + automated setup)
-.\provision-tenants.ps1 -WhatIf  # Preview first
-.\provision-tenants.ps1          # Execute
+# Preview what would be deleted (safe)
+.\Remove-WorkshopResources.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025" `
+    -WhatIf
 
-# 2. Deploy Fabrikam instances
-.\deploy-instances.ps1 -SubscriptionA "your-sub-a" -SubscriptionB "your-sub-b" -WhatIf
-.\deploy-instances.ps1 -SubscriptionA "your-sub-a" -SubscriptionB "your-sub-b"
-
-# 3. Create participant accounts
-.\manage-users.ps1 -UserType "B2B" -ParticipantList "participants.csv" -TenantDomain "workshopa.onmicrosoft.com"
-```
-
-### **Post-Workshop Cleanup**
-```powershell
-# Clean up everything
-.\cleanup-workshop.ps1 -SubscriptionA "your-sub-a" -SubscriptionB "your-sub-b" -UserType "Both" -Force
+# Actual deletion (requires confirmation)
+.\Remove-WorkshopResources.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionName "Workshop-AgentAThon-Nov2025"
 ```
 
 ---
 
-**These scripts provide complete automation for the workshop infrastructure lifecycle from provisioning through cleanup! 🚀**
+## 📅 Provisioning Timeline
+
+### Phase 1: B2B Guest Invitations (Day 1)
+1. Run `Provision-WorkshopB2B.ps1` (or `Invite-WorkshopUsers.ps1` individually)
+2. Participants receive email invitations to @microsoft.com
+3. **Action Required**: Participants must accept B2B invitations before workshop
+
+### Phase 2: Azure Resources (Day 1-2)
+1. Resource groups created automatically (via Provision-WorkshopB2B.ps1)
+2. RBAC permissions assigned automatically
+3. Validate Azure setup with `Test-WorkshopReadiness.ps1`
+
+### Phase 3: Validation (Day 3-5)
+1. Run full validation: `Test-WorkshopReadiness.ps1`
+2. Test sample B2B guest logins
+3. Verify resource group access
+4. Confirm invitation acceptance rate
+
+### Phase 4: Workshop Day (Nov 6)
+- Participants login with @microsoft.com credentials
+- Monitor access and usage
+- Provide support as needed
+
+### Phase 5: Cleanup (Post-Workshop)
+1. Run `Remove-WorkshopResources.ps1 -WhatIf` to preview
+2. Revoke B2B guest invitations (simpler than deleting accounts)
+3. Delete resource groups
+4. Verify complete cleanup
+
+---
+
+## 🔐 Security Considerations
+
+### Authentication
+- All scripts use interactive authentication
+- No credentials stored in scripts or configuration
+- Supports MFA-enabled accounts
+
+### Permissions Required
+
+**Microsoft Graph Permissions**:
+- `User.ReadWrite.All`
+- `Directory.ReadWrite.All`
+- `RoleManagement.ReadWrite.Directory`
+
+**Azure Permissions**:
+- Owner or User Access Administrator on subscription
+- Ability to create resource groups
+- Ability to assign RBAC roles
+
+### Best Practices
+- ✅ Use dry-run/WhatIf modes first
+- ✅ Review validation reports before workshop
+- ✅ Test with sample accounts before bulk provisioning
+- ✅ Keep attendee CSV secure (contains personal info)
+- ✅ Change default password policy before workshop
+- ✅ Clean up resources promptly after workshop
+
+---
+
+## 🐛 Troubleshooting
+
+### Common Issues
+
+#### "Insufficient privileges" error
+**Solution**: Ensure you have Global Administrator role or required Graph permissions
+
+#### "Subscription not found" error
+**Solution**: Verify subscription name is exact match (case-sensitive)
+
+#### "User already exists" error
+**Solution**: Scripts handle existing users gracefully - check output for conflicts
+
+#### RBAC assignment fails
+**Solution**: Ensure resource groups exist first, verify user accounts are created
+
+### Debugging
+
+Enable verbose output:
+```powershell
+$VerbosePreference = "Continue"
+.\Provision-WorkshopTenant.ps1 -TenantId "..." -SubscriptionName "..." -Verbose
+```
+
+---
+
+## 📚 Additional Resources
+
+- [Attendee List](../../docs/MICROSOFT-ATTENDEES.md) - Complete attendee roster
+- [Team Roster](../../docs/team-roster.md) - Team assignments and details
+- [Tenant Configuration](../TENANT-CONFIG.md) - Complete infrastructure specification
+- [Workshop Challenges](../../challenges/) - Challenge documentation
+
+---
+
+## 👤 Maintainer
+
+**David Bjurman-Birr**  
+Workshop Administrator  
+Created: October 27, 2025
+
+---
+---
+
+**Complete automation for workshop infrastructure lifecycle from provisioning through cleanup! �**

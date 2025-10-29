@@ -9,6 +9,10 @@ docs/demo-coe/coe-config.json
 **/personal-data.csv
 **/sensitive-*.csv
 
+# Workshop sensitive data (contains temporary passwords)
+workshops/cs-agent-a-thon/infrastructure/workshop-user-credentials.csv
+workshops/cs-agent-a-thon/infrastructure/proctor-mail-merge.csv
+
 # .NET Core
 *.swp
 *.*~

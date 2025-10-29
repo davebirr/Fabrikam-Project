@@ -1,0 +1,8 @@
+{
+  "ApiApp": "fabrikam-api-proctor",
+  "McpUrl": "https://fabrikam-mcp-proctor.azurewebsites.net",
+  "ApiUrl": "https://fabrikam-api-proctor.azurewebsites.net",
+  "ResourceGroup": "rg-agentathon-proctor",
+  "KeyVault": "kv-fab-proctor-8273",
+  "McpApp": "fabrikam-mcp-proctor"
+}
