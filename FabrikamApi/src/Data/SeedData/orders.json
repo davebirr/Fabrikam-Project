@@ -1027,5 +1027,225 @@
         "unitPrice": 32000
       }
     ]
+  },
+  {
+    "id": 47,
+    "orderNumber": "FAB-2025-047",
+    "customerId": 6,
+    "orderDate": "2025-09-10T09:15:00Z",
+    "status": "InProduction",
+    "shippingAddress": "987 Elm Street",
+    "shippingCity": "Boston",
+    "shippingState": "MA",
+    "shippingZip": "02101",
+    "items": [
+      {
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": 115000
+      },
+      {
+        "productId": 10,
+        "quantity": 1,
+        "unitPrice": 15000
+      }
+    ]
+  },
+  {
+    "id": 48,
+    "orderNumber": "FAB-2025-048",
+    "customerId": 9,
+    "orderDate": "2025-09-18T14:20:00Z",
+    "status": "Shipped",
+    "shippingAddress": "246 Main Street",
+    "shippingCity": "Kansas City",
+    "shippingState": "MO",
+    "shippingZip": "64101",
+    "items": [
+      {
+        "productId": 2,
+        "quantity": 1,
+        "unitPrice": 185000
+      }
+    ]
+  },
+  {
+    "id": 49,
+    "orderNumber": "FAB-2025-049",
+    "customerId": 10,
+    "orderDate": "2025-09-25T11:30:00Z",
+    "status": "Delivered",
+    "shippingAddress": "135 Peachtree Road",
+    "shippingCity": "Atlanta",
+    "shippingState": "GA",
+    "shippingZip": "30301",
+    "items": [
+      {
+        "productId": 4,
+        "quantity": 1,
+        "unitPrice": 225000
+      },
+      {
+        "productId": 7,
+        "quantity": 1,
+        "unitPrice": 18500
+      }
+    ]
+  },
+  {
+    "id": 50,
+    "orderNumber": "FAB-2025-050",
+    "customerId": 2,
+    "orderDate": "2025-10-03T10:45:00Z",
+    "status": "InProduction",
+    "shippingAddress": "456 Oak Avenue",
+    "shippingCity": "Portland",
+    "shippingState": "OR",
+    "shippingZip": "97201",
+    "items": [
+      {
+        "productId": 3,
+        "quantity": 1,
+        "unitPrice": 295000
+      },
+      {
+        "productId": 9,
+        "quantity": 1,
+        "unitPrice": 12500
+      }
+    ]
+  },
+  {
+    "id": 51,
+    "orderNumber": "FAB-2025-051",
+    "customerId": 7,
+    "orderDate": "2025-10-08T13:00:00Z",
+    "status": "Pending",
+    "shippingAddress": "159 Lake Drive",
+    "shippingCity": "Chicago",
+    "shippingState": "IL",
+    "shippingZip": "60601",
+    "items": [
+      {
+        "productId": 5,
+        "quantity": 2,
+        "unitPrice": 58000
+      }
+    ]
+  },
+  {
+    "id": 52,
+    "orderNumber": "FAB-2025-052",
+    "customerId": 11,
+    "orderDate": "2025-10-15T16:20:00Z",
+    "status": "InProduction",
+    "shippingAddress": "753 River Road",
+    "shippingCity": "St. Louis",
+    "shippingState": "MO",
+    "shippingZip": "63101",
+    "items": [
+      {
+        "productId": 1,
+        "quantity": 1,
+        "unitPrice": 115000
+      },
+      {
+        "productId": 8,
+        "quantity": 1,
+        "unitPrice": 32000
+      },
+      {
+        "productId": 11,
+        "quantity": 1,
+        "unitPrice": 22500
+      }
+    ]
+  },
+  {
+    "id": 53,
+    "orderNumber": "FAB-2025-053",
+    "customerId": 4,
+    "orderDate": "2025-10-22T09:40:00Z",
+    "status": "Shipped",
+    "shippingAddress": "321 Cedar Lane",
+    "shippingCity": "Denver",
+    "shippingState": "CO",
+    "shippingZip": "80202",
+    "items": [
+      {
+        "productId": 6,
+        "quantity": 1,
+        "unitPrice": 175000
+      }
+    ]
+  },
+  {
+    "id": 54,
+    "orderNumber": "FAB-2025-054",
+    "customerId": 8,
+    "orderDate": "2025-10-28T14:50:00Z",
+    "status": "Pending",
+    "shippingAddress": "842 Valley View",
+    "shippingCity": "Milwaukee",
+    "shippingState": "WI",
+    "shippingZip": "53201",
+    "items": [
+      {
+        "productId": 2,
+        "quantity": 1,
+        "unitPrice": 185000
+      },
+      {
+        "productId": 10,
+        "quantity": 1,
+        "unitPrice": 15000
+      }
+    ]
+  },
+  {
+    "id": 55,
+    "orderNumber": "FAB-2025-055",
+    "customerId": 12,
+    "orderDate": "2025-11-01T10:15:00Z",
+    "status": "Pending",
+    "shippingAddress": "975 Prairie Lane",
+    "shippingCity": "Tulsa",
+    "shippingState": "OK",
+    "shippingZip": "74101",
+    "items": [
+      {
+        "productId": 4,
+        "quantity": 1,
+        "unitPrice": 225000
+      }
+    ]
+  },
+  {
+    "id": 56,
+    "orderNumber": "FAB-2025-056",
+    "customerId": 3,
+    "orderDate": "2025-11-04T11:30:00Z",
+    "status": "Pending",
+    "shippingAddress": "789 Pine Road",
+    "shippingCity": "San Francisco",
+    "shippingState": "CA",
+    "shippingZip": "94102",
+    "items": [
+      {
+        "productId": 3,
+        "quantity": 1,
+        "unitPrice": 295000
+      },
+      {
+        "productId": 7,
+        "quantity": 1,
+        "unitPrice": 18500
+      },
+      {
+        "productId": 9,
+        "quantity": 2,
+        "unitPrice": 12500
+      }
+    ]
   }
 ]

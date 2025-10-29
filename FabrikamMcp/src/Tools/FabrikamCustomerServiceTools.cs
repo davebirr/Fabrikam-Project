@@ -19,7 +19,7 @@ public class FabrikamCustomerServiceTools : AuthenticatedMcpToolBase
     {
     }
 
-    [McpServerTool, Description("Get support tickets with optional filtering by status, priority, category, region, assigned agent, or specific ticket ID. Use ticketId for detailed ticket info, or use filters for ticket lists. Set urgent=true for high/critical priority tickets. When called without parameters, returns active tickets requiring attention.")]
+    [McpServerTool, Description("Get support tickets with optional filtering by status, priority, category, region, assigned agent, or specific ticket ID. Use ticketId for detailed ticket info with full conversation history. Use filters (status, priority, category, region, assignedTo, urgent) for ticket lists. When called without parameters, returns ALL tickets (paginated). No default filters - agent determines what data is needed.")]
     public async Task<object> GetSupportTickets(
         string? userGuid = null,
         int? ticketId = null,
@@ -89,27 +89,19 @@ public class FabrikamCustomerServiceTools : AuthenticatedMcpToolBase
             // Build query parameters for ticket list
             var queryParams = new List<string>();
             
-            // If no filters provided, default to active tickets requiring attention
-            if (string.IsNullOrEmpty(status) && string.IsNullOrEmpty(priority) && 
-                string.IsNullOrEmpty(category) && string.IsNullOrEmpty(region) && 
-                string.IsNullOrEmpty(assignedTo) && !urgent)
+            // No default filters - let the AI agent determine what tickets are needed
+            // The tool provides ALL tickets unless filters are explicitly specified
+            
+            if (!string.IsNullOrEmpty(status)) queryParams.Add($"status={Uri.EscapeDataString(status)}");
+            if (!string.IsNullOrEmpty(priority)) queryParams.Add($"priority={Uri.EscapeDataString(priority)}");
+            if (!string.IsNullOrEmpty(category)) queryParams.Add($"category={Uri.EscapeDataString(category)}");
+            if (!string.IsNullOrEmpty(region)) queryParams.Add($"region={Uri.EscapeDataString(region)}");
+            if (!string.IsNullOrEmpty(assignedTo)) queryParams.Add($"assignedTo={Uri.EscapeDataString(assignedTo)}");
+            
+            // Handle urgent tickets filter
+            if (urgent)
             {
-                // Default to open/in-progress tickets that need attention
-                queryParams.Add("status=Open,InProgress");
-            }
-            else
-            {
-                if (!string.IsNullOrEmpty(status)) queryParams.Add($"status={Uri.EscapeDataString(status)}");
-                if (!string.IsNullOrEmpty(priority)) queryParams.Add($"priority={Uri.EscapeDataString(priority)}");
-                if (!string.IsNullOrEmpty(category)) queryParams.Add($"category={Uri.EscapeDataString(category)}");
-                if (!string.IsNullOrEmpty(region)) queryParams.Add($"region={Uri.EscapeDataString(region)}");
-                if (!string.IsNullOrEmpty(assignedTo)) queryParams.Add($"assignedTo={Uri.EscapeDataString(assignedTo)}");
-                
-                // Handle urgent tickets filter
-                if (urgent)
-                {
-                    queryParams.Add("urgent=true");
-                }
+                queryParams.Add("urgent=true");
             }
             
             queryParams.Add($"page={page}");
