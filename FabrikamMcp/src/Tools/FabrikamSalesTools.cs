@@ -20,11 +20,12 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
     {
     }
 
-    [McpServerTool, Description("Get orders with optional filtering by status, region, date range, or specific order ID. Use orderId for detailed order info with full line items. Use filters (status, region, fromDate, toDate) for order lists. When called without parameters, returns ALL orders (paginated). For date filters, use YYYY-MM-DD format. Supports historical data queries - no date restrictions.")]
+    [McpServerTool, Description("Get orders with optional filtering by order number, status, region, date range, or specific order ID. Use orderNumber (e.g., 'FAB-2025-047') OR orderId for detailed order info with full line items. Use filters (status, region, fromDate, toDate) for order lists. When called without parameters, returns ALL orders (paginated). For date filters, use YYYY-MM-DD format. Supports historical data queries - no date restrictions.")]
     [McpAuthorize(McpRoles.Admin, McpRoles.Sales, McpRoles.CustomerService)]
     public async Task<object> GetOrders(
         string? userGuid = null,
         int? orderId = null,
+        string? orderNumber = null,
         string? status = null,
         string? region = null,
         string? fromDate = null,
@@ -50,6 +51,93 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
         try
         {
             var baseUrl = GetApiBaseUrl();
+
+            // If orderNumber is provided, search for the order by number
+            if (!string.IsNullOrEmpty(orderNumber))
+            {
+                // Get all orders and find by order number (API doesn't have direct orderNumber endpoint)
+                var searchResponse = await SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=100");
+                
+                if (searchResponse.IsSuccessStatusCode)
+                {
+                    var ordersJson = await searchResponse.Content.ReadAsStringAsync();
+                    using var document = JsonDocument.Parse(ordersJson);
+                    var ordersArray = document.RootElement;
+
+                    // Find the order with matching order number
+                    JsonElement? matchingOrder = null;
+                    foreach (var order in ordersArray.EnumerateArray())
+                    {
+                        if (order.TryGetProperty("orderNumber", out var orderNum) &&
+                            orderNum.GetString()?.Equals(orderNumber, StringComparison.OrdinalIgnoreCase) == true)
+                        {
+                            matchingOrder = order;
+                            break;
+                        }
+                    }
+
+                    if (matchingOrder.HasValue)
+                    {
+                        var foundOrderId = matchingOrder.Value.GetProperty("id").GetInt32();
+                        
+                        // Now get the full order details with line items
+                        var orderResponse = await SendAuthenticatedRequest($"{baseUrl}/api/orders/{foundOrderId}");
+                        
+                        if (orderResponse.IsSuccessStatusCode)
+                        {
+                            var orderJson = await orderResponse.Content.ReadAsStringAsync();
+                            using var orderDoc = JsonDocument.Parse(orderJson);
+                            var orderElement = orderDoc.RootElement;
+
+                            return new
+                            {
+                                content = new object[]
+                                {
+                                    new
+                                    {
+                                        type = "resource",
+                                        resource = new
+                                        {
+                                            uri = $"{baseUrl}/api/orders/{foundOrderId}",
+                                            name = $"Order {orderNumber}",
+                                            description = $"Order details for {orderElement.GetProperty("customer").GetProperty("name").GetString()}",
+                                            mimeType = "application/json"
+                                        }
+                                    },
+                                    new
+                                    {
+                                        type = "text",
+                                        text = FormatOrderDetailText(orderElement)
+                                    }
+                                },
+                                orderData = JsonSerializer.Deserialize<object>(orderJson),
+                                outputSchema = new
+                                {
+                                    type = "object",
+                                    properties = new
+                                    {
+                                        id = new { type = "integer", description = "Order ID" },
+                                        orderNumber = new { type = "string", description = "Order number" },
+                                        customer = new { type = "object", description = "Customer information" },
+                                        status = new { type = "string", description = "Current order status" },
+                                        total = new { type = "number", description = "Order total amount" },
+                                        items = new { type = "array", description = "Order items and products" }
+                                    }
+                                }
+                            };
+                        }
+                    }
+                    
+                    // Order number not found
+                    return new
+                    {
+                        content = new object[]
+                        {
+                            new { type = "text", text = $"❌ Order {orderNumber} not found. Please verify the order number and try again." }
+                        }
+                    };
+                }
+            }
 
             // If orderId is provided, get specific order details
             if (orderId.HasValue)
@@ -877,6 +965,10 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
                 itemsText += $"\n... and {itemCount - 10} more items";
         }
 
+        // Calculate days since order and get status guidance
+        var daysSinceOrder = (DateTime.UtcNow - orderDate).Days;
+        var statusGuidance = GetOrderStatusGuidance(status ?? "Unknown", daysSinceOrder, 30, 45, shippedDate, deliveredDate);
+
         return $"""
             📋 ORDER DETAILS
             
@@ -898,6 +990,13 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
             
             📦 Items ({itemCount})
             {itemsText}
+            
+            {statusGuidance}
+            
+            📞 Need Help?
+            • For urgent issues, create a support ticket with priority: High
+            • For general questions, use priority: Medium
+            • Include order number {orderNumber} in all communications
             
             🕒 Order Details Retrieved: {DateTime.Now:MMM dd, yyyy HH:mm}
             """;
@@ -1008,6 +1107,66 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
             "onhold" => "⏸️",
             "on hold" => "⏸️",
             _ => "📋"
+        };
+    }
+
+    private static string GetOrderStatusGuidance(string status, int daysSinceOrder, int estimatedProductionDays, int estimatedDeliveryDays, DateTime? shippedDate, DateTime? deliveredDate)
+    {
+        var normalizedStatus = status.ToLower().Replace(" ", "");
+        
+        return normalizedStatus switch
+        {
+            "pending" => $"""
+                ⏱️ **What's Next?**
+                • Your order is being prepared for production
+                • Typical processing time: 3-5 business days
+                • You'll receive a confirmation email when production begins
+                • Expected production start: Within {5 - daysSinceOrder} days
+                """,
+            
+            "inproduction" => $"""
+                🏭 **Current Status**
+                • Your modular home is currently in production
+                • Production started: {daysSinceOrder} days ago
+                • Typical production time: {estimatedProductionDays} days
+                • Estimated completion: {Math.Max(0, estimatedProductionDays - daysSinceOrder)} days remaining
+                • You'll be notified when your order ships
+                """,
+            
+            "shipped" when shippedDate.HasValue => $"""
+                🚚 **Delivery Information**
+                • Your order shipped on: {shippedDate:MMM dd, yyyy}
+                • Days in transit: {(DateTime.UtcNow - shippedDate.Value).Days}
+                • Estimated total delivery time: 7-14 days from ship date
+                • Track your shipment using the tracking number sent to your email
+                """,
+            
+            "shipped" => $"""
+                🚚 **Delivery Information**
+                • Your order has been shipped
+                • Expected delivery time: 7-14 days from ship date
+                • Track your shipment using the tracking number sent to your email
+                """,
+            
+            "delivered" when deliveredDate.HasValue => $"""
+                🎉 **Order Complete!**
+                • Delivered on: {deliveredDate:MMM dd, yyyy}
+                • Thank you for your purchase!
+                • If you have any issues, please create a support ticket
+                """,
+            
+            "cancelled" => $"""
+                ❌ **Order Cancelled**
+                • This order was cancelled
+                • For questions about cancellation, please create a support ticket
+                • Reference order number in all communications
+                """,
+            
+            _ => $"""
+                📋 **Status Information**
+                • Order placed: {daysSinceOrder} days ago
+                • For status updates, please create a support ticket
+                """
         };
     }
 }

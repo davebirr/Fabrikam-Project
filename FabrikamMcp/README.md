@@ -106,7 +106,7 @@ This MCP server includes business-specific tools that integrate with the Fabrika
 ### Business Tools
 - **Sales Tools**: `get_sales_analytics`, `create_sales_order`
 - **Inventory Tools**: `search_inventory`, `check_stock_levels`
-- **Customer Service Tools**: `get_support_tickets`, `get_support_ticket_details`, `create_support_ticket`
+- **Customer Service Tools**: `get_support_tickets`, `create_support_ticket`, `update_ticket_status`, `add_ticket_note`
 
 ### Configuration
 
