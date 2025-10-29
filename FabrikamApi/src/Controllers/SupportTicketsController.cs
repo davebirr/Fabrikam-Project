@@ -304,4 +304,261 @@ public class SupportTicketsController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    /// <summary>
+    /// Create a new support ticket
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<object>> CreateSupportTicket([FromBody] CreateSupportTicketRequest request)
+    {
+        try
+        {
+            // Validate customer exists
+            var customer = await _context.Customers.FindAsync(request.CustomerId);
+            if (customer == null)
+            {
+                return BadRequest($"Customer with ID {request.CustomerId} not found");
+            }
+
+            // Validate order if provided
+            if (request.OrderId.HasValue)
+            {
+                var order = await _context.Orders.FindAsync(request.OrderId.Value);
+                if (order == null)
+                {
+                    return BadRequest($"Order with ID {request.OrderId.Value} not found");
+                }
+            }
+
+            // Parse enums
+            if (!Enum.TryParse<TicketPriority>(request.Priority, true, out var priority))
+            {
+                priority = TicketPriority.Medium; // Default to Medium if parsing fails
+            }
+
+            if (!Enum.TryParse<TicketCategory>(request.Category, true, out var category))
+            {
+                return BadRequest($"Invalid category: {request.Category}. Valid values are: ProductInquiry, OrderStatus, DeliveryIssue, ProductDefect, Installation, Warranty, Billing, Other");
+            }
+
+            // Generate ticket number
+            var ticketCount = await _context.SupportTickets.CountAsync();
+            var ticketNumber = $"TKT-{DateTime.UtcNow:yyyyMMdd}-{(ticketCount + 1):D4}";
+
+            // Create the ticket
+            var ticket = new SupportTicket
+            {
+                TicketNumber = ticketNumber,
+                CustomerId = request.CustomerId,
+                OrderId = request.OrderId,
+                Subject = request.Subject,
+                Description = request.Description,
+                Status = TicketStatus.Open,
+                Priority = priority,
+                Category = category,
+                Region = customer.Region ?? "Unknown",
+                CreatedDate = DateTime.UtcNow,
+                LastUpdated = DateTime.UtcNow,
+                Notes = new List<TicketNote>()
+            };
+
+            _context.SupportTickets.Add(ticket);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Created support ticket {TicketNumber} for customer {CustomerId}", ticketNumber, request.CustomerId);
+
+            var result = new
+            {
+                ticket.Id,
+                ticket.TicketNumber,
+                ticket.Subject,
+                ticket.Description,
+                Status = ticket.Status.ToString(),
+                Priority = ticket.Priority.ToString(),
+                Category = ticket.Category.ToString(),
+                Customer = new
+                {
+                    customer.Id,
+                    Name = $"{customer.FirstName} {customer.LastName}",
+                    customer.Email,
+                    customer.Region
+                },
+                ticket.CreatedDate,
+                Message = $"Support ticket {ticketNumber} created successfully"
+            };
+
+            return CreatedAtAction(nameof(GetSupportTicket), new { id = ticket.Id }, result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating support ticket");
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Update support ticket status
+    /// </summary>
+    [HttpPatch("{id}/status")]
+    public async Task<ActionResult<object>> UpdateTicketStatus(int id, [FromBody] UpdateTicketStatusRequest request)
+    {
+        try
+        {
+            var ticket = await _context.SupportTickets
+                .Include(t => t.Customer)
+                .FirstOrDefaultAsync(t => t.Id == id);
+
+            if (ticket == null)
+            {
+                return NotFound($"Support ticket with ID {id} not found");
+            }
+
+            // Parse and update status
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                if (Enum.TryParse<TicketStatus>(request.Status, true, out var status))
+                {
+                    ticket.Status = status;
+                    
+                    // Set resolved date if status is resolved or closed
+                    if ((status == TicketStatus.Resolved || status == TicketStatus.Closed) && !ticket.ResolvedDate.HasValue)
+                    {
+                        ticket.ResolvedDate = DateTime.UtcNow;
+                    }
+                }
+                else
+                {
+                    return BadRequest($"Invalid status: {request.Status}. Valid values are: Open, InProgress, PendingCustomer, Resolved, Closed, Cancelled");
+                }
+            }
+
+            // Update priority if provided
+            if (!string.IsNullOrEmpty(request.Priority))
+            {
+                if (Enum.TryParse<TicketPriority>(request.Priority, true, out var priority))
+                {
+                    ticket.Priority = priority;
+                }
+                else
+                {
+                    return BadRequest($"Invalid priority: {request.Priority}. Valid values are: Low, Medium, High, Critical");
+                }
+            }
+
+            // Update assigned agent if provided
+            if (request.AssignedTo != null)
+            {
+                ticket.AssignedTo = string.IsNullOrWhiteSpace(request.AssignedTo) ? null : request.AssignedTo;
+            }
+
+            ticket.LastUpdated = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Updated support ticket {TicketId}: Status={Status}, Priority={Priority}, AssignedTo={AssignedTo}",
+                id, request.Status, request.Priority, request.AssignedTo);
+
+            var result = new
+            {
+                ticket.Id,
+                ticket.TicketNumber,
+                Status = ticket.Status.ToString(),
+                Priority = ticket.Priority.ToString(),
+                ticket.AssignedTo,
+                ticket.LastUpdated,
+                ticket.ResolvedDate,
+                Message = "Support ticket updated successfully"
+            };
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating support ticket {TicketId}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Add a note to a support ticket
+    /// </summary>
+    [HttpPost("{id}/notes")]
+    public async Task<ActionResult<object>> AddTicketNote(int id, [FromBody] AddTicketNoteRequest request)
+    {
+        try
+        {
+            var ticket = await _context.SupportTickets.FindAsync(id);
+            
+            if (ticket == null)
+            {
+                return NotFound($"Support ticket with ID {id} not found");
+            }
+
+            var note = new TicketNote
+            {
+                TicketId = id,
+                Note = request.Note,
+                CreatedBy = request.CreatedBy,
+                CreatedDate = DateTime.UtcNow,
+                IsInternal = request.IsInternal
+            };
+
+            _context.TicketNotes.Add(note);
+            ticket.LastUpdated = DateTime.UtcNow;
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Added {NoteType} note to support ticket {TicketId} by {CreatedBy}",
+                request.IsInternal ? "internal" : "external", id, request.CreatedBy);
+
+            var result = new
+            {
+                note.Id,
+                note.TicketId,
+                note.Note,
+                note.CreatedBy,
+                note.CreatedDate,
+                note.IsInternal,
+                Message = $"{(request.IsInternal ? "Internal" : "External")} note added successfully"
+            };
+
+            return Ok(result);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error adding note to support ticket {TicketId}", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+}
+
+/// <summary>
+/// Request model for creating a support ticket
+/// </summary>
+public class CreateSupportTicketRequest
+{
+    public int CustomerId { get; set; }
+    public int? OrderId { get; set; }
+    public string Subject { get; set; } = string.Empty;
+    public string Description { get; set; } = string.Empty;
+    public string Priority { get; set; } = "Medium";
+    public string Category { get; set; } = string.Empty;
+}
+
+/// <summary>
+/// Request model for updating ticket status
+/// </summary>
+public class UpdateTicketStatusRequest
+{
+    public string? Status { get; set; }
+    public string? Priority { get; set; }
+    public string? AssignedTo { get; set; }
+}
+
+/// <summary>
+/// Request model for adding a ticket note
+/// </summary>
+public class AddTicketNoteRequest
+{
+    public string Note { get; set; } = string.Empty;
+    public string CreatedBy { get; set; } = string.Empty;
+    public bool IsInternal { get; set; } = false;
 }
