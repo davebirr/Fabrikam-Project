@@ -20,7 +20,7 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
     {
     }
 
-    [McpServerTool, Description("Get orders with optional filtering by status, region, date range, or specific order ID. Use orderId for detailed order info, or use filters for order lists. When called without parameters, returns recent orders. For date filters, use YYYY-MM-DD format. If no results found with date filter, will show recent orders.")]
+    [McpServerTool, Description("Get orders with optional filtering by status, region, date range, or specific order ID. Use orderId for detailed order info with full line items. Use filters (status, region, fromDate, toDate) for order lists. When called without parameters, returns ALL orders (paginated). For date filters, use YYYY-MM-DD format. Supports historical data queries - no date restrictions.")]
     [McpAuthorize(McpRoles.Admin, McpRoles.Sales, McpRoles.CustomerService)]
     public async Task<object> GetOrders(
         string? userGuid = null,
@@ -136,14 +136,8 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
             var originalToDate = toDate;
             bool dateFiltersProvided = !string.IsNullOrEmpty(fromDate) || !string.IsNullOrEmpty(toDate);
 
-            // If no filters provided, default to recent orders (last 30 days) to give meaningful results
-            if (string.IsNullOrEmpty(status) && string.IsNullOrEmpty(region) &&
-                string.IsNullOrEmpty(fromDate) && string.IsNullOrEmpty(toDate))
-            {
-                var thirtyDaysAgo = DateTime.UtcNow.AddDays(-30).ToString("yyyy-MM-dd");
-                queryParams.Add($"fromDate={thirtyDaysAgo}");
-                fromDate = thirtyDaysAgo; // Set for response message
-            }
+            // No default filters - let the AI agent determine what data is needed
+            // The tool provides ALL orders unless filters are explicitly specified
 
             queryParams.Add($"page={page}");
             queryParams.Add($"pageSize={pageSize}");
