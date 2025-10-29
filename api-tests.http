@@ -50,6 +50,67 @@ GET {{baseUrl}}/api/customers/1
 Accept: application/json
 
 ###
+### SUPPORT TICKETS ENDPOINTS
+###
+
+### Get all support tickets (default: active tickets)
+GET {{baseUrl}}/api/supporttickets
+Accept: application/json
+
+### Get support tickets with filters
+GET {{baseUrl}}/api/supporttickets?status=Open&priority=High&urgent=true
+Accept: application/json
+
+### Get support tickets by status
+GET {{baseUrl}}/api/supporttickets?status=InProgress
+Accept: application/json
+
+### Get support tickets with pagination
+GET {{baseUrl}}/api/supporttickets?page=1&pageSize=10
+Accept: application/json
+
+### Get specific support ticket
+GET {{baseUrl}}/api/supporttickets/1
+Accept: application/json
+
+### Get support ticket analytics
+GET {{baseUrl}}/api/supporttickets/analytics
+Accept: application/json
+
+### Create a new support ticket
+POST {{baseUrl}}/api/supporttickets
+Content-Type: application/json
+
+{
+  "customerId": 1,
+  "orderId": 1,
+  "subject": "Installation Question - Foundation Requirements",
+  "description": "Customer wants to know about foundation requirements for The Pioneer model. They are building on rocky terrain.",
+  "priority": "Medium",
+  "category": "Installation"
+}
+
+### Update support ticket status
+PATCH {{baseUrl}}/api/supporttickets/1/status
+Content-Type: application/json
+
+{
+  "status": "InProgress",
+  "priority": "High",
+  "assignedTo": "Sarah Johnson"
+}
+
+### Add a note to support ticket
+POST {{baseUrl}}/api/supporttickets/1/notes
+Content-Type: application/json
+
+{
+  "note": "Contacted customer to discuss foundation options. Recommended concrete slab with footings.",
+  "createdBy": "Sarah Johnson",
+  "isInternal": false
+}
+
+###
 ### PRODUCTS ENDPOINTS
 ###
 
