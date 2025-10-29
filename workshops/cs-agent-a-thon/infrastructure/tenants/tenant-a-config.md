@@ -1,5 +1,34 @@
-# 🏢 BAMI Tenant A Configuration
-**Workshop Tenant for Teams A01-A10 (50 Participants)**
+# ⚠️ **OBSOLETE - Reference Only**
+
+**This file describes an older multi-tenant workshop design that is no longer being used.**
+
+## 🔄 **Current Workshop Configuration**
+
+The workshop now uses a **single unified tenant** instead of multiple BAMI tenants.
+
+### **Active Configuration**
+See the current tenant documentation: [TENANT-CONFIG.md](../TENANT-CONFIG.md)
+
+**Current Tenant Details**:
+- **Tenant ID**: `fd268415-22a5-4064-9b5e-d039761c5971`
+- **Domain**: `levelupcspfy26cs01.onmicrosoft.com`
+- **Participants**: 126 Microsoft employees (B2B guests)
+- **Teams**: 21 teams
+- **Approach**: B2B guest invitations (zero licensing cost)
+
+### **🚨 CRITICAL: Copilot Studio Access URL**
+```
+https://copilotstudio.microsoft.com/?tenant=fd268415-22a5-4064-9b5e-d039761c5971
+```
+
+**Participants MUST use the tenant parameter to access the workshop tenant!**
+
+---
+
+# 🏢 ~~BAMI Tenant A Configuration~~ (OLD DESIGN)
+**~~Workshop Tenant for Teams A01-A10 (50 Participants)~~**
+
+> **Note**: This document is preserved for historical reference only. The workshop architecture changed from multiple BAMI tenants to a single unified tenant with B2B guest access.
 
 ---
 

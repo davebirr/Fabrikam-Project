@@ -1,185 +1,231 @@
 # 🏗️ cs-agent-a-thon Infrastructure Overview
-**Multi-Tenant Workshop Environment for 100 Participants**
+**B2B Guest Workshop Environment for 126 Microsoft Employees**
 
 ---
 
 ## 📋 **Infrastructure Strategy**
 
-### **🏢 Tenant Architecture**
+### **🏢 Dual-Tenant Disaster Recovery Architecture**
 ```
-Workshop Infrastructure:
-├── BAMI Tenant A (50 participants)
-│   ├── Azure Subscription A
-│   ├── M365 E5 Licensing (50 users)
-│   └── Fabrikam Instances: A01-A10 (5 participants each)
-│
-└── BAMI Tenant B (50 participants)
-    ├── Azure Subscription B
-    ├── M365 E5 Licensing (50 users)
-    └── Fabrikam Instances: B01-B10 (5 participants each)
+Workshop Infrastructure (November 6, 2025):
 
-Total: 20 Fabrikam instances across 2 tenants
+PRIMARY TENANT (ACTIVE):
+├── Tenant ID: fd268415-22a5-4064-9b5e-d039761c5971
+├── Domain: levelupcspfy26cs01.onmicrosoft.com
+├── Azure Subscription: Workshop-AgentAThon-Nov2025
+├── B2B Guests: 126 Microsoft employees (@microsoft.com)
+│   ├── 19 Proctors (Global Administrator role)
+│   └── 107 Participants (Contributor on team RGs)
+└── Resource Groups: 21 (rg-agentathon-team-01 through 21)
+
+BACKUP TENANT (STANDBY):
+├── Tenant ID: 26764e2b-92cb-448e-a938-16ea018ddc4c
+├── Domain: TBD (will match primary pattern)
+├── Azure Subscription: Workshop-AgentAThon-Nov2025-Backup
+├── Configuration: Identical to primary tenant
+└── Purpose: Emergency failover only (catastrophic failure scenarios)
+
+Total: 21 team resource groups with full disaster recovery
 ```
 
 ### **🎯 Team Structure**
-- **20 Teams** of 5 participants each
-- **Small team collaboration** on shared customer service scenarios
-- **Instance isolation** prevents cross-team interference
-- **Tenant redundancy** ensures workshop continuity
+- **21 Teams** with 5-6 members each
+- **19 Proctors** on dedicated proctor team
+- **107 Participants** distributed across 20 participant teams
+- **Team names**: Copilot Commanders, Prompt Pioneers, Agent Architects, etc.
+- **Balanced experience distribution** across all teams
+- **Zero licensing cost**: All participants use existing Microsoft licenses
 
 ---
 
 ## 🔧 **Technical Components**
 
-### **Per Fabrikam Instance**
-- **FabrikamApi** - ASP.NET Core Web API with business simulator
-- **FabrikamMcp** - Model Context Protocol server
-- **Azure App Service** - API hosting (Linux Premium v2 P1)
-- **Azure Container Apps** - MCP server hosting
+### **Per Team Resource Group**
+- **Azure AI Foundry Hub** - Centralized AI model access
+- **Azure OpenAI Service** - GPT-4, GPT-4o model deployments
+- **Azure App Service** - FabrikamApi hosting (Linux Standard S1)
+- **Azure Container Apps** - FabrikamMcp server hosting
 - **Azure SQL Database** - Business data (Basic tier)
+- **Azure Key Vault** - Secrets and credential management
+- **Azure Storage Account** - Blob storage for assets
 - **Azure Application Insights** - Monitoring and telemetry
-- **Azure Key Vault** - Secrets management
 
-### **Per Azure Subscription**
-- **10 Resource Groups** (one per Fabrikam instance)
-- **Shared Azure AI Foundry** - Model access for all teams
-- **Shared Azure OpenAI** - GPT-4 model deployment
-- **Azure Monitor** - Cross-instance monitoring
-- **Azure Container Registry** - Shared container images
+### **Shared Workshop Infrastructure**
+- **Azure Monitor** - Cross-team health monitoring
+- **Azure Log Analytics** - Centralized logging
+- **Azure Virtual Network** - Network isolation and security
+- **Azure DNS** - Custom domain management (optional)
 
-### **Per BAMI Tenant**
-- **M365 E5 Licensing** - Full feature access
-- **Copilot Studio** - Available to all users
-- **Power Platform** - Premium connectors enabled
-- **Entra ID** - User management and B2B guest access
-- **SharePoint/Teams** - Team collaboration spaces
+### **Access URLs (Primary Tenant)**
+- **Copilot Studio**: https://copilotstudio.microsoft.com/?tenant=fd268415-22a5-4064-9b5e-d039761c5971
+- **Azure Portal**: https://portal.azure.com
+- **AI Foundry**: https://ai.azure.com
 
----
-
-## 👥 **User Access Strategy**
-
-### **Option A: B2B Guest Access (Preferred for Testing)**
-```powershell
-# Test B2B guest invitation
-$GuestEmail = "participant@microsoft.com"
-$InviteResult = New-AzureADMSInvitation -InvitedUserEmailAddress $GuestEmail `
-    -InviteRedirectUrl "https://teams.microsoft.com" `
-    -InvitedUserDisplayName "Workshop Participant"
-
-# Assign to specific team/instance group
-```
-
-**Pros:**
-- ✅ Uses existing @microsoft.com accounts
-- ✅ No password management needed
-- ✅ Familiar authentication experience
-- ✅ Easier cleanup post-workshop
-
-**Cons:**
-- ❓ Potential permission limitations
-- ❓ External user restrictions in Copilot Studio
-- ❓ Cross-tenant access complexity
-
-### **Option B: Provisioned Users**
-```powershell
-# Create workshop-specific users
-$Users = @(
-    "fabrikam-team01-user1@workshoptenant.onmicrosoft.com",
-    "fabrikam-team01-user2@workshoptenant.onmicrosoft.com"
-    # ... etc
-)
-
-ForEach ($User in $Users) {
-    New-AzureADUser -UserPrincipalName $User `
-        -Password $DefaultPassword `
-        -DisplayName "Workshop Participant"
-}
-```
-
-**Pros:**
-- ✅ Full native tenant permissions
-- ✅ Complete Copilot Studio access
-- ✅ No external user limitations
-- ✅ Simplified permission management
-
-**Cons:**
-- ❌ Password distribution complexity
-- ❌ User account management overhead
-- ❌ Cleanup requirements post-workshop
+### **Disaster Recovery (Backup Tenant)**
+- **Identical provisioning** in backup tenant 26764e2b-92cb-448e-a938-16ea018ddc4c
+- **5-minute failover** for Copilot Studio outages
+- **15-minute failover** for Azure subscription issues
+- **30-minute failover** for complete tenant failure
 
 ---
 
-## 📊 **Resource Planning**
+## 👥 **B2B Guest Access Strategy**
 
-### **Cost Estimation (Per Instance)**
-```
-Azure Services:
-- App Service (Linux P1): $54/month × 0.25 = $13.50
-- Container Apps: $10/month × 0.25 = $2.50
-- SQL Database (Basic): $5/month × 0.25 = $1.25
-- Application Insights: $2/month × 0.25 = $0.50
-- Key Vault: $1/month × 0.25 = $0.25
+### **Why B2B Guests?**
+All 126 participants are **Microsoft employees with existing licenses**:
+- ✅ **Zero licensing cost** - Use existing M365/Copilot/Copilot Studio licenses
+- ✅ **Familiar authentication** - @microsoft.com accounts, no password distribution
+- ✅ **Full Azure RBAC support** - Global Admin and Contributor roles work perfectly
+- ✅ **Simplified management** - Invitation-based onboarding, easy cleanup
+- ✅ **Production-realistic** - Mirrors real cross-tenant collaboration scenarios
 
-Per Instance Cost: ~$18/day
-Total 20 Instances: ~$360/day
-Workshop Duration: 1 day + 2 setup days = $1,080
-```
+### **B2B Guest Provisioning**
+```powershell
+# Automated invitation script
+.\infrastructure\scripts\Invite-WorkshopUsers.ps1
 
-### **Licensing Requirements**
-```
-M365 E5 Licensing:
-- 100 participants × $38/month × 0.1 (3 days) = $380
-- Copilot Studio: Included in E5
-- Power Platform Premium: Included in E5
-- Azure OpenAI: Pay-per-use (~$200 estimated)
-
-Total Licensing: ~$580
+# Process:
+# 1. Reads MICROSOFT-ATTENDEES.md (126 participants)
+# 2. Sends B2B invitations to @microsoft.com addresses
+# 3. Assigns Global Administrator to 19 proctors
+# 4. Assigns Contributor RBAC to 107 participants on team RGs
+# 5. Sends email invitations automatically
 ```
 
-### **Total Workshop Cost Estimate: ~$1,660**
+### **Participant Experience**
+1. **Accept B2B Invitation** - Email from Microsoft Invitations
+2. **Bookmark Workshop URLs** - Copilot Studio with `?tenant=` parameter
+3. **Access Azure Resources** - Switch tenant in Azure Portal top-right
+4. **Start Building** - Full Copilot Studio access on workshop day
+
+### **Security & Permissions**
+- **Proctors**: Global Administrator in workshop tenant
+- **Participants**: Contributor on assigned team resource group only
+- **Isolation**: Teams cannot access other teams' resources
+- **Audit**: All actions logged in Azure Activity Log
+
+---
+
+## 📊 **Cost Analysis**
+
+### **Primary Tenant (Per Team Resource Group)**
+```
+Azure Services (21 teams × $18/day × 3 days):
+- AI Foundry Hub: $5/day
+- OpenAI Service (GPT-4): $3/day
+- App Service (Standard S1): $4/day
+- Container Apps: $2/day
+- SQL Database (Basic): $2/day
+- Storage Account: $1/day
+- Application Insights: $0.50/day
+- Key Vault: $0.50/day
+
+Per Team Cost: ~$18/day
+21 Teams × 3 days: $1,134
+```
+
+### **Backup Tenant (Disaster Recovery)**
+```
+Identical infrastructure for standby:
+- Same 21 resource groups
+- Same Azure service configuration
+- Pre-provisioned but idle until failover
+- Minimal usage cost (<$100 if unused)
+
+Backup Tenant Cost: ~$100 (standby)
+```
+
+### **Licensing & Additional Services**
+```
+Licensing:
+- B2B Guests: $0 (use existing Microsoft licenses) ✅
+- Copilot Studio: $0 (included in participants' licenses) ✅
+- Power Platform: $0 (included in participants' licenses) ✅
+
+Operational:
+- Azure OpenAI token usage: ~$200 estimated
+- Data transfer: ~$50
+- Monitoring & logs: ~$50
+
+Additional Services: ~$300
+```
+
+### **Total Workshop Cost Estimate**
+```
+Primary Tenant Infrastructure: $1,134
+Backup Tenant (standby): $100
+Additional Services: $300
+B2B Guest Licensing: $0 ✅
+
+TOTAL: ~$1,534 (vs. original $9,600 native user estimate)
+SAVINGS: $8,066 (83% cost reduction via B2B strategy)
+```
 
 ---
 
 ## 🚀 **Deployment Strategy**
 
-### **Phase 1: Tenant Preparation (Week -2)**
-1. **BAMI Tenant Provisioning**
-   - Request 2 BAMI tenants with Azure subscriptions
-   - Configure M365 E5 licensing (50 users each)
-   - Set up Entra ID B2B policies
-   - Configure Copilot Studio environments
+### **Phase 1: Dual-Tenant Provisioning (5 Days Before Workshop)**
+```powershell
+# Primary tenant provisioning
+.\infrastructure\scripts\Provision-WorkshopB2B.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971" `
+    -SubscriptionId "Workshop-AgentAThon-Nov2025"
 
-2. **User Management Setup**
-   - Test B2B guest access with @microsoft.com accounts
-   - Create user provisioning scripts (backup plan)
-   - Set up team assignment strategy
-   - Configure SharePoint team sites
+# Backup tenant provisioning (identical configuration)
+.\infrastructure\scripts\Provision-WorkshopB2B.ps1 `
+    -TenantId "26764e2b-92cb-448e-a938-16ea018ddc4c" `
+    -SubscriptionId "Workshop-AgentAThon-Nov2025-Backup"
+```
 
-### **Phase 2: Infrastructure Deployment (Week -1)**
-1. **Azure Resource Deployment**
-   - Deploy 20 Fabrikam instances via ARM/Bicep templates
-   - Configure Azure AI Foundry with shared models
-   - Set up monitoring and alerting
-   - Test instance isolation and performance
+**Tasks:**
+1. **B2B Guest Invitations** - 126 Microsoft employees invited to both tenants
+2. **Resource Group Creation** - 21 team RGs in each tenant
+3. **RBAC Assignment** - Proctors get Global Admin, participants get Contributor
+4. **Infrastructure Deployment** - Azure resources provisioned in all RGs
+5. **Validation** - Test-WorkshopReadiness.ps1 confirms all systems operational
 
-2. **Application Configuration**
-   - Deploy FabrikamApi with business simulator enabled
-   - Configure MCP servers with workshop settings
-   - Load realistic seed data
-   - Test cross-instance independence
+### **Phase 2: Pre-Workshop Validation (24 Hours Before)**
+```powershell
+# Primary tenant health check
+.\infrastructure\scripts\Test-WorkshopReadiness.ps1 `
+    -TenantId "fd268415-22a5-4064-9b5e-d039761c5971"
 
-### **Phase 3: Workshop Day Setup (Day -1)**
-1. **Final Validation**
-   - Health check all 20 instances
-   - Verify user access and permissions
-   - Test Copilot Studio connectivity
-   - Prepare instance assignment sheets
+# Backup tenant health check
+.\infrastructure\scripts\Test-WorkshopReadiness.ps1 `
+    -TenantId "26764e2b-92cb-448e-a938-16ea018ddc4c"
+```
 
-2. **Team Assignment**
-   - Distribute participants across teams (5 per instance)
-   - Provide instance-specific URLs and credentials
-   - Set up team collaboration spaces
-   - Enable workshop monitoring
+**Validation Checklist:**
+- ✅ All 126 B2B invitations accepted
+- ✅ 21 resource groups exist in both tenants
+- ✅ All Azure services healthy in both tenants
+- ✅ RBAC permissions verified for all users
+- ✅ Copilot Studio accessible with tenant parameters
+- ✅ Sample data loaded in all instances
+- ✅ Monitoring dashboards configured
+
+### **Phase 3: Workshop Day Operations**
+1. **Primary Environment Active** - All participants use primary tenant URLs
+2. **Backup Monitoring** - Proctors monitor backup tenant health every 4 hours
+3. **Failover Ready** - Backup URLs prepared for emergency distribution
+4. **Real-time Support** - Proctor team ready for disaster recovery activation
+
+### **Phase 4: Post-Workshop Cleanup**
+```powershell
+# Remove B2B guests and delete resources
+.\infrastructure\scripts\Remove-WorkshopResources.ps1 `
+    -WhatIf  # Preview deletion
+.\infrastructure\scripts\Remove-WorkshopResources.ps1 `
+    -Confirm:$false  # Execute cleanup
+```
+
+**Cleanup includes:**
+- Revoke all 126 B2B guest invitations
+- Delete all 21 resource groups (both tenants)
+- Remove RBAC role assignments
+- Archive workshop logs and telemetry
+- Cost analysis and reporting
 
 ---
 
@@ -187,47 +233,84 @@ Total Licensing: ~$580
 
 ```
 infrastructure/
-├── tenants/
-│   ├── tenant-a-config.md          # BAMI Tenant A configuration
-│   ├── tenant-b-config.md          # BAMI Tenant B configuration
-│   └── user-management.md          # B2B vs native user strategies
-├── deployment/
-│   ├── bicep/                      # Infrastructure as Code templates
-│   ├── arm-templates/              # Alternative ARM templates
-│   └── configuration/              # App settings and configs
+├── TENANT-CONFIG.md                  # Primary + Backup tenant configuration with DR
+├── B2B-STRATEGY-UPDATE.md            # B2B guest approach rationale
+├── README.md                         # This file - infrastructure overview
 ├── scripts/
-│   ├── provision-tenants.ps1       # Tenant setup automation
-│   ├── deploy-instances.ps1        # Fabrikam instance deployment
-│   ├── manage-users.ps1            # User provisioning/management
-│   └── cleanup-workshop.ps1        # Post-workshop cleanup
-└── monitoring/
-    ├── health-checks.ps1           # Pre-workshop validation
-    ├── workshop-dashboard.md       # Monitoring strategy
-    └── troubleshooting.md          # Common issues and solutions
+│   ├── Provision-WorkshopB2B.ps1     # Master orchestrator for B2B provisioning
+│   ├── Invite-WorkshopUsers.ps1      # B2B guest invitation automation
+│   ├── New-TeamResourceGroups.ps1    # Create 21 team resource groups
+│   ├── Grant-TeamAccess.ps1          # RBAC assignment for B2B guests
+│   ├── Test-WorkshopReadiness.ps1    # Comprehensive validation script
+│   └── Remove-WorkshopResources.ps1  # Post-workshop cleanup automation
+└── tenants/
+    └── tenant-a-config.md            # OBSOLETE - Old BAMI design (see TENANT-CONFIG.md)
 ```
+
+**Key Documentation:**
+- **TENANT-CONFIG.md** - Primary source for tenant details, DR procedures
+- **B2B-STRATEGY-UPDATE.md** - Why we chose B2B over native users
+- **../docs/MICROSOFT-ATTENDEES.md** - 126 participant roster
+- **../docs/team-roster.md** - 21 team assignments
+- **../docs/PARTICIPANT-QUICKSTART.md** - Participant onboarding guide
 
 ---
 
 ## 🎯 **Success Metrics**
 
 ### **Technical KPIs**
-- **Instance Availability**: >99% uptime during workshop
-- **Response Times**: <2 seconds for API calls
-- **User Experience**: <30 seconds from login to agent building
-- **Isolation**: Zero cross-team data contamination
+- **Primary Tenant Availability**: >99.9% uptime during workshop
+- **Backup Tenant Readiness**: 100% failover capability (tested pre-workshop)
+- **Failover Speed**: <5 min for Copilot Studio, <15 min for Azure, <30 min for full tenant
+- **B2B Invitation Acceptance**: 100% of 126 participants by Day -1
+- **Resource Provisioning**: All 21 resource groups operational in both tenants
+- **API Response Times**: <2 seconds for FabrikamApi endpoints
+- **MCP Tool Performance**: <3 seconds for Copilot Studio tool execution
 
 ### **Participant Experience**
-- **Team Collaboration**: 5 participants per shared instance
-- **Scenario Variety**: Fresh customer service issues per team
-- **Technology Access**: Full Copilot Studio + Azure AI capabilities
-- **Learning Outcomes**: Working AI agent per participant
+- **Onboarding Speed**: <10 minutes from B2B invitation to Copilot Studio access
+- **Team Collaboration**: 21 teams of 5-6 members on dedicated resources
+- **Access Reliability**: Zero "wrong tenant" issues via bookmarked URLs
+- **Support Ticket Volume**: <5% participants need technical assistance
+- **Learning Outcomes**: 100% participants build functional AI agent
 
-### **Operational Goals**
-- **Seamless Setup**: Participants productive within 10 minutes
-- **Minimal Support**: <5% participants need technical assistance
-- **Clean Teardown**: All resources decommissioned within 24 hours
-- **Cost Control**: Stay within $2,000 total workshop budget
+### **Disaster Recovery Metrics**
+- **Backup Tenant Validation**: 100% health check pass 24h before workshop
+- **Monitoring Frequency**: Health checks every 4 hours on workshop day
+- **Proctor Readiness**: All 19 proctors trained on failover procedures
+- **Communication Speed**: <2 minutes to distribute backup URLs if needed
+
+### **Cost & Operational Goals**
+- **Budget Adherence**: Stay within $1,600 total workshop budget
+- **B2B Cost Savings**: $8,066 saved vs. native user licensing (83% reduction)
+- **Cleanup Completion**: All resources decommissioned within 24 hours post-workshop
+- **Audit Compliance**: Complete activity logs archived for 90 days
 
 ---
 
-**This infrastructure strategy provides a robust, scalable foundation for delivering an outstanding workshop experience to 100 participants across 20 collaborative teams! 🏗️**
+## 🚨 **Disaster Recovery Quick Reference**
+
+### **Failure Scenarios & Recovery Times**
+
+| Scenario | Detection | Recovery Action | RTO | Impact |
+|----------|-----------|-----------------|-----|--------|
+| Copilot Studio outage | Proctors notice 503 errors | Switch to backup URL | 5 min | Minimal - just URL change |
+| Azure subscription quota | Deployment failures | Activate backup subscription | 15 min | Low - proctors handle |
+| Complete tenant failure | All services down | Full failover to backup | 30 min | Moderate - coordinated switch |
+
+### **Emergency Failover Commands**
+```powershell
+# Proctor command - activate backup tenant
+Announce-Failover -BackupTenantId "26764e2b-92cb-448e-a938-16ea018ddc4c"
+
+# Participants switch to backup URLs:
+# Copilot Studio: https://copilotstudio.microsoft.com/?tenant=26764e2b-92cb-448e-a938-16ea018ddc4c
+```
+
+---
+
+**This B2B dual-tenant infrastructure provides enterprise-grade reliability for 126 Microsoft employees while achieving 83% cost savings through intelligent license reuse! 🏗️✅**
+
+---
+
+**Primary Tenant**: fd268415-22a5-4064-9b5e-d039761c5971 | **Backup Tenant**: 26764e2b-92cb-448e-a938-16ea018ddc4c
