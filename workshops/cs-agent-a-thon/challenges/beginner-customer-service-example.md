@@ -81,8 +81,8 @@ When you don't know something, admit it honestly and offer to connect the custom
 - `get_products` - Product catalog access
 - `get_support_tickets` - Existing ticket lookup
 - `create_support_ticket` - New ticket creation
-- `update_support_ticket` - Ticket status updates
-- `add_support_ticket_note` - Add notes to tickets
+- `update_ticket_status` - Ticket status updates
+- `add_ticket_note` - Add notes to tickets
 
 ---
 
