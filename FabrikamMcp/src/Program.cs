@@ -22,6 +22,11 @@ builder.Services.AddHttpContextAccessor();
 // Add memory cache for GUID validation caching
 builder.Services.AddMemoryCache();
 
+// Add Data Protection for stateless MCP sessions (prevents "Session not found" -32001 errors)
+// This enables Copilot Studio to make multiple tool calls without session affinity issues
+// Reference: https://github.com/modelcontextprotocol/csharp-sdk/issues/814
+builder.Services.AddDataProtection();
+
 // Configure authentication settings
 var contractAuthSettings = builder.Configuration.GetSection(AuthenticationSettings.SectionName).Get<AuthenticationSettings>() ?? new AuthenticationSettings();
 builder.Services.Configure<AuthenticationSettings>(builder.Configuration.GetSection(AuthenticationSettings.SectionName));
