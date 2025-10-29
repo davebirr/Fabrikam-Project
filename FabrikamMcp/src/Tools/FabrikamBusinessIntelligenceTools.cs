@@ -19,7 +19,7 @@ public class FabrikamBusinessIntelligenceTools : AuthenticatedMcpToolBase
     {
     }
 
-    [McpServerTool, Description("Get comprehensive business dashboard with key metrics across sales, inventory, and customer service. Provides executive-level insights and performance indicators.")]
+    [McpServerTool, Description("Get comprehensive business dashboard with key metrics across sales, inventory, and customer service. Provides executive-level insights and performance indicators. Timeframe options: '7days'/'week', '30days'/'month', '90days'/'quarter', '365days'/'year'. Defaults to 30 days if not specified.")]
     public async Task<object> GetBusinessDashboard(
         string? timeframe = "30days",
         bool includeForecasts = false)
