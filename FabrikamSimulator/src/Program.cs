@@ -35,6 +35,7 @@ builder.Services.AddHttpClient("FabrikamApi", client =>
 // Add singleton services for worker coordination and logging
 builder.Services.AddSingleton<WorkerStateService>();
 builder.Services.AddSingleton<ActivityLogService>();
+builder.Services.AddSingleton<RuntimeConfigService>();
 
 // Add background workers
 builder.Services.AddHostedService<OrderProgressionWorker>();

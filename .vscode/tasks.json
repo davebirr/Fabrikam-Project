@@ -27,7 +27,19 @@
                 "runOn": "default"
             },
             "isBackground": true,
-            "problemMatcher": "$msCompile"
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^.*$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Building.*$",
+                    "endsPattern": "^.*Application started.*|.*Now listening on.*$"
+                }
+            }
         },
         {
             "label": "🤖 Start MCP Server", 
@@ -52,7 +64,74 @@
                 "runOn": "default"
             },
             "isBackground": true,
-            "problemMatcher": "$msCompile"
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^.*$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Building.*$",
+                    "endsPattern": "^.*Application started.*|.*Now listening on.*$"
+                }
+            }
+        },
+        {
+            "label": "🎲 Start Simulator",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["run", "--project", "FabrikamSimulator/src/FabrikamSimulator.csproj"],
+            "options": {
+                "env": {
+                    "ASPNETCORE_ENVIRONMENT": "Development"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "runOptions": {
+                "runOn": "default"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^.*$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Building.*$",
+                    "endsPattern": "^.*Application started.*|.*Now listening on.*$"
+                }
+            }
+        },
+        {
+            "label": "🌐 Start All Services (PowerShell)",
+            "type": "shell",
+            "command": ".\\Start-Services.ps1",
+            "group": {
+                "kind": "build",
+                "isDefault": true
+            },
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": true
+            },
+            "problemMatcher": []
         },
         {
             "label": "🌐 Start Both Servers",
@@ -62,10 +141,26 @@
                 "🚀 Start API Server",
                 "🤖 Start MCP Server"
             ],
-            "group": {
-                "kind": "build",
-                "isDefault": true
-            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "shared",
+                "showReuseMessage": true,
+                "clear": false
+            }
+        },
+        {
+            "label": "🚀 Start All Services",
+            "type": "shell",
+            "dependsOrder": "parallel",
+            "dependsOn": [
+                "🚀 Start API Server",
+                "🤖 Start MCP Server",
+                "🎲 Start Simulator"
+            ],
+            "group": "build",
             "presentation": {
                 "echo": true,
                 "reveal": "always",
