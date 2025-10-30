@@ -2,9 +2,18 @@ namespace FabrikamSimulator.Models;
 
 public class SimulatorConfig
 {
+    public bool StressTestMode { get; set; } = false;
     public OrderProgressionConfig OrderProgression { get; set; } = new();
     public OrderGeneratorConfig OrderGenerator { get; set; } = new();
     public TicketGeneratorConfig TicketGenerator { get; set; } = new();
+    public StressTestConfig StressTest { get; set; } = new();
+}
+
+public class StressTestConfig
+{
+    public int TicketIntervalMinutes { get; set; } = 5;
+    public int MinTicketsPerInterval { get; set; } = 5;
+    public int MaxTicketsPerInterval { get; set; } = 10;
 }
 
 public class OrderProgressionConfig

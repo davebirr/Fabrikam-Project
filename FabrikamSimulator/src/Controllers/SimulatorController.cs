@@ -10,17 +10,20 @@ public class SimulatorController : ControllerBase
 {
     private readonly WorkerStateService _stateService;
     private readonly ActivityLogService _activityLog;
+    private readonly RuntimeConfigService _runtimeConfig;
     private readonly IConfiguration _configuration;
     private readonly ILogger<SimulatorController> _logger;
 
     public SimulatorController(
         WorkerStateService stateService,
         ActivityLogService activityLog,
+        RuntimeConfigService runtimeConfig,
         IConfiguration configuration,
         ILogger<SimulatorController> logger)
     {
         _stateService = stateService;
         _activityLog = activityLog;
+        _runtimeConfig = runtimeConfig;
         _configuration = configuration;
         _logger = logger;
     }
@@ -137,7 +140,11 @@ public class SimulatorController : ControllerBase
                 startOrderGenerator = "POST /api/simulator/orders/generator/start",
                 stopOrderGenerator = "POST /api/simulator/orders/generator/stop",
                 startTicketGenerator = "POST /api/simulator/tickets/start",
-                stopTicketGenerator = "POST /api/simulator/tickets/stop"
+                stopTicketGenerator = "POST /api/simulator/tickets/stop",
+                stressTestStatus = "GET /api/simulator/stresstest/status",
+                stressTestEnable = "POST /api/simulator/stresstest/enable",
+                stressTestDisable = "POST /api/simulator/stresstest/disable",
+                stressTestReset = "POST /api/simulator/stresstest/reset"
             }
         });
     }
@@ -174,5 +181,96 @@ public class SimulatorController : ControllerBase
     {
         _activityLog.ClearLogs();
         return Ok(new { message = "Activity logs cleared" });
+    }
+
+    /// <summary>
+    /// Get stress test mode status
+    /// </summary>
+    [HttpGet("stresstest/status")]
+    public ActionResult GetStressTestStatus()
+    {
+        var isEnabled = _runtimeConfig.IsStressTestModeEnabled(_configuration);
+        var stressTestConfig = _configuration.GetSection("SimulatorSettings:StressTest").Get<StressTestConfig>() ?? new StressTestConfig();
+        var normalConfig = _configuration.GetSection("SimulatorSettings:TicketGenerator").Get<TicketGeneratorConfig>() ?? new TicketGeneratorConfig();
+
+        return Ok(new
+        {
+            stressTestMode = isEnabled,
+            source = _runtimeConfig.GetStressTestModeOverride() == null ? "configuration" : "runtime-override",
+            currentSettings = isEnabled
+                ? new
+                {
+                    mode = "STRESS TEST",
+                    ticketIntervalMinutes = stressTestConfig.TicketIntervalMinutes,
+                    minTicketsPerInterval = stressTestConfig.MinTicketsPerInterval,
+                    maxTicketsPerInterval = stressTestConfig.MaxTicketsPerInterval,
+                    estimatedTicketsPerDay = $"{(1440 / stressTestConfig.TicketIntervalMinutes) * stressTestConfig.MinTicketsPerInterval}-{(1440 / stressTestConfig.TicketIntervalMinutes) * stressTestConfig.MaxTicketsPerInterval}"
+                }
+                : new
+                {
+                    mode = "NORMAL",
+                    ticketIntervalMinutes = normalConfig.IntervalMinutes,
+                    minTicketsPerInterval = normalConfig.MinTicketsPerInterval,
+                    maxTicketsPerInterval = normalConfig.MaxTicketsPerInterval,
+                    estimatedTicketsPerDay = $"{(1440 / normalConfig.IntervalMinutes) * normalConfig.MinTicketsPerInterval}-{(1440 / normalConfig.IntervalMinutes) * normalConfig.MaxTicketsPerInterval}"
+                }
+        });
+    }
+
+    /// <summary>
+    /// Enable stress test mode (150+ tickets/day for workshop demos)
+    /// </summary>
+    [HttpPost("stresstest/enable")]
+    public IActionResult EnableStressTest()
+    {
+        _runtimeConfig.EnableStressTestMode();
+        _logger.LogWarning("⚠️  STRESS TEST MODE ENABLED - High volume ticket generation activated");
+        _activityLog.LogActivity("StressTestMode", "Enabled", "Stress test mode activated via API - expect 150+ tickets/day", false);
+
+        return Ok(new
+        {
+            message = "Stress test mode enabled",
+            status = "active",
+            warning = "High volume ticket generation is now active (150+ tickets/day)",
+            note = "This setting will persist until disabled or service restarts. To make permanent, update appsettings.json"
+        });
+    }
+
+    /// <summary>
+    /// Disable stress test mode (return to normal operation)
+    /// </summary>
+    [HttpPost("stresstest/disable")]
+    public IActionResult DisableStressTest()
+    {
+        _runtimeConfig.DisableStressTestMode();
+        _logger.LogInformation("Stress test mode disabled - returning to normal operation");
+        _activityLog.LogActivity("StressTestMode", "Disabled", "Stress test mode deactivated via API - returning to normal ticket generation", false);
+
+        return Ok(new
+        {
+            message = "Stress test mode disabled",
+            status = "inactive",
+            note = "Normal ticket generation resumed (~24-48 tickets/day)"
+        });
+    }
+
+    /// <summary>
+    /// Clear stress test mode override and use configuration file setting
+    /// </summary>
+    [HttpPost("stresstest/reset")]
+    public IActionResult ResetStressTest()
+    {
+        _runtimeConfig.ClearOverride();
+        var isEnabled = _runtimeConfig.IsStressTestModeEnabled(_configuration);
+        _logger.LogInformation("Stress test mode override cleared - using configuration file setting: {IsEnabled}", isEnabled);
+        _activityLog.LogActivity("StressTestMode", "Reset", $"Runtime override cleared - using configuration file setting (StressTestMode={isEnabled})", false);
+
+        return Ok(new
+        {
+            message = "Stress test mode override cleared",
+            status = isEnabled ? "active" : "inactive",
+            source = "configuration file",
+            note = "Now using StressTestMode setting from appsettings.json"
+        });
     }
 }
