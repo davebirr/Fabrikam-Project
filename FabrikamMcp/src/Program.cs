@@ -22,10 +22,19 @@ builder.Services.AddHttpContextAccessor();
 // Add memory cache for GUID validation caching
 builder.Services.AddMemoryCache();
 
-// Add Data Protection for stateless MCP sessions (prevents "Session not found" -32001 errors)
-// This enables Copilot Studio to make multiple tool calls without session affinity issues
-// Reference: https://github.com/modelcontextprotocol/csharp-sdk/issues/814
+// Add Data Protection for MCP session persistence (prevents "Session not found" -32001 errors)
+// MCP HTTP transport requires session management across requests
 builder.Services.AddDataProtection();
+
+// Configure session with extended timeout to prevent "Session not found" errors
+// Copilot Studio may have delays between tool calls, so we use a long timeout
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Extended timeout for Copilot Studio
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Required for MCP session management
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest; // Allow HTTP in dev
+});
 
 // Configure authentication settings
 var contractAuthSettings = builder.Configuration.GetSection(AuthenticationSettings.SectionName).Get<AuthenticationSettings>() ?? new AuthenticationSettings();
@@ -136,6 +145,8 @@ builder.Services.Configure<AuthenticationSettings>(builder.Configuration.GetSect
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 
 // Add MCP server services with HTTP transport and Fabrikam business tools
+// Note: MCP SDK 0.4.0-preview.3 requires session management - we handle this via DataProtection
+// which provides distributed session storage across multiple instances
 builder.Services.AddMcpServer()
     .WithHttpTransport()
     .WithTools<FabrikamSalesTools>()
@@ -165,6 +176,10 @@ if (app.Environment.IsDevelopment())
 
 // Enable CORS
 app.UseCors();
+
+// Enable session middleware (MUST be before MCP endpoint mapping)
+// This is required for MCP HTTP transport session management
+app.UseSession();
 
 // Add authentication and authorization middleware
 if (mcpAuthSettings.RequireUserAuthentication && !string.IsNullOrEmpty(jwtSettings.SecretKey))
