@@ -22,10 +22,12 @@ This document provides a complete working example of a Copilot Studio agent that
 ### **Agent Setup**
 
 **Basic Information:**
-- **Name**: Fabrikam Customer Service Hero
+- **Name**: FabrikamCS-Hero (29 characters - under the 30 character limit!)
 - **Description**: AI-powered assistant for Fabrikam Modular Homes customer support
 - **Language**: English (United States)
 - **Solution**: Default Solution
+
+**💡 Naming Tip**: Keep your agent name under 30 characters. Consider adding your username like "FabrikamCS-Alex" to identify your agent during demos.
 
 **Instructions (System Prompt):**
 ```
@@ -66,16 +68,34 @@ ESCALATION CRITERIA:
 When you don't know something, admit it honestly and offer to connect the customer with someone who can help.
 ```
 
-### **Knowledge Sources**
+### **MCP Connection (Tools)**
 
-**MCP Connection:**
+Copilot Studio now includes MCP connections under **Tools** rather than Knowledge Sources. You have two options for connecting to Fabrikam's business data:
+
+**Option 1: Use the Pre-Configured Connection** (Recommended for Workshop)
+- In Copilot Studio, navigate to **Tools**
+- Look for the existing **Fabrikam MCP Connection** 
+- Add it to your agent
+- All tools will be available immediately
+
+**Option 2: Create Your Own Connection** (For Learning)
+If you want to understand how MCP connections work, you can create your own:
 - **Type**: Model Context Protocol (MCP)
-- **Name**: Fabrikam Business Data
-- **URL**: `https://fabrikam-mcp-development-tzjeje.azurewebsites.net/mcp`
-- **Authentication Mode**: Disabled (uses X-User-GUID header)
-- **User GUID**: `00000000-0000-0000-0000-000000000001`
+- **Name**: Your choice (e.g., "My Fabrikam Connection")
+- **URL**: `https://fabrikam-mcp-[environment]-[suffix].azurewebsites.net/mcp`
+  - The exact URL varies by team/environment
+  - Check the shared connection's Swagger documentation for your team's URL
+  - Example (Proctor instance): `https://fabrikam-mcp-development-tzjeje.azurewebsites.net/mcp`
+- **Authentication**: None required (uses X-User-GUID header internally)
 
-**Available Tools:**
+**💡 Pro Tip**: Look at the existing connection's configuration to see the exact format needed for your team's environment.
+
+**💡 Pro Tip**: Look at the existing connection's configuration to see the exact format needed for your team's environment.
+
+**Available MCP Tools:**
+
+Once connected, these tools will be available. You can enable/disable them based on your agent's needs:
+
 - `get_orders` - Order lookup and tracking
 - `get_customers` - Customer information retrieval
 - `get_products` - Product catalog access
@@ -83,6 +103,38 @@ When you don't know something, admit it honestly and offer to connect the custom
 - `create_support_ticket` - New ticket creation
 - `update_ticket_status` - Ticket status updates
 - `add_ticket_note` - Add notes to tickets
+
+**🎯 Recommended Tools for This Challenge:**
+- Enable: `get_orders`, `get_products`, `get_customers`, `create_support_ticket`
+- Optional: `get_support_tickets`, `add_ticket_note` (for bonus features)
+- Consider Disabling: Tools you're not actively using (keeps responses focused)
+
+You can adjust which tools are enabled at any time as you build and test your agent.
+
+### **Topics (Conversation Flows)**
+
+**What Are Topics?**
+Topics are conversation flows that guide your agent's responses to specific types of requests. Think of them as chapters in a choose-your-own-adventure - each topic handles a particular customer need.
+
+**Recommended Topics for This Solution:**
+
+1. **📦 Order Status Lookup**
+   - Trigger phrases: "track order", "order status", "where is my order"
+   - Flow: Ask for order number → Call get_orders → Display results → Offer help
+   
+2. **🏠 Product Information**
+   - Trigger phrases: "tell me about", "product details", "compare models"
+   - Flow: Identify product(s) → Call get_products → Present information → Suggest next steps
+   
+3. **⚠️ Support Escalation**
+   - Trigger phrases: "damaged", "problem", "complaint", "speak to manager"
+   - Flow: Gather details → Assess severity → Call create_support_ticket → Set expectations
+
+4. **❓ General Greeting/Help**
+   - Trigger phrases: "hello", "hi", "help", "what can you do"
+   - Flow: Welcome message → Explain capabilities → Ask how to help
+
+**💡 Implementation Tip**: You don't need to create separate topics for everything. The system prompt handles many scenarios automatically. Topics are most useful for complex, multi-step flows where you want precise control.
 
 ---
 
@@ -389,14 +441,22 @@ Use these test cases to verify the agent works correctly:
 
 ---
 
-## 🚀 **Deployment Notes**
+## 🚀 **Setup Notes**
 
 **For Workshop Facilitators:**
-1. Pre-configure this agent in your Copilot Studio environment
-2. Test all scenarios before workshop begins
-3. Have backup MCP connection details ready
-4. Prepare fallback examples if MCP connection fails
-5. Document any workshop-specific configurations
+1. Pre-deploy the Fabrikam environment (API + MCP) to Azure
+2. Create a shared MCP connection in Copilot Studio under **Tools**
+3. Document the team-specific MCP URL for those creating custom connections
+4. Test all scenarios before workshop begins
+5. Verify all MCP tools are functioning correctly
+6. Prepare fallback examples if MCP connection fails
+
+**For Participants:**
+- The Fabrikam environment is already deployed and ready to use
+- You'll find a pre-configured MCP connection under **Tools** in Copilot Studio
+- Add the connection to your agent to get started quickly
+- Advanced users: Feel free to create your own connection to explore MCP architecture
+- Your team's MCP URL will be provided by facilitators if you need it
 
 **For Participants:**
 - This is a reference implementation - feel free to improve upon it!
