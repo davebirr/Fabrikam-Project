@@ -143,9 +143,9 @@
     },
     "_artifactsLocation": {
       "type": "string",
-      "defaultValue": "[deployment().properties.templateLink.uri]",
+      "defaultValue": "https://raw.githubusercontent.com/davebirr/Fabrikam-Project/main/deployment/",
       "metadata": {
-        "description": "Base URI for linked templates and artifacts"
+        "description": "Base URI for linked templates and artifacts. When deploying from Portal, use GitHub raw URL. When deploying from storage, use storage URL."
       }
     }
   },
@@ -159,15 +159,20 @@
     "resourceBaseName": "[concat(parameters('baseName'), '-', parameters('environment'), '-', variables('finalSuffix'))]",
     "apiAppName": "[toLower(concat('fabrikam-api-', parameters('environment'), '-', variables('finalSuffix')))]",
     "mcpAppName": "[toLower(concat('fabrikam-mcp-', parameters('environment'), '-', variables('finalSuffix')))]",
+    "simAppName": "[toLower(concat('fabrikam-sim-', parameters('environment'), '-', variables('finalSuffix')))]",
     "apiPlanName": "[toLower(concat('plan-api-', parameters('environment'), '-', variables('finalSuffix')))]",
     "mcpPlanName": "[toLower(concat('plan-mcp-', parameters('environment'), '-', variables('finalSuffix')))]",
+    "simPlanName": "[toLower(concat('plan-sim-', parameters('environment'), '-', variables('finalSuffix')))]",
     "logWorkspaceName": "[toLower(concat('log-', parameters('environment'), '-', variables('finalSuffix')))]",
     "apiInsightsName": "[toLower(concat('appi-api-', parameters('environment'), '-', variables('finalSuffix')))]",
     "mcpInsightsName": "[toLower(concat('appi-mcp-', parameters('environment'), '-', variables('finalSuffix')))]",
+    "simInsightsName": "[toLower(concat('appi-sim-', parameters('environment'), '-', variables('finalSuffix')))]",
     "apiUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-api-', toLower(parameters('environment')), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('apiAppName'), '.azurewebsites.net'))]",
     "mcpUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-mcp-', toLower(parameters('environment')), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('mcpAppName'), '.azurewebsites.net'))]",
+    "simUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-sim-', toLower(parameters('environment')), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('simAppName'), '.azurewebsites.net'))]",
     "apiCustomDomain": "[concat('fabrikam-api-', toLower(parameters('environment')), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
     "mcpCustomDomain": "[concat('fabrikam-mcp-', toLower(parameters('environment')), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
+    "simCustomDomain": "[concat('fabrikam-sim-', toLower(parameters('environment')), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
     "sqlServerName": "[toLower(concat('sql-', parameters('environment'), '-', variables('finalSuffix')))]",
     "sqlDatabaseName": "[toLower(concat('sqldb-', parameters('environment'), '-', variables('finalSuffix')))]",
     "keyVaultName": "[toLower(concat('kv-', parameters('environment'), '-', variables('finalSuffix')))]",
@@ -200,6 +205,9 @@
           },
           "mcpInsightsName": {
             "value": "[variables('mcpInsightsName')]"
+          },
+          "simInsightsName": {
+            "value": "[variables('simInsightsName')]"
           }
         }
       }
@@ -269,17 +277,26 @@
           "mcpPlanName": {
             "value": "[variables('mcpPlanName')]"
           },
+          "simPlanName": {
+            "value": "[variables('simPlanName')]"
+          },
           "apiAppName": {
             "value": "[variables('apiAppName')]"
           },
           "mcpAppName": {
             "value": "[variables('mcpAppName')]"
           },
+          "simAppName": {
+            "value": "[variables('simAppName')]"
+          },
           "apiInsightsConnectionString": {
             "value": "[reference('shared-infrastructure').outputs.apiInsightsConnectionString.value]"
           },
           "mcpInsightsConnectionString": {
             "value": "[reference('shared-infrastructure').outputs.mcpInsightsConnectionString.value]"
+          },
+          "simInsightsConnectionString": {
+            "value": "[reference('shared-infrastructure').outputs.simInsightsConnectionString.value]"
           },
           "keyVaultName": {
             "value": "[variables('keyVaultName')]"
@@ -382,6 +399,10 @@
       "type": "string",
       "value": "[variables('mcpAppName')]"
     },
+    "simAppName": {
+      "type": "string",
+      "value": "[variables('simAppName')]"
+    },
     "apiUrl": {
       "type": "string",
       "value": "[variables('apiUrl')]"
@@ -390,6 +411,10 @@
       "type": "string",
       "value": "[variables('mcpUrl')]"
     },
+    "simUrl": {
+      "type": "string",
+      "value": "[variables('simUrl')]"
+    },
     "apiHealthCheck": {
       "type": "string",
       "value": "[concat(variables('apiUrl'), '/health')]"
@@ -397,6 +422,10 @@
     "mcpHealthCheck": {
       "type": "string",
       "value": "[concat(variables('mcpUrl'), '/status')]"
+    },
+    "simHealthCheck": {
+      "type": "string",
+      "value": "[concat(variables('simUrl'), '/api/simulator/status')]"
     },
     "customDomainsEnabled": {
       "type": "bool",
@@ -409,6 +438,10 @@
     "mcpCustomDomain": {
       "type": "string",
       "value": "[if(parameters('enableCustomDomains'), variables('mcpCustomDomain'), 'Not configured')]"
+    },
+    "simCustomDomain": {
+      "type": "string",
+      "value": "[if(parameters('enableCustomDomains'), variables('simCustomDomain'), 'Not configured')]"
     },
     "dnsRecordsNeeded": {
       "type": "string",
