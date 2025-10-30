@@ -15,6 +15,7 @@ public class OrderProgressionConfig
     public int ProductionToShippedDays { get; set; } = 30;
     public int ShippedToDeliveredDays { get; set; } = 10;
     public int RandomVariationDays { get; set; } = 2;
+    public bool BlockProgressionWithOpenTickets { get; set; } = true;
 }
 
 public class OrderGeneratorConfig

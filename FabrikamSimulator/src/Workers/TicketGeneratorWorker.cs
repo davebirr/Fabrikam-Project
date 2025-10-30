@@ -10,6 +10,7 @@ public class TicketGeneratorWorker : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly WorkerStateService _stateService;
+    private readonly ActivityLogService _activityLog;
     private const string WorkerName = "TicketGenerator";
 
     private readonly TicketScenario[] _scenarios = new[]
@@ -30,12 +31,14 @@ public class TicketGeneratorWorker : BackgroundService
         ILogger<TicketGeneratorWorker> logger,
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
-        WorkerStateService stateService)
+        WorkerStateService stateService,
+        ActivityLogService activityLog)
     {
         _logger = logger;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _stateService = stateService;
+        _activityLog = activityLog;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -71,13 +74,12 @@ public class TicketGeneratorWorker : BackgroundService
 
     private async Task GenerateTickets(TicketGeneratorConfig config)
     {
-        var apiBaseUrl = _configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.CreateClient("FabrikamApi");
         var random = new Random();
 
         // Get recent orders (last 90 days) to create realistic tickets
         var fromDate = DateTime.UtcNow.AddDays(-90).ToString("yyyy-MM-dd");
-        var ordersResponse = await httpClient.GetAsync($"{apiBaseUrl}/api/orders?fromDate={fromDate}&pageSize=50");
+        var ordersResponse = await httpClient.GetAsync($"/api/orders?fromDate={fromDate}&pageSize=50");
 
         if (!ordersResponse.IsSuccessStatusCode)
         {
@@ -117,7 +119,7 @@ public class TicketGeneratorWorker : BackgroundService
 
             try
             {
-                var response = await httpClient.PostAsJsonAsync($"{apiBaseUrl}/api/supporttickets", newTicket);
+                var response = await httpClient.PostAsJsonAsync("/api/supporttickets", newTicket);
 
                 if (response.IsSuccessStatusCode)
                 {
