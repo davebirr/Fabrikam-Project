@@ -9,15 +9,18 @@ namespace FabrikamSimulator.Controllers;
 public class SimulatorController : ControllerBase
 {
     private readonly WorkerStateService _stateService;
+    private readonly ActivityLogService _activityLog;
     private readonly IConfiguration _configuration;
     private readonly ILogger<SimulatorController> _logger;
 
     public SimulatorController(
         WorkerStateService stateService,
+        ActivityLogService activityLog,
         IConfiguration configuration,
         ILogger<SimulatorController> logger)
     {
         _stateService = stateService;
+        _activityLog = activityLog;
         _configuration = configuration;
         _logger = logger;
     }
@@ -128,6 +131,7 @@ public class SimulatorController : ControllerBase
             {
                 status = "GET /api/simulator/status",
                 config = "GET /api/simulator/config",
+                logs = "GET /api/simulator/logs",
                 startOrderProgression = "POST /api/simulator/orders/progression/start",
                 stopOrderProgression = "POST /api/simulator/orders/progression/stop",
                 startOrderGenerator = "POST /api/simulator/orders/generator/start",
@@ -136,5 +140,39 @@ public class SimulatorController : ControllerBase
                 stopTicketGenerator = "POST /api/simulator/tickets/stop"
             }
         });
+    }
+
+    /// <summary>
+    /// Get recent activity logs from all simulators
+    /// </summary>
+    [HttpGet("logs")]
+    public ActionResult GetLogs([FromQuery] int count = 100, [FromQuery] string? worker = null)
+    {
+        var logs = string.IsNullOrEmpty(worker)
+            ? _activityLog.GetRecentLogs(count)
+            : _activityLog.GetLogsByWorker(worker, count);
+
+        return Ok(new
+        {
+            count = logs.Count(),
+            logs = logs.Select(l => new
+            {
+                timestamp = l.Timestamp,
+                worker = l.WorkerName,
+                action = l.Action,
+                details = l.Details,
+                isError = l.IsError
+            })
+        });
+    }
+
+    /// <summary>
+    /// Clear all activity logs
+    /// </summary>
+    [HttpDelete("logs")]
+    public IActionResult ClearLogs()
+    {
+        _activityLog.ClearLogs();
+        return Ok(new { message = "Activity logs cleared" });
     }
 }

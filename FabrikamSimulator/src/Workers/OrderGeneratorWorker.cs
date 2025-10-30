@@ -10,6 +10,7 @@ public class OrderGeneratorWorker : BackgroundService
     private readonly IConfiguration _configuration;
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly WorkerStateService _stateService;
+    private readonly ActivityLogService _activityLog;
     private const string WorkerName = "OrderGenerator";
 
     private readonly string[] _regions = new[] { "Northeast", "Southeast", "Midwest", "West Coast", "Pacific Northwest" };
@@ -20,12 +21,14 @@ public class OrderGeneratorWorker : BackgroundService
         ILogger<OrderGeneratorWorker> logger,
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
-        WorkerStateService stateService)
+        WorkerStateService stateService,
+        ActivityLogService activityLog)
     {
         _logger = logger;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _stateService = stateService;
+        _activityLog = activityLog;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -61,12 +64,11 @@ public class OrderGeneratorWorker : BackgroundService
 
     private async Task GenerateOrders(OrderGeneratorConfig config)
     {
-        var apiBaseUrl = _configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
-        var httpClient = _httpClientFactory.CreateClient();
+        var httpClient = _httpClientFactory.CreateClient("FabrikamApi");
         var random = new Random();
 
         // Get existing customers
-        var customersResponse = await httpClient.GetAsync($"{apiBaseUrl}/api/customers?pageSize=50");
+        var customersResponse = await httpClient.GetAsync("/api/customers?pageSize=50");
         if (!customersResponse.IsSuccessStatusCode)
         {
             _logger.LogWarning("Failed to fetch customers: {StatusCode}", customersResponse.StatusCode);
@@ -83,7 +85,7 @@ public class OrderGeneratorWorker : BackgroundService
         }
 
         // Get product catalog
-        var productsResponse = await httpClient.GetAsync($"{apiBaseUrl}/api/products?pageSize=20");
+        var productsResponse = await httpClient.GetAsync("/api/products?pageSize=20");
         List<ProductDto>? products = null;
         if (productsResponse.IsSuccessStatusCode)
         {
@@ -126,7 +128,7 @@ public class OrderGeneratorWorker : BackgroundService
 
             try
             {
-                var response = await httpClient.PostAsJsonAsync($"{apiBaseUrl}/api/orders", newOrder);
+                var response = await httpClient.PostAsJsonAsync("/api/orders", newOrder);
 
                 if (response.IsSuccessStatusCode)
                 {

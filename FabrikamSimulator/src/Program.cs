@@ -16,10 +16,25 @@ builder.Services.AddSwaggerGen(c =>
 });
 
 // Add HttpClient for calling FabrikamApi
-builder.Services.AddHttpClient();
+// In Development, skip SSL validation for self-signed certificates
+builder.Services.AddHttpClient("FabrikamApi", client =>
+{
+    var baseUrl = builder.Configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
+    client.BaseAddress = new Uri(baseUrl);
+})
+.ConfigurePrimaryHttpMessageHandler(() =>
+{
+    var handler = new HttpClientHandler();
+    if (builder.Environment.IsDevelopment())
+    {
+        handler.ServerCertificateCustomValidationCallback = HttpClientHandler.DangerousAcceptAnyServerCertificateValidator;
+    }
+    return handler;
+});
 
-// Add singleton state service for worker coordination
+// Add singleton services for worker coordination and logging
 builder.Services.AddSingleton<WorkerStateService>();
+builder.Services.AddSingleton<ActivityLogService>();
 
 // Add background workers
 builder.Services.AddHostedService<OrderProgressionWorker>();
