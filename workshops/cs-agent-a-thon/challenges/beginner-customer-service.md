@@ -24,17 +24,14 @@ Fabrikam's customer service team is drowning in support tickets! Orders are dela
 
 ## 🛠️ **Getting Started**
 
-### **Step 1: Set Up Your Fabrikam Environment**
-1. **Fork the Repository**: Visit [Fabrikam Project](https://github.com/davebirr/Fabrikam-Project) and click "Fork"
-2. **Deploy to Azure**: Use the one-click deployment button
-3. **Test the API**: Try some sample queries to understand the data structure
-
-### **Step 2: Access Copilot Studio**
+### **Step 1: Access Copilot Studio**
 1. **Sign in** to [Copilot Studio](https://copilotstudio.microsoft.com)
-2. **Create a new agent** called "Fabrikam Customer Service Hero"
-3. **Connect to your MCP server** using your Azure deployment URL
+2. **Create a new agent** - Keep the name under 30 characters! 
+   - Ideas: "Fabrikam Hero" or "FabrikamCS-[YourName]"
+   - Pro tip: Adding your username helps identify your agent in demos
+3. **You're ready to build!** The Fabrikam environment is already deployed and waiting for you
 
-### **Step 3: Understand the Business**
+### **Step 2: Understand the Business**
 Fabrikam manufactures modular homes. Common customer inquiries include:
 - **Order Status**: "Where's my Cozy Cottage 1200?"
 - **Product Information**: "What's the difference between models?"
@@ -118,35 +115,92 @@ Expected Response:
 
 ## 🔧 **Technical Implementation Guide**
 
-### **Copilot Studio Setup**
-1. **Create New Agent**
-   - Name: "Fabrikam Customer Service Hero"
-   - Description: "AI assistant for Fabrikam customer support"
+### **Agent Setup**
+1. **Create Your Agent** (max 30 characters)
+   - Keep it short and identifiable
+   - Consider adding your name/username
+   - Example: "FabrikamCS-Alex" or "Fab Support Bot"
 
-2. **Add Data Source**
-   - Type: "Model Context Protocol (MCP)"
-   - URL: Your deployed Fabrikam MCP server
-   - Authentication: Follow the setup guide
+2. **Connect to Fabrikam Data**
+   
+   Your agent needs to talk to the Fabrikam business system. You have options:
+   
+   **🎯 For First-Time Builders** (The Easy Path):
+   - Look under **Tools** in Copilot Studio
+   - You'll find an **MCP Connection** already configured for you
+   - Simply add it to your agent - that's it!
+   - This connects you to Fabrikam's orders, products, and customers
+   
+   **🚀 For Experienced Builders** (Roll Your Own):
+   - Want to explore how MCP connections work?
+   - The Fabrikam MCP server is already deployed in your resource group
+   - Create your own connection from scratch
+   - Great for understanding the underlying architecture!
+   
+   **🤔 Not Sure Which to Choose?**
+   - Start with the pre-configured connection to get moving quickly
+   - You can always create your own connection later for learning
+   - Both approaches give you access to the same powerful tools
+   
+   **What You'll Get Access To**:
+   - Real-time order status and history
+   - Complete product catalog with specifications
+   - Customer information and preferences  
+   - Ability to create support tickets
+   - Business alerts and system notifications
 
-3. **Configure Topics**
-   - Order Status Lookup
-   - Product Information
-   - Installation Support
-   - Escalation Workflow
+3. **Build Your Conversation Logic**
+   
+   **What Are Topics?**
+   
+   Topics are conversation flows that guide your agent's responses. Think of them like chapters in a choose-your-own-adventure book - each topic handles a specific type of customer request. When a customer asks about their order, your "Order Lookup" topic kicks in. When they need help with product selection, your "Product Info" topic takes over.
+   
+   **Suggested Topics to Explore**:
+   - 📦 Order status and tracking
+   - 🏠 Product information and comparisons
+   - 📅 Installation scheduling and support
+   - ⚠️ Problem escalation and ticket creation
+   - ❓ General help and FAQ
+   
+   You don't need all of these! Pick the ones that make sense for your solution. Some teams focus on doing 1-2 topics exceptionally well. Others create a broader experience. Both approaches can win.
+   
+   **Pro Tip**: Start with one topic, get it working perfectly, then expand. A great conversation flow beats a mediocre multi-topic agent every time.
 
-### **Key MCP Tools to Use**
-- `GetOrders` - Look up customer orders
-- `GetProducts` - Retrieve product information
-- `GetCustomers` - Find customer details
-- `CreateSupportTicket` - Log issues for human follow-up
-- `GetBusinessAlerts` - Check for system-wide issues
+4. **Explore Your MCP Tools**
+   
+   Once you've connected to Fabrikam, you'll have access to powerful tools that let your agent interact with the business system. Here's the fun part: **you get to decide which tools your agent uses!**
+   
+   **🔍 Discovering Your Tools**:
+   - Browse the available MCP tools in your connection
+   - Read the descriptions - they tell you what each tool does
+   - Not every tool needs to be enabled for your agent
+   - You can turn tools on and off as you build
+   
+   **🎯 Recommended Tools to Start With**:
+   - `GetOrders` - Look up customer orders and status
+   - `GetProducts` - Retrieve product details and specs
+   - `GetCustomers` - Find customer information
+   - `CreateSupportTicket` - Log issues that need human attention
+   
+   **💡 Experiment and Learn**:
+   - Try enabling a tool and see how it changes your agent's capabilities
+   - Disable tools you're not using to keep responses focused
+   - Some scenarios need multiple tools working together
+   - Test different combinations to find what works best
+   
+   **🤔 Questions to Ask Yourself**:
+   - Does my agent need to create tickets, or just look up information?
+   - Should I enable order history tools for better context?
+   - Which tools support my primary use case?
+   
+   There's no single "right" answer - it depends on your strategy!
 
 ### **Sample Prompts**
 ```
-System Prompt:
+System Prompt Example:
 "You are a helpful customer service agent for Fabrikam, a modular homes manufacturer. You have access to order information, product details, and can create support tickets. Always be empathetic and solution-focused. If you can't solve a problem, escalate to human agents with all relevant context."
 
-Order Lookup Prompt:
+Order Lookup Prompt Example:
 "When a customer asks about their order, use the GetOrders tool to find their information. Always provide the order number, current status, and expected timeline. If there are delays, acknowledge them and provide options."
 ```
 
