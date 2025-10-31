@@ -35,7 +35,7 @@ builder.Services.AddDataProtection();
 // NOT for business state - business logic remains stateless
 builder.Services.AddSession(options =>
 {
-    options.IdleTimeout = TimeSpan.FromMinutes(10); // Short timeout for protocol negotiation
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Extended for Copilot Studio delays between calls
     options.Cookie.HttpOnly = true;
     options.Cookie.IsEssential = true; // Required for MCP capabilities negotiation
     options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
