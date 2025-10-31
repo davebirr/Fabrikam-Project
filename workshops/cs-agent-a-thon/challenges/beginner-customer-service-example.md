@@ -43,6 +43,7 @@ PERSONALITY GUIDELINES:
 - Use clear, jargon-free language
 - Provide specific, actionable information
 - Set realistic expectations
+- Take ownership of problems - never deflect blame
 
 TECHNICAL CAPABILITIES:
 - You have access to real-time order data via get_orders tool
@@ -54,9 +55,39 @@ CONVERSATION FLOW:
 1. Greet customers warmly and ask how you can help
 2. Gather necessary information (order number, email, etc.)
 3. Use tools to retrieve accurate data
-4. Provide clear, complete answers
-5. Offer additional assistance before closing
-6. Escalate to human agents when appropriate
+4. Analyze the data for potential issues (delays, problems, etc.)
+5. Provide clear, complete answers with proactive problem-solving
+6. Offer additional assistance before closing
+7. Escalate to human agents when appropriate
+
+CRITICAL: PRODUCTION TIMELINE AWARENESS
+When checking order status, ALWAYS analyze the timeline:
+- Standard production time: 30 days
+- If an order shows "In Production" for more than 30 days, it is DELAYED
+- AUTOMATICALLY create a support ticket for delayed orders - DON'T just say you will, ACTUALLY DO IT
+- Apologize for the delay and explain what you're doing to resolve it
+- Never say "should be completed soon" if it's already overdue
+- Calculate: (Current Date - Production Start Date) vs 30-day standard
+
+AUTOMATIC TICKET CREATION FOR DELAYS:
+When you detect a delay (production > 30 days):
+1. IMMEDIATELY call create_support_ticket tool with:
+   - customerId: EXTRACT from the order data you just retrieved (order.customerId or order.customer.id)
+   - orderId: The order ID if available
+   - subject: "Production Delay - Order [order number] at [days] days ([days over] days overdue)"
+   - description: Detailed timeline information
+   - priority: "High"
+   - category: "OrderInquiry"
+2. THEN tell the customer what you did
+3. Provide the ticket number from the response
+4. Set expectations (24-hour callback)
+
+EXAMPLE DELAY RESPONSE:
+"I notice your order has been in production for 50 days, which is beyond our standard 30-day timeline. I apologize for this delay - this is not typical for us. 
+
+[CALL create_support_ticket TOOL NOW]
+
+I've created support ticket #TKT-XXX (high priority) for your case. Our production team will contact you within 24 hours with a specific update and new completion date."
 
 ESCALATION CRITERIA:
 - Customer is extremely upset or angry
@@ -64,6 +95,25 @@ ESCALATION CRITERIA:
 - Multiple failed resolution attempts
 - Customer explicitly requests human contact
 - Technical issues beyond your knowledge
+- **NEW**: Orders delayed beyond standard timelines (AUTOMATIC escalation)
+- **NEW**: Orders with unusual status patterns
+
+VALID TICKET CATEGORIES (use exact values):
+- OrderInquiry: Questions about order status, timelines, tracking
+- DeliveryIssue: Shipping problems, delays, logistics issues
+- ProductDefect: Damage, quality issues, defects
+- Installation: Installation scheduling, crew issues, setup problems
+- Billing: Payment issues, invoicing, refunds
+- Technical: Technical support, system issues
+- General: General inquiries and questions
+- Complaint: Customer complaints and escalations
+
+PROACTIVE PROBLEM DETECTION:
+- Check dates and timelines - don't just repeat what the system says
+- Look for inconsistencies (e.g., "In Production" for 60 days)
+- Compare actual timeline vs. expected timeline
+- Escalate issues BEFORE customer gets frustrated
+- Create tickets preemptively for problems you detect
 
 When you don't know something, admit it honestly and offer to connect the customer with someone who can help.
 ```
@@ -116,67 +166,246 @@ You can adjust which tools are enabled at any time as you build and test your ag
 **What Are Topics?**
 Topics are conversation flows that guide your agent's responses to specific types of requests. Think of them as chapters in a choose-your-own-adventure - each topic handles a particular customer need.
 
-**Recommended Topics for This Solution:**
+**⚠️ IMPORTANT: Keep Topics Simple!**
 
-1. **📦 Order Status Lookup**
-   - Trigger phrases: "track order", "order status", "where is my order"
-   - Flow: Ask for order number → Call get_orders → Display results → Offer help
+Topics can actually *reduce* your agent's intelligence if they're too detailed. The system prompt and MCP tools already make your agent very capable. Use Topics for:
+- Setting the right tone for specific scenarios
+- Ensuring critical business logic (like delay detection)
+- Guiding complex multi-step processes
+
+**DON'T use Topics to:**
+- Ask for information the user already provided
+- Force unnecessary confirmation steps
+- Override the agent's natural intelligence
+
+**Recommended Approach for This Solution:**
+
+**Option 1: Minimal Topics (Recommended)**
+Let the system prompt handle most scenarios. Only create Topics for truly complex flows or to enforce specific business rules.
+
+Example: You might not need any custom Topics at all! The system prompt we provided handles:
+- Order lookups (with delay detection)
+- Product comparisons
+- Support ticket creation
+- Empathetic problem resolution
+
+**Option 2: Light-Touch Topics**
+If you do create Topics, keep them high-level:
+
+1. **📦 Order Status Check**
+   - Trigger: User mentions order number or asks about order status
+   - Action: Let the agent extract the order number and call `get_orders` naturally
+   - **Don't**: Force the agent to ask "Please provide your order number" if they already have it!
    
-2. **🏠 Product Information**
-   - Trigger phrases: "tell me about", "product details", "compare models"
-   - Flow: Identify product(s) → Call get_products → Present information → Suggest next steps
-   
-3. **⚠️ Support Escalation**
-   - Trigger phrases: "damaged", "problem", "complaint", "speak to manager"
-   - Flow: Gather details → Assess severity → Call create_support_ticket → Set expectations
+2. **⚠️ Problem Escalation with Automatic Ticket Creation**
+   - Trigger: Keywords like "damaged", "problem", "delayed", "frustrated"
+   - Action: Ensure empathetic tone, create support ticket
+   - **Focus**: Tone and ticket creation, not detailed step-by-step flow
+   - **CRITICAL FIX**: If the agent detects a delay but doesn't create the ticket automatically, you may need a Topic specifically for delay handling
 
-4. **❓ General Greeting/Help**
-   - Trigger phrases: "hello", "hi", "help", "what can you do"
-   - Flow: Welcome message → Explain capabilities → Ask how to help
+**Option 3: Use Copilot to Generate a Topic (Recommended Modern Approach)**
 
-**💡 Implementation Tip**: You don't need to create separate topics for everything. The system prompt handles many scenarios automatically. Topics are most useful for complex, multi-step flows where you want precise control.
+Copilot Studio now includes **"Create with Copilot"** functionality that generates Topics from natural language descriptions. This is simpler than manual flow building and more flexible than detailed Topics.
+
+**Example Topic Generation Prompt for Production Delays:**
+
+```
+Topic Name: Production Delay Auto-Escalation
+
+Trigger Phrases:
+- "My order is delayed"
+- "It's been in production too long"
+- "Haven't heard about my order"
+- "Order taking too long"
+
+System Prompt:
+You are a Fabrikam customer service agent. When a customer mentions their order, 
+use get_orders to look it up. Then analyze the timeline:
+
+- Standard production time: 30 days
+- If status = "In Production" AND days > 30: This is DELAYED
+
+When you detect a delay:
+1. Apologize for the delay and acknowledge it's beyond our standard timeline
+2. IMMEDIATELY call create_support_ticket tool with:
+   - customerId: Extract from order data (order.customerId)
+   - orderId: The order ID
+   - subject: "Production Delay - Order [orderId] at [days] days ([overdue] days overdue)"
+   - priority: "High"
+   - category: "OrderInquiry"
+   - description: Include timeline details
+3. Tell the customer: "I've created support ticket #[ticket.id] and our production 
+   team will contact you within 24 hours."
+
+Tone: Empathetic, proactive, and solution-focused. Take ownership of the delay.
+```
+
+**Example Topic Generation Prompt for General Problem Escalation:**
+
+```
+Topic Name: Problem Escalation Handler
+
+Trigger Phrases:
+- "My order is damaged"
+- "There's a problem with my order"
+- "I'm frustrated with the service"
+
+System Prompt:
+You are a customer service agent. When a user expresses frustration or mentions 
+issues like damage or problems, respond with empathy and IMMEDIATELY create a 
+support ticket.
+
+Tone: Calm, understanding, and supportive. Acknowledge the concern BEFORE taking action.
+
+Action:
+1. Call create_support_ticket tool right away
+2. Map customerId from order context
+3. Set subject: "Customer Issue - [brief summary from user input]"
+4. Set priority: "High" (or "Critical" for damage/safety)
+5. Set category: Match the issue type (ProductDefect for damage, DeliveryIssue for shipping, Complaint for frustration)
+
+Response Example:
+"I'm really sorry to hear that you're experiencing this. I've created support 
+ticket #[ticket.id] for you, and our team will follow up within 24 hours."
+
+DO NOT say "I will create" - say "I've created ticket #XXX" with the actual ticket number.
+```
+
+**💡 Why This Approach Works:**
+- ✅ **Natural Language**: You describe what you want, Copilot builds the flow
+- ✅ **Flexible**: Doesn't force rigid conversation paths
+- ✅ **Tool-Focused**: Emphasizes calling the tool, not just talking about it
+- ✅ **Empathy-First**: Acknowledges emotion before acting
+- ✅ **Maintainable**: Easier to understand and modify than complex flows
+
+**💡 Alternative: Manual Flow-Based Topic (If Copilot Generation Unavailable)**
+
+If your Copilot Studio version doesn't support "Create with Copilot", use this manual flow:
+
+```
+Topic Name: Production Delay Handler
+
+Flow:
+1. Node: Condition - Check if order.status = "In Production" AND days > 30
+2. Node: Message - "I notice your order has been in production for [days] days..."
+3. Node: Action - CALL create_support_ticket tool
+   - Map customerId from order
+   - Set subject: "Production Delay - Order [orderId]..."
+   - Set priority: "High"
+   - Set category: "OrderInquiry"
+4. Node: Message - "I've created ticket #[ticket.id]. Production will call within 24 hours..."
+```
+
+**💡 Pro Tip:**
+Start with the Copilot-generated Topic approach. It's faster, more flexible, and easier to iterate. Only fall back to manual flow building if you need very specific logic that the generated Topic doesn't capture.
+
+**💡 Real Example of What NOT to Do:**
+
+```
+❌ BAD Topic Flow:
+1. Ask: "Please provide your order number"
+2. Wait for response
+3. Ask: "How many days has it been in production?"
+4. Wait for response
+5. Call get_orders
+6. Analyze results
+
+This creates 4+ back-and-forth messages for something the agent can do in 1!
+```
+
+**✅ GOOD Approach:**
+
+```
+User: "Hi, I ordered a home 3 weeks ago and haven't heard anything. Order number FAB-2025-047."
+
+Agent: [Immediately calls get_orders with orderId=47, analyzes the response, provides complete answer]
+
+No unnecessary questions - the agent already has the order number!
+```
+
+**💡 Pro Tip for Workshop Participants:**
+
+Start WITHOUT custom Topics. Let the system prompt do the work. Only add Topics if you find specific scenarios that need more control. You'll likely discover that a good system prompt + MCP tools is more powerful than elaborate Topic flows!
+
+**If you DO create Topics, test them with:**
+- "My order is FAB-2025-047, where is it?" ← Agent should NOT ask for order number again
+- "Tell me about order 42" ← Agent should immediately look it up
+- "I'm frustrated about order 15" ← Agent should show empathy AND look up order
+
+If your agent asks for information the user already provided, your Topic is too restrictive!
 
 ---
 
 ## 💬 **Example Conversations**
 
-### **Scenario 1: Order Status Inquiry (Basic - 30 points)**
+### **Scenario 1: Order Status Inquiry with Delay Detection (Basic - 30 points)**
 
 **Customer Input:**
 > "Hi, I ordered a home 3 weeks ago and haven't heard anything. Order number FAB-2025-047."
 
 **Agent Response:**
 ```
-Thank you for reaching out! Let me check on order FAB-2025-047 for you right away.
+Thank you for reaching out, and I apologize that you haven't heard from us in 3 weeks - let me check on order FAB-2025-047 for you right away.
 
 [Tool Call: get_orders with orderId=47]
 
-Good news! I found your order for a Cozy Cottage 1200. Here's the current status:
+I found your order for a Cozy Cottage 1200. Let me review the timeline:
 
 📦 Order Details:
-- Order Number: FAB-2025-047
+- Order Number: FAB-2025-047  
 - Product: Cozy Cottage 1200 (1,200 sq ft modular home)
-- Order Date: September 3, 2025
+- Order Date: September 10, 2025
 - Current Status: **In Production**
-- Estimated Completion: November 15, 2025
+- Total: $141,050.00
 
-Your home is currently being built at our manufacturing facility. This stage typically takes 8-10 weeks, and you're right on schedule! 
+⚠️ **Timeline Analysis:**
+- Production started: 50 days ago (August 12, 2025)
+- Standard production time: 30 days
+- **This order is 20 days beyond our normal timeline**
 
-What Happens Next:
-1. Production Completion (Nov 15) - You'll receive a completion notice
-2. Quality Inspection (Nov 18-19) - Final checks before shipping
-3. Delivery Scheduling (Nov 20) - We'll call to arrange delivery
-4. Installation (Late November) - Coordinated with your site contractor
+I apologize for this delay - this is not typical for Fabrikam. I'm creating a high-priority support ticket right now to have our production team investigate and provide you with an updated completion date.
 
-Is there anything specific about the production process or installation that I can help clarify?
+[Tool Call: create_support_ticket with:
+- customerId: 12 (from order.customerId)
+- orderId: 47
+- subject: "Production Delay - Order FAB-2025-047 at 50 days (20 days overdue)"
+- description: "Order placed 9/10/25, in production for 50 days vs 30-day standard. Customer hasn't received updates. Requires immediate production status review and updated delivery timeline."
+- priority: "High"
+- category: "OrderInquiry"
+]
+
+✅ Support Ticket #TKT-2025-089 Created
+
+**What Happens Next:**
+1. **Within 24 hours**: Production manager will contact you with specific status update
+2. **Investigation**: They'll determine cause of delay and new completion date
+3. **Updates**: You'll receive weekly progress updates until delivery
+4. **Compensation**: If delay impacts your schedule, we'll discuss options
+
+**Your Ticket Information:**
+- Ticket #: TKT-2025-089
+- Priority: High
+- Category: Order Inquiry (Production Delay)
+- Expected First Contact: Within 24 hours
+
+Again, I sincerely apologize for the delay and lack of communication. We're addressing this immediately. Is there anything else I can help you with while we investigate?
 ```
 
 **Why This Works:**
-- ✅ Immediately addresses the concern
+- ✅ Immediately acknowledges the customer's concern about no communication
 - ✅ Uses the get_orders tool correctly
-- ✅ Provides comprehensive information
-- ✅ Sets clear expectations
+- ✅ **ANALYZES the data** - notices 50 days vs 30-day standard
+- ✅ **PROACTIVELY creates support ticket** without being asked
+- ✅ Takes ownership - "I apologize" not "system shows"
+- ✅ Sets clear expectations with timeline
 - ✅ Offers follow-up assistance
+- ✅ Shows business awareness (compensation mention)
+
+**What NOT to Do** (Original Bad Response):
+❌ "Production started 50 days ago and typically takes 30 days, so it should be completed soon"
+❌ Ignoring the obvious delay
+❌ Only offering to create a ticket instead of doing it automatically
+❌ Not apologizing for lack of communication
 
 ---
 
@@ -260,7 +489,7 @@ Thank you for that information. Let me document this and connect you with our qu
 - subject: "URGENT: Water damage and wall cracks on delivered Cozy Cottage 1200 - Order FAB-2025-042"
 - description: "Customer reports water damage in kitchen area and cracks in bedroom wall upon delivery on 10/22/25. Installation crew did not take responsibility. Customer has photos. Requires immediate quality inspection and resolution."
 - priority: "Critical"
-- category: "Quality"
+- category: "ProductDefect"
 ]
 
 ✅ I've created Priority Ticket #TKT-2025-036 for your case.
@@ -303,17 +532,77 @@ And please know - you should absolutely not have been told "it's not our problem
 
 ---
 
+## 🔧 **Troubleshooting Common Issues**
+
+### **Issue: Agent Says "I will create a ticket" but Never Does**
+
+**Symptom**: Agent recognizes the delay and says it will create a support ticket, but the `create_support_ticket` tool never gets called.
+
+**Root Cause**: Copilot Studio's conversational AI understands the *intent* from the system prompt but doesn't automatically execute the tool. It needs explicit triggering.
+
+**Solutions** (try in order):
+
+**Solution 1: Add Explicit Tool Call Instruction in System Prompt**
+```
+When you detect a production delay (>30 days):
+- First, apologize and acknowledge the delay
+- Second, USE THE create_support_ticket TOOL (you must actually call it!)
+- Third, tell the customer the ticket number you received
+- Do not say "I will create" - say "I've created ticket #XXX"
+```
+
+**Solution 2: Create a Delay Detection Topic**
+Create a Topic that explicitly calls the tool:
+- Name: "Production Delay Auto-Escalation"
+- Trigger: After calling `get_orders`, if production days > 30
+- Action Nodes:
+  1. Variable: Set delayDays = (current date - production start)
+  2. Condition: If delayDays > 30, go to step 3
+  3. **Call Action**: create_support_ticket with mapped parameters
+  4. Message: "I've created ticket #{ticket.id}..."
+
+**Solution 3: Use Generative Actions (Advanced)**
+If available in your Copilot Studio version, enable "Generative Actions" which can automatically call tools based on conversation context.
+
+**Solution 4: Two-Step Flow**
+If automatic doesn't work, make it explicit:
+- Agent: "I see this is delayed. Would you like me to create a support ticket?"
+- User: "Yes"
+- Agent: [Calls create_support_ticket]
+
+**Test Your Fix**:
+After implementing, test with: "My order FAB-2025-047 hasn't shipped"
+- ✅ SUCCESS: Agent responds with actual ticket number (TKT-XXXX)
+- ❌ FAIL: Agent says "I'm creating..." but no ticket number appears
+
+---
+
 ## 🔧 **Technical Implementation Details**
 
 ### **Tool Usage Patterns**
 
-**Pattern 1: Order Lookup**
+**Pattern 1: Order Lookup with Timeline Analysis**
 ```
-Customer mentions order → Extract order number/email → Call get_orders
+Customer mentions order → Extract order number/email → Call get_orders → ANALYZE timeline
+
+Step 1: Get the data
 - If order number: get_orders(orderId=X)
 - If email: get_orders(pageSize=10) then filter by customer
 - Always check for null/empty results
-- Provide full status, timeline, and next steps
+
+Step 2: ANALYZE the data (CRITICAL!)
+- Check orderDate vs current date
+- Calculate days in current status
+- Compare to standard timelines:
+  * Production: 30 days standard
+  * Shipping: 5-7 days standard
+  * Installation: Coordinated with customer
+- Detect anomalies: status duration > expected
+
+Step 3: Respond appropriately
+- If delayed: Apologize + Create ticket + Explain resolution
+- If on-time: Confirm status + Explain next steps
+- Always set clear expectations
 ```
 
 **Pattern 2: Product Information**
@@ -323,15 +612,54 @@ Customer asks about products → Determine if specific or comparison
 - Category: get_products(category="ModularHomes")
 - Comparison: get_products() then compare specific items
 - Always provide context for decision-making
+- Ask clarifying questions to guide the customer
 ```
 
-**Pattern 3: Support Ticket Creation**
+**Pattern 3: Support Ticket Creation (Manual)**
 ```
 Complex issue detected → Gather information → Create ticket
 - Priority: Critical (damage/safety), High (urgent), Medium (standard)
-- Category: Quality, Installation, Warranty, Billing, General
+- Category: Use EXACT values from valid list:
+  * OrderInquiry - Order status, timelines, tracking questions
+  * DeliveryIssue - Shipping problems, delays, logistics
+  * ProductDefect - Damage, quality issues, defects
+  * Installation - Installation scheduling, crew issues
+  * Billing - Payment issues, invoicing, refunds
+  * Technical - Technical support, system issues
+  * General - General inquiries and questions
+  * Complaint - Customer complaints, escalations
 - Include: Order number, clear description, customer contact info
 - Set expectations: Who will contact, when, what process
+- Follow up: Confirm ticket number and next steps
+```
+
+**Pattern 4: Automatic Escalation (CRITICAL!)**
+```
+Order delay detected → IMMEDIATELY call create_support_ticket tool → THEN explain to customer
+
+Trigger: Days in status > expected timeline
+Example: Production status for >30 days
+
+REQUIRED SEQUENCE:
+1. Call get_orders to retrieve order data
+2. Detect the problem (analyze dates vs 30-day standard)
+3. Extract customerId from the order response (order.customerId or order.customer.id)
+4. CALL create_support_ticket tool with:
+   - customerId: from order data (REQUIRED!)
+   - orderId: from order data
+   - subject, description, priority, category
+5. Get the ticket number from the response
+6. Tell customer what you DID (not what you will do)
+7. Provide ticket number
+8. Set 24-hour callback expectation
+
+CORRECT: "I've created support ticket #TKT-2025-089..."
+WRONG: "I'm creating a ticket..." (then never actually calling the tool)
+
+DO NOT just say you're creating a ticket - ACTUALLY CALL THE TOOL!
+The customer needs to see a real ticket number to trust that action was taken.
+
+CRITICAL: Always include customerId in the tool call - extract it from the order data first!
 ```
 
 ### **Error Handling Examples**
@@ -404,6 +732,21 @@ Would you like me to connect you with our sales team to discuss these options?"
 - ❌ Failing to set clear expectations for next steps
 - ❌ Not acknowledging customer emotions in difficult situations
 - ❌ Promising what the business can't deliver
+- ❌ **NEW**: Repeating system data without analysis ("Production started 50 days ago, typically takes 30 days, should be done soon" - WRONG!)
+- ❌ **NEW**: Not creating tickets for obvious problems (delays, issues)
+- ❌ **NEW**: Saying "it's not our problem" or deflecting responsibility
+- ❌ **NEW**: Ignoring timeline inconsistencies in the data
+- ❌ **NEW**: Treating all orders the same regardless of status duration
+- ❌ **CRITICAL**: Saying "I'm creating a ticket" but NOT actually calling create_support_ticket tool - customers need real ticket numbers!
+
+### **Pro Tips for Excellence**
+- ✅ Always calculate timelines - don't just repeat what the system says
+- ✅ Be proactive - create tickets before customer gets frustrated
+- ✅ Show empathy - acknowledge emotions, especially when things go wrong
+- ✅ Take ownership - "I apologize" not "the system shows" or "they said"
+- ✅ Set specific expectations - "within 24 hours" not "soon"
+- ✅ Provide context - help customers understand the process
+- ✅ Follow through - confirm tickets, provide ticket numbers, explain next steps
 
 ### **Extension Opportunities**
 For participants who finish early:

@@ -338,7 +338,8 @@ public class SupportTicketsController : ControllerBase
 
             if (!Enum.TryParse<TicketCategory>(request.Category, true, out var category))
             {
-                return BadRequest($"Invalid category: {request.Category}. Valid values are: ProductInquiry, OrderStatus, DeliveryIssue, ProductDefect, Installation, Warranty, Billing, Other");
+                var validValues = string.Join(", ", Enum.GetNames<TicketCategory>());
+                return BadRequest($"Invalid category: {request.Category}. Valid values are: {validValues}");
             }
 
             // Generate ticket number
@@ -428,7 +429,8 @@ public class SupportTicketsController : ControllerBase
                 }
                 else
                 {
-                    return BadRequest($"Invalid status: {request.Status}. Valid values are: Open, InProgress, PendingCustomer, Resolved, Closed, Cancelled");
+                    var validStatuses = string.Join(", ", Enum.GetNames<TicketStatus>());
+                    return BadRequest($"Invalid status: {request.Status}. Valid values are: {validStatuses}");
                 }
             }
 
@@ -441,7 +443,8 @@ public class SupportTicketsController : ControllerBase
                 }
                 else
                 {
-                    return BadRequest($"Invalid priority: {request.Priority}. Valid values are: Low, Medium, High, Critical");
+                    var validPriorities = string.Join(", ", Enum.GetNames<TicketPriority>());
+                    return BadRequest($"Invalid priority: {request.Priority}. Valid values are: {validPriorities}");
                 }
             }
 
