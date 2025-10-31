@@ -22,6 +22,26 @@ builder.Services.AddHttpContextAccessor();
 // Add memory cache for GUID validation caching
 builder.Services.AddMemoryCache();
 
+// Add distributed cache for MCP protocol negotiation state
+// MCP business logic is stateless, but protocol negotiation (capabilities, tool schemas)
+// requires minimal session tracking for Copilot Studio compatibility
+// Using in-memory for single-instance, should use Redis for multi-instance production
+builder.Services.AddDistributedMemoryCache();
+
+// Add Data Protection for secure session cookies
+builder.Services.AddDataProtection();
+
+// Configure minimal session for MCP protocol negotiation only
+// NOT for business state - business logic remains stateless
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(10); // Short timeout for protocol negotiation
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Required for MCP capabilities negotiation
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.Name = ".Fabrikam.McpProtocol"; // Explicit name for MCP protocol session
+});
+
 // Configure authentication settings
 var contractAuthSettings = builder.Configuration.GetSection(AuthenticationSettings.SectionName).Get<AuthenticationSettings>() ?? new AuthenticationSettings();
 builder.Services.Configure<AuthenticationSettings>(builder.Configuration.GetSection(AuthenticationSettings.SectionName));
@@ -162,6 +182,11 @@ if (app.Environment.IsDevelopment())
 
 // Enable CORS
 app.UseCors();
+
+// Enable session for MCP protocol negotiation (capabilities, tool schemas)
+// This is NOT for business state - business logic remains stateless
+// Copilot Studio expects minimal session for protocol handshake continuity
+app.UseSession();
 
 // Add authentication and authorization middleware
 if (mcpAuthSettings.RequireUserAuthentication && !string.IsNullOrEmpty(jwtSettings.SecretKey))
