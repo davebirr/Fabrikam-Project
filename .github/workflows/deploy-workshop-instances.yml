@@ -1,0 +1,185 @@
+name: Deploy Workshop Instances (Matrix)
+
+on:
+  push:
+    branches: [ workshop-stable ]
+  workflow_dispatch:
+    inputs:
+      teams:
+        description: 'Teams to deploy (e.g., "01,05,12" or "all" for all teams)'
+        required: true
+        default: 'all'
+        type: string
+
+env:
+  DOTNET_VERSION: '9.0.x'
+  RESOURCE_GROUP: 'rg-fabrikam-workshop'
+
+jobs:
+  # Determine which teams to deploy
+  prepare:
+    runs-on: ubuntu-latest
+    outputs:
+      teams-matrix: ${{ steps.set-matrix.outputs.teams }}
+    steps:
+      - id: set-matrix
+        run: |
+          if [ "${{ github.event.inputs.teams }}" == "all" ] || [ -z "${{ github.event.inputs.teams }}" ]; then
+            # Deploy all 20 teams
+            echo 'teams=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20"]' >> $GITHUB_OUTPUT
+          else
+            # Deploy specific teams from input
+            TEAMS=$(echo "${{ github.event.inputs.teams }}" | jq -R -c 'split(",") | map(gsub(" "; ""))')
+            echo "teams=$TEAMS" >> $GITHUB_OUTPUT
+          fi
+  
+  # Build all projects once (parallel)
+  build:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        project: [api, mcp, sim]
+    
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+      
+      - name: Setup .NET ${{ env.DOTNET_VERSION }}
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+      
+      - name: Restore dependencies for ${{ matrix.project }}
+        run: |
+          if [ "${{ matrix.project }}" == "api" ]; then
+            dotnet restore FabrikamApi/src/FabrikamApi.csproj
+          elif [ "${{ matrix.project }}" == "mcp" ]; then
+            dotnet restore FabrikamMcp/src/FabrikamMcp.csproj
+          elif [ "${{ matrix.project }}" == "sim" ]; then
+            dotnet restore FabrikamSim/FabrikamSim.csproj
+          fi
+      
+      - name: Build ${{ matrix.project }}
+        run: |
+          if [ "${{ matrix.project }}" == "api" ]; then
+            dotnet build FabrikamApi/src/FabrikamApi.csproj --configuration Release --no-restore
+          elif [ "${{ matrix.project }}" == "mcp" ]; then
+            dotnet build FabrikamMcp/src/FabrikamMcp.csproj --configuration Release --no-restore
+          elif [ "${{ matrix.project }}" == "sim" ]; then
+            dotnet build FabrikamSim/FabrikamSim.csproj --configuration Release --no-restore
+          fi
+      
+      - name: Publish ${{ matrix.project }}
+        run: |
+          if [ "${{ matrix.project }}" == "api" ]; then
+            dotnet publish FabrikamApi/src/FabrikamApi.csproj -c Release -o ./publish
+          elif [ "${{ matrix.project }}" == "mcp" ]; then
+            dotnet publish FabrikamMcp/src/FabrikamMcp.csproj -c Release -o ./publish
+          elif [ "${{ matrix.project }}" == "sim" ]; then
+            dotnet publish FabrikamSim/FabrikamSim.csproj -c Release -o ./publish
+          fi
+      
+      - name: Upload artifact for ${{ matrix.project }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: ${{ matrix.project }}-build
+          path: ./publish
+          retention-days: 1
+  
+  # Deploy to all team instances (matrix deployment)
+  deploy:
+    runs-on: ubuntu-latest
+    needs: [prepare, build]
+    strategy:
+      max-parallel: 10  # Deploy 10 instances at a time to avoid Azure API rate limits
+      fail-fast: false  # Continue deploying even if one fails
+      matrix:
+        team: ${{ fromJson(needs.prepare.outputs.teams-matrix) }}
+        project: [api, mcp, sim]
+    
+    steps:
+      - name: Download ${{ matrix.project }} build artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: ${{ matrix.project }}-build
+          path: ./publish
+      
+      - name: Login to Azure
+        uses: azure/login@v1
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+      
+      - name: Deploy ${{ matrix.project }} to Team ${{ matrix.team }}
+        uses: azure/webapps-deploy@v2
+        with:
+          app-name: fabrikam-${{ matrix.project }}-team-${{ matrix.team }}
+          package: ./publish
+      
+      - name: Verify deployment
+        run: |
+          echo "✓ Deployed: fabrikam-${{ matrix.project }}-team-${{ matrix.team }}"
+          echo "URL: https://fabrikam-${{ matrix.project }}-team-${{ matrix.team }}.azurewebsites.net"
+      
+      - name: Post-deployment health check
+        run: |
+          # Wait for app to warm up
+          sleep 30
+          
+          # Health check based on project type
+          if [ "${{ matrix.project }}" == "api" ]; then
+            URL="https://fabrikam-api-team-${{ matrix.team }}.azurewebsites.net/api/info"
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL || echo "000")
+            if [ "$RESPONSE" == "200" ]; then
+              echo "✓ API health check passed (HTTP 200)"
+            else
+              echo "⚠️ API health check returned HTTP $RESPONSE"
+              exit 1
+            fi
+          elif [ "${{ matrix.project }}" == "mcp" ]; then
+            URL="https://fabrikam-mcp-team-${{ matrix.team }}.azurewebsites.net/mcp"
+            RESPONSE=$(curl -s -X POST $URL \
+              -H "Content-Type: application/json" \
+              -d '{"method":"tools/list"}' \
+              -o /dev/null -w "%{http_code}" || echo "000")
+            if [ "$RESPONSE" == "200" ]; then
+              echo "✓ MCP health check passed (HTTP 200)"
+            else
+              echo "⚠️ MCP health check returned HTTP $RESPONSE"
+              exit 1
+            fi
+          fi
+  
+  # Summary report
+  summary:
+    runs-on: ubuntu-latest
+    needs: [prepare, deploy]
+    if: always()
+    steps:
+      - name: Deployment Summary
+        run: |
+          echo "# Workshop Deployment Summary" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Branch**: workshop-stable" >> $GITHUB_STEP_SUMMARY
+          echo "**Commit**: ${{ github.sha }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Teams**: ${{ needs.prepare.outputs.teams-matrix }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          
+          if [ "${{ needs.deploy.result }}" == "success" ]; then
+            echo "✅ **Status**: All deployments successful" >> $GITHUB_STEP_SUMMARY
+          elif [ "${{ needs.deploy.result }}" == "failure" ]; then
+            echo "❌ **Status**: Some deployments failed" >> $GITHUB_STEP_SUMMARY
+          else
+            echo "⚠️ **Status**: Deployments completed with warnings" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "## Team Instance URLs" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "| Team | API | MCP | SIM |" >> $GITHUB_STEP_SUMMARY
+          echo "|------|-----|-----|-----|" >> $GITHUB_STEP_SUMMARY
+          
+          # Generate URLs for deployed teams
+          TEAMS='${{ needs.prepare.outputs.teams-matrix }}'
+          echo "$TEAMS" | jq -r '.[]' | while read team; do
+            echo "| Team $team | [API](https://fabrikam-api-team-$team.azurewebsites.net) | [MCP](https://fabrikam-mcp-team-$team.azurewebsites.net/mcp) | [SIM](https://fabrikam-sim-team-$team.azurewebsites.net) |" >> $GITHUB_STEP_SUMMARY
+          done
