@@ -28,6 +28,7 @@ Fabrikam's customer service team is drowning in support tickets! Orders are dela
 1. **Sign in** to [Copilot Studio](https://copilotstudio.microsoft.com)
 2. **Create a new agent** - Keep the name under 30 characters! 
    - Ideas: "Fabrikam Hero" or "FabrikamCS-[YourName]"
+   - Pro tip:  Use **Configure** instead of **Describe** to see all of the possible options you have when making your agent.  Most things you will add **after** you create the agent (such as adding an MCP server)
    - Pro tip: Adding your username helps identify your agent in demos
 3. **You're ready to build!** The Fabrikam environment is already deployed and waiting for you
 

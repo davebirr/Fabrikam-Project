@@ -180,7 +180,7 @@ Topics can actually *reduce* your agent's intelligence if they're too detailed. 
 
 **Recommended Approach for This Solution:**
 
-**Option 1: Minimal Topics (Recommended)**
+**Option 1: Minimal Topics / Don't Create Topics(Recommended)**
 Let the system prompt handle most scenarios. Only create Topics for truly complex flows or to enforce specific business rules.
 
 Example: You might not need any custom Topics at all! The system prompt we provided handles:
@@ -189,21 +189,7 @@ Example: You might not need any custom Topics at all! The system prompt we provi
 - Support ticket creation
 - Empathetic problem resolution
 
-**Option 2: Light-Touch Topics**
-If you do create Topics, keep them high-level:
-
-1. **📦 Order Status Check**
-   - Trigger: User mentions order number or asks about order status
-   - Action: Let the agent extract the order number and call `get_orders` naturally
-   - **Don't**: Force the agent to ask "Please provide your order number" if they already have it!
-   
-2. **⚠️ Problem Escalation with Automatic Ticket Creation**
-   - Trigger: Keywords like "damaged", "problem", "delayed", "frustrated"
-   - Action: Ensure empathetic tone, create support ticket
-   - **Focus**: Tone and ticket creation, not detailed step-by-step flow
-   - **CRITICAL FIX**: If the agent detects a delay but doesn't create the ticket automatically, you may need a Topic specifically for delay handling
-
-**Option 3: Use Copilot to Generate a Topic (Recommended Modern Approach)**
+**Option 2: Use Copilot to Generate a Topic (Recommended Modern Approach)**
 
 Copilot Studio now includes **"Create with Copilot"** functionality that generates Topics from natural language descriptions. This is simpler than manual flow building and more flexible than detailed Topics.
 
@@ -278,7 +264,7 @@ DO NOT say "I will create" - say "I've created ticket #XXX" with the actual tick
 - ✅ **Empathy-First**: Acknowledges emotion before acting
 - ✅ **Maintainable**: Easier to understand and modify than complex flows
 
-**💡 Alternative: Manual Flow-Based Topic (If Copilot Generation Unavailable)**
+**Option 3: Manual Flow-Based Topic (If Copilot Generation Unavailable)**
 
 If your Copilot Studio version doesn't support "Create with Copilot", use this manual flow:
 
@@ -809,4 +795,4 @@ Use these test cases to verify the agent works correctly:
 
 ---
 
-**Remember**: This example shows one way to achieve success, but there are many valid approaches. The key is demonstrating understanding of both the technology (Copilot Studio, MCP) and the business (Fabrikam customer service needs). Good luck! 🎯
+**Remember**: This example shows one way to achieve success, but there are many valid approaches. The key is demonstrating understanding of both the technology (Copilot Studio, MCP) and the business (Fabrikam customer service needs). Ask if you need help! Good luck! 🎯
