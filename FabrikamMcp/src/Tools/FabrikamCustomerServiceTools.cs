@@ -175,6 +175,38 @@ public class FabrikamCustomerServiceTools : AuthenticatedMcpToolBase
 
         try
         {
+            // If customerId is missing but orderId is provided, look up the customer from the order
+            if (customerId == 0 && orderId.HasValue && orderId.Value > 0)
+            {
+                var baseUrl = GetApiBaseUrl();
+                var orderResponse = await _httpClient.GetAsync($"{baseUrl}/api/orders/{orderId.Value}");
+                
+                if (orderResponse.IsSuccessStatusCode)
+                {
+                    var orderJson = await orderResponse.Content.ReadAsStringAsync();
+                    using var orderDoc = JsonDocument.Parse(orderJson);
+                    var orderRoot = orderDoc.RootElement;
+                    
+                    if (orderRoot.TryGetProperty("customerId", out var customerIdProp))
+                    {
+                        customerId = customerIdProp.GetInt32();
+                    }
+                }
+            }
+
+            // Validate we have a customerId
+            if (customerId == 0)
+            {
+                return new
+                {
+                    error = new
+                    {
+                        code = 400,
+                        message = "Customer ID is required. Either provide customerId directly, or provide orderId so we can look up the customer from the order."
+                    }
+                };
+            }
+
             var baseUrl = GetApiBaseUrl();
 
             var ticketData = new
