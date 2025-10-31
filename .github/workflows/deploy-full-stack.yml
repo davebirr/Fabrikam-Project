@@ -39,6 +39,11 @@ on:
         required: true
         type: boolean
         default: true
+      deploy_sim:
+        description: 'Deploy FabrikamSim'
+        required: true
+        type: boolean
+        default: false
 
 env:
   DOTNET_VERSION: '9.0.x'
@@ -50,19 +55,36 @@ jobs:
       resource_group: ${{ steps.config.outputs.resource_group }}
       api_app_name: ${{ steps.config.outputs.api_app_name }}
       mcp_app_name: ${{ steps.config.outputs.mcp_app_name }}
+      sim_app_name: ${{ steps.config.outputs.sim_app_name }}
     steps:
       - name: Set environment configuration
         id: config
         run: |
           if [ "${{ github.event.inputs.environment }}" = "proctor" ]; then
-            echo "resource_group=rg-agentathon-proctor" >> $GITHUB_OUTPUT
-            echo "api_app_name=fabrikam-api-proctor" >> $GITHUB_OUTPUT
-            echo "mcp_app_name=fabrikam-mcp-proctor" >> $GITHUB_OUTPUT
+            TEAM_ID="00"
           else
-            echo "resource_group=rg-agentathon-${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-            echo "api_app_name=fabrikam-api-${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
-            echo "mcp_app_name=fabrikam-mcp-${{ github.event.inputs.environment }}" >> $GITHUB_OUTPUT
+            # Extract team number from "team-01" format
+            TEAM_ID=$(echo "${{ github.event.inputs.environment }}" | sed 's/team-//')
           fi
+          
+          # Get the actual resource names from Azure
+          RG_NAME="rg-fabrikam-team-${TEAM_ID}"
+          
+          echo "resource_group=${RG_NAME}" >> $GITHUB_OUTPUT
+          
+          # Query Azure for actual app names (they have unique suffixes)
+          API_NAME=$(az webapp list --resource-group ${RG_NAME} --query "[?contains(name, 'api')].name | [0]" -o tsv)
+          MCP_NAME=$(az webapp list --resource-group ${RG_NAME} --query "[?contains(name, 'mcp')].name | [0]" -o tsv)
+          SIM_NAME=$(az webapp list --resource-group ${RG_NAME} --query "[?contains(name, 'sim')].name | [0]" -o tsv)
+          
+          echo "api_app_name=${API_NAME}" >> $GITHUB_OUTPUT
+          echo "mcp_app_name=${MCP_NAME}" >> $GITHUB_OUTPUT
+          echo "sim_app_name=${SIM_NAME}" >> $GITHUB_OUTPUT
+          
+          echo "Found resources in ${RG_NAME}:"
+          echo "  API: ${API_NAME}"
+          echo "  MCP: ${MCP_NAME}"
+          echo "  SIM: ${SIM_NAME}"
 
   build-api:
     if: ${{ github.event.inputs.deploy_api == 'true' }}
@@ -116,6 +138,33 @@ jobs:
         with:
           name: mcp-artifact
           path: ./mcp-publish
+          retention-days: 1
+
+  build-sim:
+    if: ${{ github.event.inputs.deploy_sim == 'true' }}
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: ${{ env.DOTNET_VERSION }}
+
+      - name: Restore dependencies
+        run: dotnet restore Fabrikam.sln
+
+      - name: Build solution
+        run: dotnet build Fabrikam.sln --configuration Release --no-restore
+
+      - name: Publish FabrikamSimulator
+        run: dotnet publish FabrikamSimulator/src/FabrikamSimulator.csproj --configuration Release --no-build --output ./sim-publish
+
+      - name: Upload SIM artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: sim-artifact
+          path: ./sim-publish
           retention-days: 1
 
   deploy-api:
@@ -211,8 +260,58 @@ jobs:
             echo "Deployment may need time to fully start. Check Azure Portal for details."
           fi
 
+  deploy-sim:
+    if: ${{ github.event.inputs.deploy_sim == 'true' }}
+    needs: [setup, build-sim, deploy-api]
+    runs-on: ubuntu-latest
+    environment:
+      name: ${{ github.event.inputs.environment }}-sim
+      url: https://${{ needs.setup.outputs.sim_app_name }}.azurewebsites.net
+    steps:
+      - name: Download SIM artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: sim-artifact
+          path: ./sim-publish
+
+      - name: Login to Azure
+        uses: azure/login@v2
+        with:
+          creds: ${{ secrets.AZURE_CREDENTIALS }}
+
+      - name: Update SIM App Settings
+        run: |
+          az webapp config appsettings set \
+            --resource-group ${{ needs.setup.outputs.resource_group }} \
+            --name ${{ needs.setup.outputs.sim_app_name }} \
+            --settings \
+              FabrikamApi__BaseUrl="https://${{ needs.setup.outputs.api_app_name }}.azurewebsites.net"
+
+      - name: Deploy to Azure App Service
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ needs.setup.outputs.sim_app_name }}
+          package: ./sim-publish
+
+      - name: Test SIM Health
+        run: |
+          echo "Waiting for SIM app to start..."
+          sleep 30
+          
+          SIM_URL="https://${{ needs.setup.outputs.sim_app_name }}.azurewebsites.net"
+          
+          # Test health endpoint
+          response=$(curl -s -o /dev/null -w "%{http_code}" "$SIM_URL")
+          
+          if [ $response -eq 200 ]; then
+            echo "✅ SIM app is healthy and responding"
+          else
+            echo "⚠️ SIM returned status code: $response"
+            echo "Deployment may need time to fully start. Check Azure Portal for details."
+          fi
+
   summary:
-    needs: [setup, deploy-api, deploy-mcp]
+    needs: [setup, deploy-api, deploy-mcp, deploy-sim]
     if: always()
     runs-on: ubuntu-latest
     steps:
@@ -237,6 +336,14 @@ jobs:
             echo "- **App Name**: ${{ needs.setup.outputs.mcp_app_name }}" >> $GITHUB_STEP_SUMMARY
             echo "- **URL**: https://${{ needs.setup.outputs.mcp_app_name }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
             echo "- **Status**: ${{ needs.deploy-mcp.result }}" >> $GITHUB_STEP_SUMMARY
+            echo "" >> $GITHUB_STEP_SUMMARY
+          fi
+          
+          if [ "${{ github.event.inputs.deploy_sim }}" = "true" ]; then
+            echo "### ✅ FabrikamSimulator" >> $GITHUB_STEP_SUMMARY
+            echo "- **App Name**: ${{ needs.setup.outputs.sim_app_name }}" >> $GITHUB_STEP_SUMMARY
+            echo "- **URL**: https://${{ needs.setup.outputs.sim_app_name }}.azurewebsites.net" >> $GITHUB_STEP_SUMMARY
+            echo "- **Status**: ${{ needs.deploy-sim.result }}" >> $GITHUB_STEP_SUMMARY
             echo "" >> $GITHUB_STEP_SUMMARY
           fi
           
