@@ -22,6 +22,11 @@ builder.Services.AddHttpContextAccessor();
 // Add memory cache for GUID validation caching
 builder.Services.AddMemoryCache();
 
+// Add distributed cache (required by session middleware)
+// Using in-memory distributed cache for development/single-instance deployments
+// For production multi-instance, consider Redis or SQL Server distributed cache
+builder.Services.AddDistributedMemoryCache();
+
 // Add Data Protection for MCP session persistence (prevents "Session not found" -32001 errors)
 // MCP HTTP transport requires session management across requests
 builder.Services.AddDataProtection();
