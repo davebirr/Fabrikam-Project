@@ -175,10 +175,11 @@ public class FabrikamCustomerServiceTools : AuthenticatedMcpToolBase
 
         try
         {
+            var baseUrl = GetApiBaseUrl();
+            
             // If customerId is missing but orderId is provided, look up the customer from the order
             if (customerId == 0 && orderId.HasValue && orderId.Value > 0)
             {
-                var baseUrl = GetApiBaseUrl();
                 var orderResponse = await _httpClient.GetAsync($"{baseUrl}/api/orders/{orderId.Value}");
                 
                 if (orderResponse.IsSuccessStatusCode)
@@ -206,8 +207,6 @@ public class FabrikamCustomerServiceTools : AuthenticatedMcpToolBase
                     }
                 };
             }
-
-            var baseUrl = GetApiBaseUrl();
 
             var ticketData = new
             {
