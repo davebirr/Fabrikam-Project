@@ -161,13 +161,7 @@
     "apiAppName": "[toLower(concat('fabrikam-api-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "mcpAppName": "[toLower(concat('fabrikam-mcp-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "simAppName": "[toLower(concat('fabrikam-sim-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "apiPlanName": "[toLower(concat('plan-api-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "mcpPlanName": "[toLower(concat('plan-mcp-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "simPlanName": "[toLower(concat('plan-sim-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "logWorkspaceName": "[toLower(concat('log-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "apiInsightsName": "[toLower(concat('appi-api-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "mcpInsightsName": "[toLower(concat('appi-mcp-', variables('envShortName'), '-', variables('finalSuffix')))]",
-    "simInsightsName": "[toLower(concat('appi-sim-', variables('envShortName'), '-', variables('finalSuffix')))]",
+    "appServicePlanName": "[toLower(concat('asp-fabrikam-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "apiUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-api-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('apiAppName'), '.azurewebsites.net'))]",
     "mcpUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-mcp-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('mcpAppName'), '.azurewebsites.net'))]",
     "simUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-sim-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('simAppName'), '.azurewebsites.net'))]",
@@ -185,34 +179,6 @@
     "moduleBaseUri": "[uri(parameters('_artifactsLocation'), 'modules/')]"
   },
   "resources": [
-    {
-      "type": "Microsoft.Resources/deployments",
-      "apiVersion": "2021-04-01",
-      "name": "shared-infrastructure",
-      "properties": {
-        "mode": "Incremental",
-        "templateLink": {
-          "uri": "[uri(variables('moduleBaseUri'), 'shared-infrastructure.json')]"
-        },
-        "parameters": {
-          "location": {
-            "value": "[parameters('location')]"
-          },
-          "logWorkspaceName": {
-            "value": "[variables('logWorkspaceName')]"
-          },
-          "apiInsightsName": {
-            "value": "[variables('apiInsightsName')]"
-          },
-          "mcpInsightsName": {
-            "value": "[variables('mcpInsightsName')]"
-          },
-          "simInsightsName": {
-            "value": "[variables('simInsightsName')]"
-          }
-        }
-      }
-    },
     {
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
@@ -248,9 +214,6 @@
       "type": "Microsoft.Resources/deployments",
       "apiVersion": "2021-04-01",
       "name": "app-services",
-      "dependsOn": [
-        "[resourceId('Microsoft.Resources/deployments', 'shared-infrastructure')]"
-      ],
       "properties": {
         "mode": "Incremental",
         "templateLink": {
@@ -272,14 +235,8 @@
           "authenticationMode": {
             "value": "[parameters('authenticationMode')]"
           },
-          "apiPlanName": {
-            "value": "[variables('apiPlanName')]"
-          },
-          "mcpPlanName": {
-            "value": "[variables('mcpPlanName')]"
-          },
-          "simPlanName": {
-            "value": "[variables('simPlanName')]"
+          "appServicePlanName": {
+            "value": "[variables('appServicePlanName')]"
           },
           "apiAppName": {
             "value": "[variables('apiAppName')]"
@@ -289,15 +246,6 @@
           },
           "simAppName": {
             "value": "[variables('simAppName')]"
-          },
-          "apiInsightsConnectionString": {
-            "value": "[reference('shared-infrastructure').outputs.apiInsightsConnectionString.value]"
-          },
-          "mcpInsightsConnectionString": {
-            "value": "[reference('shared-infrastructure').outputs.mcpInsightsConnectionString.value]"
-          },
-          "simInsightsConnectionString": {
-            "value": "[reference('shared-infrastructure').outputs.simInsightsConnectionString.value]"
           },
           "keyVaultName": {
             "value": "[variables('keyVaultName')]"
