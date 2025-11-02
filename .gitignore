@@ -12,6 +12,10 @@ docs/demo-coe/coe-config.json
 # Workshop sensitive data (contains temporary passwords)
 workshops/cs-agent-a-thon/infrastructure/workshop-user-credentials.csv
 workshops/cs-agent-a-thon/infrastructure/proctor-mail-merge.csv
+workshops/cs-agent-a-thon/infrastructure/participant-credentials-*.csv
+workshops/cs-agent-a-thon/infrastructure/*-MAILMERGE*.csv
+workshops/cs-agent-a-thon/infrastructure/*-TRACKING*.csv
+workshops/cs-agent-a-thon/infrastructure/*-AUDITOR*.csv
 
 # .NET Core
 *.swp
