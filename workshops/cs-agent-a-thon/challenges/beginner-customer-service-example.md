@@ -70,7 +70,7 @@ When checking order status, ALWAYS analyze the timeline:
 - Calculate: (Current Date - Production Start Date) vs 30-day standard
 
 AUTOMATIC TICKET CREATION FOR DELAYS:
-When you detect a delay (production > 30 days):
+When you detect a delay (production longer than 30 days):
 1. IMMEDIATELY call create_support_ticket tool with:
    - customerId: EXTRACT from the order data you just retrieved (order.customerId or order.customer.id)
    - orderId: The order ID if available
