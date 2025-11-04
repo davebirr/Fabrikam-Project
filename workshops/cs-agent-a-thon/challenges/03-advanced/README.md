@@ -1,16 +1,86 @@
-# 🔴 Advanced Challenge: Production-Ready Agent Framework
+## 🔴 Advanced Challenge: Production-Ready Agent Framework
 
 **Build Enterprise-Grade Solutions** | 90 minutes | Completely Self-Directed
 
 ---
 
+## ⚠️ **Important Note from the Author** 
+
+If you're attempting the Advanced challenge, there's a good chance you already exceed the knowledge and capabilities of the person who wrote these materials. 🎓
+
+**Consider this your official invitation:**
+
+You are hereby encouraged—nay, *implored*—to contribute your brilliance, ideas, and innovations back to the **[Fabrikam-Project on GitHub](https://github.com/davebirr/Fabrikam-Project)**! 
+
+- Found a better pattern? **Share it!**
+- Built something awesome? **PR it!**
+- Discovered a clever optimization? **Document it!**
+- Fixed something broken? **You're a hero!**
+
+The best learning happens when we learn from each other. Your advanced implementation might be the perfect example for the next cohort of participants! 🚀
+
+*(Plus, the author would really appreciate not having to figure everything out alone.)* 😅
+
+---
+
 ## 🎯 Challenge Overview
 
-Welcome to the **deep end**! You've mastered the concepts—now prove you can build **production-ready** AI agents using code-first approaches.
+Welcome to the **deep end**! This challenge is for developers who want to build **production-ready** AI agents using code-first approaches from the start.
 
-**The Ultimate Goal**: Rebuild your customer service solution using **Azure AI Agent Framework** with enterprise patterns: proper error handling, telemetry, testing, state management, and deployment readiness.
+**The Ultimate Goal**: Build a customer service solution using **Azure AI Agent Framework** (or framework of choice) with enterprise patterns: proper error handling, telemetry, testing, state management, and deployment readiness.
 
 **Your Choice**: Python, .NET, JavaScript, Go, or any framework/language you prefer. This is **your journey**.
+
+---
+
+## 💡 **Leverage Workshop Resources (Even If You Skipped the Other Challenges!)**
+
+**Starting with Advanced? Great choice!** Here are valuable resources from the other challenges you can use:
+
+### **System Prompts from Beginner Challenge**
+- ✅ Pre-tested system prompt text for customer service agent
+- ✅ Business rules already figured out (30-day delays, ticket categories)
+- ✅ Conversation flows that work well
+- 👉 **Use them directly in your code!** No need to reinvent prompts from scratch.
+
+**Find them**: [Beginner Full Solution](../01-beginner/full-solution.md) has the complete, tested system prompt.
+
+### **Multi-Agent Patterns from Intermediate Challenge**
+- ✅ Orchestrator + specialist agent architecture
+- ✅ Routing strategies (keyword vs LLM-based)
+- ✅ Context handoff patterns
+- 👉 **If you want to build multi-agent**: Check intermediate solutions for proven patterns.
+
+**Find them**: [Intermediate Multi-Agent Solution](../02-intermediate/full-solution-multi-agent.md)
+
+### **Test Scenarios (All Challenges)**
+- ✅ Same test scenarios across all difficulty levels
+- ✅ You can validate against beginner/intermediate implementations
+- 👉 **See what "good" looks like** before you code it yourself.
+
+**The Smart Approach**: Spend 5-10 minutes reviewing beginner system prompts and scenarios. It'll save you 30+ minutes of trial and error!
+
+### **🤖 Use AI to Write Your Code!**
+
+**GitHub Copilot is ESSENTIAL for this challenge!** You have 90 minutes to write production code—let AI help:
+
+**GitHub Copilot Inline Suggestions:**
+- Type comments describing what you need: `// Call get_orders MCP tool and parse response`
+- Accept suggestions for boilerplate: HTTP clients, error handling, logging setup
+- Speed through structure: class definitions, method signatures, config loading
+
+**GitHub Copilot Chat:**
+- "Write a Python function to call an MCP tool endpoint with retry logic"
+- "How do I implement conversation memory in Semantic Kernel?"
+- "Show me error handling best practices for async HTTP calls in C#"
+- "Generate unit tests for this agent class"
+
+**Copilot in VS Code Edits:**
+- Select a block of code, ask Copilot to "add error handling and logging"
+- Ask it to "refactor this to use dependency injection"
+- Request "add type hints to this Python function"
+
+**Pro Tip**: Spend 5 minutes setting up GitHub Copilot before starting to code. It will save you 30+ minutes!
 
 ---
 
@@ -327,13 +397,71 @@ class GetOrdersTool implements Tool {
 
 ### **Starting Points**
 
-1. **Clone the Fabrikam repo** (optional reference)
+1. **Copy your system prompt** from beginner/intermediate agent (don't reinvent!)
 2. **Set up your dev environment**
    - API keys, endpoints
    - Local testing setup
+   - **GitHub Copilot enabled** ⚡
 3. **Start simple**: Basic LLM call with one tool
-4. **Iterate**: Add features incrementally
+4. **Iterate**: Add features incrementally (just like beginner!)
 5. **Test frequently**: Don't build everything then test
+
+### **The Iteration Mindset (Code Edition)** 🔄
+
+**Just like beginner, code-first agents require iteration!**
+
+**The Process:**
+1. **Get one thing working** - Simple agent responds to input
+2. **Add one tool** - Get get_orders working end-to-end
+3. **Test and debug** - Fix issues, add error handling
+4. **Add logging** - See what's happening
+5. **Add second tool** - Now that pattern works
+6. **Refine and polish** - Better errors, tests, config
+7. **Repeat** - Each iteration adds capability
+
+**Don't aim for perfection in one pass!** Production-grade code emerges through testing and refinement.
+
+### **Time Management (90 minutes)**
+
+**⚠️ Reality Check**: 90 minutes for production-grade code is TIGHT!
+
+**Suggested Approach - Be Strategic:**
+
+**Minutes 0-10: Setup & Planning**
+- Choose your language/framework
+- Set up project structure
+- Enable GitHub Copilot
+- Review your beginner system prompt
+
+**Minutes 10-40: Core Functionality** (Priority 1)
+- ✅ Basic agent responds
+- ✅ One MCP tool working (get_orders)
+- ✅ Parse and use tool response
+- ✅ Simple conversation loop
+
+**Minutes 40-65: Production Patterns** (Priority 2)
+- ✅ Error handling (network failures, invalid responses)
+- ✅ Structured logging
+- ✅ Configuration externalized
+- ✅ Add second MCP tool (create_support_ticket)
+
+**Minutes 65-85: Polish** (Priority 3)
+- ✅ Tests (at least smoke tests)
+- ✅ README with setup instructions
+- ✅ Better error messages
+- ✅ Code cleanup
+
+**Minutes 85-90: Final Testing & Demo Prep**
+- ✅ Run all scenarios
+- ✅ Prepare to show code
+
+**What to Skip if Time is Tight:**
+- ❌ Full telemetry integration (basic logging is enough)
+- ❌ Complex state persistence (in-memory is fine)
+- ❌ Comprehensive test suite (focus on working code)
+- ❌ RAG/advanced features (bonus only if time permits)
+
+**Remember**: A simple agent that works with good error handling beats a complex agent that doesn't work!
 
 ### **Common Pitfalls**
 
@@ -342,14 +470,7 @@ class GetOrdersTool implements Tool {
 ❌ **Ignoring tool responses** → Parse and use the data!  
 ❌ **No logging** → Can't debug without visibility  
 ❌ **Skipping tests** → Confidence requires validation  
-
-### **Time Management (90 minutes)**
-
-- **0-15 min**: Setup and planning
-- **15-45 min**: Core agent + 1-2 tools working
-- **45-70 min**: Add error handling, logging, tests
-- **70-85 min**: Polish and documentation
-- **85-90 min**: Final testing
+❌ **Over-engineering** → In 90 min, simple > complex!
 
 ---
 
@@ -362,43 +483,44 @@ class GetOrdersTool implements Tool {
 - [OpenAI Assistants API](https://platform.openai.com/docs/assistants/overview)
 
 ### **Fabrikam Resources**
-- **GitHub Repo**: Available to you (ask proctor for URL)
+- **GitHub Repo**: Your proctor can share the Fabrikam-Project repo URL
 - **MCP Server URL**: Your team's deployment
 - **API Documentation**: Swagger at `/swagger/index.html`
+- **Your Previous Work**: Beginner/intermediate system prompts and test conversations!
 
 ### **Code Samples**
 - [Agent Framework Samples](https://github.com/Azure-Samples/azureai-samples)
 - [Semantic Kernel Samples](https://github.com/microsoft/semantic-kernel/tree/main/python/samples)
+- [OpenAI Cookbook](https://github.com/openai/openai-cookbook)
+
+### **AI Coding Assistants**
+- **GitHub Copilot**: Your coding partner for this challenge!
+- **Copilot Chat**: Architecture questions, debugging, refactoring
+- **Copilot in IDE**: Inline suggestions, boilerplate generation
 
 ---
 
-## ⚠️ Partial Solutions
+## 💡 **Workshop Resources for Advanced Challenge**
 
-Given the self-directed nature, we provide **reference architectures** not complete solutions:
+### **Guidance Documents** 
 
-### **Python Reference**
-[→ View Python Architecture](./reference-python.md)
+**💡 Hints & Tips** - Production patterns without spoilers  
+[→ View Hints](./hints.md)
 
-### **.NET Reference**
-[→ View .NET Architecture](./reference-dotnet.md)
+**🏗️ Reference Architecture** - Language-agnostic production patterns  
+[→ View Reference Architecture](./reference-architecture.md)
 
-### **JavaScript Reference**
-[→ View JavaScript Architecture](./reference-javascript.md)
+### **Code Examples**
 
----
+**Real Production Code**: The Fabrikam-Project repo itself!
+- **Location**: Ask proctor for repo URL
+- **What to look at**:
+  - `FabrikamApi/` - ASP.NET Core Web API patterns
+  - `FabrikamMcp/` - MCP server implementation
+  - `FabrikamTests/` - Testing patterns
+  - Clean architecture, dependency injection, comprehensive logging
 
-## 🚨 Full Example Implementations
-
-**🚨 SPOILER ALERT**: Complete working solutions
-
-### **Python Complete Solution**
-[→ View Full Python Solution](./full-solution-python.md)
-
-### **.NET Complete Solution**
-[→ View Full .NET Solution](./full-solution-dotnet.md)
-
-### **JavaScript Complete Solution**
-[→ View Full JavaScript Solution](./full-solution-javascript.md)
+**Pro Tip**: Clone the Fabrikam repo and explore the code structure. It's a great reference for production patterns!
 
 ---
 

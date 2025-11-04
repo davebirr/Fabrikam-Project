@@ -15,37 +15,40 @@ You've built a solid foundation agent. Now it's time to scale! Real customer ser
 
 ---
 
-## 💡 **Smart Start: Your Beginner Agent = Free Technical Specialist!**
+## 💡 **Starting with Intermediate? Get a Quick Foundation!**
 
-Great news! If you completed the beginner challenge (or use the beginner full solution), you **already have one of your four specialists done**! 🎉
+**Jumping straight to intermediate?** Smart move! Here's how to get oriented quickly using beginner challenge resources:
 
-### **The Fast Track Approach:**
+### **Option 1: Use the Beginner Full Solution as a Starting Point** ⭐ RECOMMENDED
 
-**Your beginner "Fabrikam Customer Service" agent already does:**
-- ✅ Order status inquiries (get_orders)
-- ✅ Product information (get_products)  
-- ✅ Customer lookup (get_customers)
-- ✅ Support ticket creation (create_support_ticket)
-- ✅ Delay detection and escalation
+The beginner challenge has a complete, tested system prompt and agent setup that gives you one specialist "for free":
 
-**This is exactly what the Technical Specialist needs!** Just rename it and refine the focus:
+1. **Open Beginner Full Solution**: [View Full Solution](../01-beginner/full-solution.md)
+2. **Copy the system prompt** - It's already refined through testing
+3. **Create "Fabrikam Technical Specialist"** in Copilot Studio using that prompt
+4. **Connect the 4 MCP tools** (get_orders, get_products, get_customers, create_support_ticket)
+5. **Test with a quick order lookup** to verify MCP tools work
+6. **Now proceed with your multi-agent challenge!**
 
-1. **Rename your beginner agent** to "Fabrikam Technical Specialist"
-2. **Refine the system prompt** to focus on technical/support scenarios (see [Technical Specialist in full solution](./full-solution-multi-agent.md#technical-specialist-system-prompt))
-3. **Now build 3 more specialists**: Sales, Billing, Escalation
-4. **Create the orchestrator** to route between them
+**Time Investment**: 5-10 minutes  
+**Value**: Verified MCP connection, working base agent, understanding of the business
 
-### **Starting from Scratch? No Problem!**
+### **Option 2: Start Fresh (The Hard Way)**
 
-If you're jumping straight to intermediate without doing beginner:
+Prefer to figure everything out yourself? Go for it! Just know:
+- ❌ You'll need to figure out MCP tool connections
+- ❌ You'll need to discover business rules (30-day production timeline, ticket categories)
+- ❌ You'll need to test conversation flows from scratch
+- ⚠️ **Budget extra time** for this exploration!
 
-1. **Open the Beginner Full Solution**: [View Full Solution](../01-beginner/full-solution.md)
-2. **Create "Fabrikam Technical Specialist"** using the beginner system prompt
-3. **Connect the 4 MCP tools** (get_orders, get_products, get_customers, create_support_ticket)
-4. **Test with a simple order lookup** to verify MCP tools work
-5. **Proceed with building your other specialists + orchestrator!**
+### **Either Way: The Technical Specialist is Your "Free" Agent**
 
-**Result:** You start with 1 specialist done and only need to build 3 more + orchestrator in 90 minutes! 🚀
+The multi-agent architecture uses 4 specialists. **Good news**: The Technical Specialist uses the same tools and logic as the beginner challenge!
+
+- If you used Option 1: Just rename your beginner agent to "Technical Specialist" ✅
+- If you used Option 2: Use [beginner system prompt](../01-beginner/full-solution.md) as your Technical Specialist template
+
+**Result**: You start with 1 specialist and only need to build 3 more + orchestrator! 🚀
 
 ---
 
