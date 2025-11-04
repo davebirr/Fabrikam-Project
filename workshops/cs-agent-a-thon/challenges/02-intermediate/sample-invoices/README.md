@@ -199,15 +199,29 @@ Process invoice #007 - multiple sections, payment options
 - Create dashboard showing invoice statistics
 - Implement retry logic for API failures
 
-## Converting Markdown to PDF
+## Invoice File Formats
 
-These invoices are provided as Markdown files. Convert them to PDF using:
+Each invoice is provided in **two formats**:
 
-### **Option 1: Online Converter**
-- https://www.markdowntopdf.com/
-- Upload .md file, download PDF
+### **📄 PDF Format** (Ready to Use)
+- `001-premium-lumber-supply.pdf` through `008-duplicate-test-invoice.pdf`
+- **Ready for document processing** - Use these with OCR, Document Intelligence, or vision-based extraction
+- Pre-converted from Markdown for convenience
+- Realistic invoice appearance with formatting preserved
 
-### **Option 2: VS Code + Extension**
+### **📝 Markdown Format** (Source Files)
+- `001-premium-lumber-supply.md` through `008-duplicate-test-invoice.md`
+- Human-readable source format
+- Useful for understanding invoice structure
+- Can be reconverted if you want to modify invoices
+
+**💡 Recommendation:** Use the PDF files for your invoice processing automation. They're ready to go and provide a realistic document processing experience!
+
+### **Optional: Convert Modified Markdown to PDF**
+
+If you modify the Markdown invoices and want to regenerate PDFs:
+
+**Option 1: VS Code + Extension**
 ```bash
 # Install Markdown PDF extension
 code --install-extension yzane.markdown-pdf
@@ -215,12 +229,12 @@ code --install-extension yzane.markdown-pdf
 # Right-click .md file > "Markdown PDF: Export (pdf)"
 ```
 
-### **Option 3: Command Line (requires pandoc)**
+**Option 2: Command Line (requires pandoc)**
 ```bash
 pandoc 001-premium-lumber-supply.md -o 001-premium-lumber-supply.pdf
 ```
 
-### **Option 4: Python Script**
+**Option 3: Python Script**
 ```python
 import markdown
 from weasyprint import HTML
