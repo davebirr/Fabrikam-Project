@@ -158,6 +158,7 @@ When checking order status, you MUST analyze the timeline:
 
 NEVER say "should be completed soon" if it's already past the 30-day mark!
 ```
+**Hint**: Use strong phrases, such as: "You MUST create the ticket" and not "You SHOULD create the ticket".
 
 ### **Problem**: "Agent says it will create a ticket but doesn't"
 
