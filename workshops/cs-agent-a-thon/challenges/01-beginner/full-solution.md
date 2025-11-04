@@ -311,11 +311,12 @@ I found your order for a Cozy Cottage 1200. I need to be honest with you about t
 I sincerely apologize for this delay. This is not typical for Fabrikam.
 
 I can create a high-priority support ticket to have our production team contact you directly within 24 hours with a specific update and new completion date. Would you like me to do that?
+```
 
 **Customer:**
 > "Yes, please do that."
 
-**Agent:**
+**Agent Response:**
 ```
 Perfect! Let me create that for you right now.
 
