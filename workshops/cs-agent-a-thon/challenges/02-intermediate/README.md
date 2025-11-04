@@ -33,11 +33,11 @@ Add image analysis for damage assessment
 **Time Estimate**: 60-75 minutes  
 **Coolness Factor**: 🔥🔥
 
-### **🤖 Option C: Proactive Automation**
-Build an agent that monitors and acts autonomously
+### **📄 Option C: Invoice Processing Pipeline**
+Build an agent that processes supplier invoices automatically
 
-**Difficulty**: ⭐⭐⭐⭐  
-**Time Estimate**: 90+ minutes  
+**Difficulty**: ⭐⭐⭐  
+**Time Estimate**: 75-90 minutes  
 **Coolness Factor**: 🔥🔥🔥🔥
 
 ---
@@ -286,82 +286,268 @@ Expected Behavior:
 
 ---
 
-## 🤖 Option C: Proactive Automation
+## 📄 Option C: Invoice Processing Pipeline
 
 ### **The Scenario**
 
-What if your agent didn't wait for customers to complain? What if it **actively monitored** orders and reached out proactively?
+Fabrikam receives 50+ supplier invoices every week—lumber, glass, HVAC systems, solar panels, logistics, and more. Currently, staff manually review each invoice, checking for errors, duplicates, and math mistakes before entering data into the accounting system. **This takes 15-20 minutes per invoice!**
 
-**Your Mission**: Build a "computer use" style agent that autonomously monitors the Fabrikam system and takes action.
+**Your Mission**: Build an **Invoice Processing Agent** that can:
+1. **Extract** data from invoice documents (PDFs)
+2. **Validate** the extracted data (math, duplicates, required fields)
+3. **Submit** to the Fabrikam Invoice API
+4. **Report** results and handle errors gracefully
+
+---
+
+### **Architecture**
+
+```
+Invoice Document (PDF)
+      ↓
+┌─────────────────────────────┐
+│  Invoice Processing Agent   │
+│                             │
+│  1. Extract invoice data    │
+│     (vendor, amounts, items)│
+│                             │
+│  2. Validate extracted data │
+│     (math, duplicates, etc) │
+│                             │
+│  3. Submit to API           │
+│     POST /api/invoices      │
+│                             │
+│  4. Report results          │
+└─────────────────────────────┘
+      ↓
+Fabrikam Invoice API
+```
 
 ---
 
 ### **✅ Success Criteria**
 
 #### **Basic Success (30 points)**
-- ✅ Agent checks orders on schedule
-- ✅ Detects orders approaching delay threshold
-- ✅ Creates "heads up" tickets for potential issues
-- ✅ Logs monitoring activity
+- ✅ Successfully extracts key invoice data (vendor, total, invoice number)
+- ✅ Submits at least 1 invoice successfully to the API
+- ✅ Shows extracted data before submission
+- ✅ Handles API errors gracefully
 
 #### **Good Success (60 points)**
-- ✅ Sends proactive customer notifications
-- ✅ Escalates delays before customers notice
-- ✅ Monitors multiple criteria (delays, inventory, shipping)
-- ✅ Generates daily summary reports
-- ✅ Handles errors and retries gracefully
+- ✅ Extracts all required fields (vendor, dates, amounts, line items)
+- ✅ Performs basic validation (required fields present)
+- ✅ Successfully processes 3+ different invoices
+- ✅ Provides clear status updates during processing
+- ✅ Handles malformed/incomplete invoices gracefully
 
 #### **Excellent Success (100 points)**
-- ✅ Predictive delay detection (identifies patterns)
-- ✅ Automated customer updates (email/SMS integration)
-- ✅ Coordinated workflows (production → shipping → installation)
-- ✅ Smart throttling (doesn't spam customers)
-- ✅ Dashboard of proactive interventions
+- ✅ Full data extraction (all fields including line items)
+- ✅ Comprehensive validation:
+  - Math validation (line items sum to subtotal, totals match)
+  - Date validation (not future-dated, due date >= invoice date)
+  - Duplicate detection (checks API before submission)
+- ✅ Processes batch of invoices (5+ invoices)
+- ✅ Detailed reporting (success/failure counts, error details)
+- ✅ Error recovery (retry failed submissions)
+
+#### **Bonus Features (up to 20 points)**
+- 🌟 Automatic PDF conversion (from Markdown samples)
+- 🌟 Confidence scoring for extracted data
+- 🌟 Interactive clarification (asks user when uncertain)
+- 🌟 Invoice categorization (materials vs services vs equipment)
+- 🌟 Cost analysis and reporting (vendor spending trends)
 
 ---
 
 ### **🧪 Test Scenarios**
 
-#### **Scenario 1: Morning Monitoring Sweep**
+#### **Scenario 1: Simple Invoice Processing**
 ```
-8:00 AM Daily Run
+Invoice: Premium Lumber Supply Co. ($80,433.30)
+- 4 line items
+- Standard format
+- All required fields present
 
-Expected Behavior:
-✅ Query all orders in "In Production" status
-✅ Calculate days for each order
-✅ For orders at 25-29 days: Log "watch list"
-✅ For orders at 30+ days: Create ticket, notify customer
-✅ Generate summary: "Checked 47 orders, 3 need attention"
+Expected Flow:
+1. Extract: vendor, invoice number, dates, amounts, line items
+2. Validate: Math checks pass, no duplicates found
+3. Submit: POST to /api/invoices
+4. Report: "✅ Invoice INV-2025-000001 created successfully"
 ```
 
-#### **Scenario 2: Proactive Customer Outreach**
+#### **Scenario 2: Complex Multi-Section Invoice**
 ```
-Order #FAB-2025-042 at 27 days (approaching 30-day threshold)
+Invoice: SolarEdge Solutions ($220,480.85)
+- 17 line items across 4 sections (equipment, batteries, installation, permits)
+- Volume discount applied
+- Complex formatting
 
-Expected Behavior:
-✅ Send proactive email: "Your order is on track, should complete in 3-5 days"
-✅ Include estimated completion date
-✅ Provide contact for questions
-✅ Don't create ticket yet (not actually delayed)
+Expected Flow:
+1. Extract: Handle multi-section layout
+2. Validate: Line items sum to subtotal, discount calculated correctly
+3. Submit: All line items properly structured
+4. Report: "✅ Processed 6-system solar installation invoice"
 ```
+
+#### **Scenario 3: Duplicate Detection**
+```
+Invoice: Premium Lumber Supply Co. ($80,433.30) - DUPLICATE
+- Same vendor, amount, similar date as previously submitted invoice
+
+Expected Flow:
+1. Extract: Complete extraction successful
+2. Validate: Call GET /api/invoices/check-duplicates
+3. Detect: Finds matching invoice from 7 days ago
+4. Report: "⚠️ Potential duplicate detected - Invoice #PLS-2025-10961 matches INV-2025-000001"
+5. Action: Ask user whether to proceed or skip
+```
+
+#### **Scenario 4: Validation Failure**
+```
+Invoice: Malformed invoice with math errors
+- Line items don't sum to subtotal
+- Future-dated invoice date
+- Missing required fields
+
+Expected Flow:
+1. Extract: Partial extraction (some fields missing)
+2. Validate: Detect errors
+3. Report: 
+   - "❌ Math validation failed: Line items sum to $45,200 but subtotal is $48,000"
+   - "❌ Invoice date is future-dated (2026-01-15)"
+   - "❌ Missing required field: Vendor address"
+4. Action: Do not submit, provide detailed error report
+```
+
+---
+
+### **🏗️ Implementation Approaches**
+
+#### **Approach 1: Copilot Studio with Computer Use** (Cutting Edge)
+Use Copilot Studio's "Computer Use" feature to automate browser-based workflows:
+- Upload invoice PDF to hosted browser
+- Use AI to visually identify and extract data from invoice
+- Validate extracted data
+- Submit via API calls
+
+**Best For**: Testing newest AI capabilities, UI automation scenarios
+
+#### **Approach 2: Azure AI Foundry + Document Intelligence** (Recommended)
+Use Azure's pre-built invoice analysis models:
+- Azure AI Document Intelligence (prebuilt-invoice model)
+- Automatic field extraction (vendor, dates, totals, line items)
+- High accuracy with confidence scores
+- REST API integration to Fabrikam Invoice API
+
+**Best For**: Production-quality extraction, highest accuracy
+
+#### **Approach 3: M365 Copilot + Power Automate** (Low-Code)
+Build a Power Automate flow with AI Builder:
+- AI Builder: Invoice processing model
+- Parse invoice documents
+- Use Copilot to validate and prepare data
+- HTTP action to call Fabrikam Invoice API
+
+**Best For**: Low-code approach, M365 ecosystem integration
+
+#### **Approach 4: Agent Framework + OCR Library** (Custom MCP)
+Build a custom MCP tool with OCR capabilities:
+- Use Tesseract OCR or similar library
+- Custom extraction logic with LLM assistance
+- Validation rules in code
+- API integration via HttpClient
+
+**Best For**: Full control, custom validation logic, learning MCP development
+
+---
+
+### **📄 Sample Invoices**
+
+We've provided 8 realistic supplier invoices in the `sample-invoices/` directory:
+
+| Invoice | Vendor | Amount | Complexity | Purpose |
+|---------|--------|--------|------------|---------|
+| 001 | Premium Lumber Supply Co. | $80,433.30 | ⭐⭐ Medium | Standard multi-line invoice |
+| 002 | SmartGlass Technologies | $228,454.05 | ⭐⭐⭐ Complex | Volume discount, rich formatting |
+| 003 | TransModular Logistics | $13,320.00 | ⭐⭐ Medium | Service invoice (tax-exempt) |
+| 004 | ModularTech Appliances | $168,895.56 | ⭐⭐⭐ Complex | Package pricing, 18 units |
+| 005 | ClimateControl HVAC | $115,658.80 | ⭐⭐⭐⭐ Very Complex | Mixed tax treatment |
+| 006 | EcoPanel Systems | $35,101.33 | ⭐ Simple | Basic handwritten-style |
+| 007 | SolarEdge Solutions | $220,480.85 | ⭐⭐⭐⭐⭐ Extremely Complex | Multi-section, 17 items |
+| 008 | Premium Lumber (Duplicate) | $80,433.30 | ⭐ Simple | Tests duplicate detection |
+
+**See**: [sample-invoices/README.md](./sample-invoices/README.md) for complete details
+
+---
+
+### **🌐 Fabrikam Invoice API**
+
+Your agent will interact with the real Fabrikam Invoice API:
+
+#### **Base URL**
+```
+https://localhost:7297/api/invoices
+```
+
+#### **Key Endpoints**
+
+**Submit Invoice**
+```http
+POST /api/invoices
+Content-Type: application/json
+
+{
+  "vendor": "Premium Lumber Supply Co.",
+  "invoiceNumber": "PLS-2025-10847",
+  "invoiceDate": "2025-01-15",
+  "dueDate": "2025-02-14",
+  "subtotalAmount": 72980.00,
+  "taxAmount": 6203.30,
+  "shippingAmount": 1250.00,
+  "totalAmount": 80433.30,
+  "category": "Materials",
+  "lineItems": [
+    {
+      "description": "Glulam Beams 24' x 10.75\" x 5.125\"",
+      "quantity": 45,
+      "unitPrice": 875.00,
+      "amount": 39375.00,
+      "productCode": "GLB-24-10-5"
+    },
+    // ... more line items
+  ]
+}
+```
+
+**Check for Duplicates**
+```http
+GET /api/invoices/check-duplicates?vendor=Premium%20Lumber&totalAmount=80433.30&invoiceDate=2025-01-15
+```
+
+**Get Invoice Statistics**
+```http
+GET /api/invoices/stats
+```
+
+**Complete API documentation**: See [sample-invoices/README.md](./sample-invoices/README.md)
 
 ---
 
 ### **💡 Hints & Tips**
 
-[→ View Automation Hints](./hints-automation.md)
+**Available Without Spoilers!** [→ View Hints](./hints-invoice-processing.md)
 
 ---
 
 ### **⚠️ Partial Solution**
 
-[→ View Partial Solution](./partial-solution-automation.md)
+**Architecture & Patterns** [→ View Partial Solution](./partial-solution-invoice-processing.md)
 
 ---
 
 ### **🚨 SPOILER ALERT - Full Solution**
 
-[→ View Full Solution](./full-solution-automation.md)
+**Complete Implementation** [→ View Full Solution](./full-solution-invoice-processing.md)
 
 ---
 
