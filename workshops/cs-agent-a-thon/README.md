@@ -26,6 +26,30 @@ Pick the challenge that matches your experience level and interests:
 
 ---
 
+## 🏗️ **The Fabrikam Platform**
+
+You'll be building agents that interact with a realistic modular home builder business platform. Understanding the architecture helps you create more effective agents.
+
+![Fabrikam Architecture](../../docs/assets/FabrikamArchitecture.png)
+
+### **Two Integrated Services:**
+
+**FabrikamApi** - Business Operations API
+- Sales analytics, order management, revenue tracking
+- Product catalog with specifications and inventory
+- Customer management and CRM
+- Support ticket system
+
+**FabrikamMcp** - AI Integration Server (Your Secret Weapon!)
+- **10 consolidated MCP tools** for natural language queries
+- Real-time connection to business data
+- Works across all AI platforms (Copilot Studio, ChatGPT, Claude)
+- Intelligent defaults for robust AI interactions
+
+**💡 Key Insight**: Your agent doesn't talk directly to the database. It uses MCP tools to get business data through a standardized protocol. This is how modern AI agents work in production!
+
+---
+
 ## 🏗️ **Workshop Structure**
 
 ### **Opening (15 minutes)**
