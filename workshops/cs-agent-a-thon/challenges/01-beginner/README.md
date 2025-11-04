@@ -342,14 +342,6 @@ Stuck on how to structure your agent? This shows the overall approach without th
 
 ---
 
-## 📊 Scoring Rubric
-
-[View Detailed Scoring](./scoring-rubric.md)
-
-See exactly how your agent will be evaluated across all scenarios.
-
----
-
 ## 🆘 Common Issues & Troubleshooting
 
 ### **"Agent says it will create a ticket but never does"**
