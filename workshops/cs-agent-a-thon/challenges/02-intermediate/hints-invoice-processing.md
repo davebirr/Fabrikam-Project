@@ -73,16 +73,26 @@ Process these invoices in order of increasing complexity:
 <details>
 <summary><strong>Hint CS-1: Setting Up Computer Use</strong></summary>
 
-Computer Use requires a hosted browser session:
+Computer Use provides a hosted browser for AI-driven web automation:
 
-1. In Copilot Studio, add a **Generative Action**
-2. Choose **Computer Use** capability
-3. The AI will have access to a browser that can:
-   - Navigate to file upload pages
-   - Extract text visually from documents
-   - Fill in forms and click buttons
+**Setup Steps**:
+1. In Copilot Studio, click **Tools** in the left sidebar
+2. Select **Computer Use** from the tools list
+3. Click **+ Add to agent** and choose your agent
+4. In the **New Computer Use** dialog:
+   - **Instructions**: Provide guidance for what the AI should do
+     - Example: `"Open https://example.com, Go to add invoice, fill in the provided details, Select submit invoice"`
+   - **Prompt Templates** (optional): Choose from:
+     - Invoice processing
+     - Data Entry  
+     - Data Extraction
+   - **Use Hosted Browser**: Keep checked (default)
+     - This provides a ready-to-use machine for web automation
+     - Supports public-facing websites (not custom desktop apps or internal sites)
 
-**Key Insight**: Computer Use treats the browser like a human would—it "sees" the page visually.
+**Learn More**: [Computer Use Documentation](https://go.microsoft.com/fwlink/?linkid=2328405)
+
+**Key Insight**: Computer Use treats the browser like a human would—it "sees" the page visually and can interact with forms, buttons, and content.
 
 </details>
 

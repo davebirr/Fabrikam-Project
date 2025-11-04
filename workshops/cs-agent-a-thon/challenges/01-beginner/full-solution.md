@@ -60,10 +60,16 @@ PERSONALITY:
 
 CAPABILITIES:
 You have access to real-time data via MCP tools:
-- get_orders - Look up order status and details
-- get_products - Retrieve product catalog information
+- get_orders - Look up order status and details by order ID
+- get_products - Retrieve complete product catalog (call with NO parameters to get all products)
 - get_customers - Find customer information
 - create_support_ticket - Create support tickets for complex issues
+
+TOOL USAGE INSTRUCTIONS:
+- get_orders: Call with orderId parameter (e.g., orderId=47 for FAB-2025-047)
+- get_products: Call with NO parameters to get full catalog, then filter/compare in your response
+- get_customers: Call with customerId or email parameter
+- create_support_ticket: Requires customerId, orderId, subject, description, priority, category
 
 CONVERSATION FLOW:
 1. Greet customers warmly
@@ -74,10 +80,17 @@ CONVERSATION FLOW:
 6. Offer additional assistance
 7. Escalate to support when appropriate
 
+CRITICAL: CUSTOMER NAME HANDLING
+- DO NOT use the logged-in user's name when addressing customers
+- ALWAYS use the customer name from the order data (order.customerFirstName, order.customerLastName)
+- Example: If logged-in as "Oscar Ward" but order belongs to "Diego Siciliani", use "Diego"
+- Only use the customer's name AFTER you've retrieved their order/customer data
+- If you don't have customer data yet, use "sir/ma'am" or no name at all
+
 CRITICAL: ALWAYS USE YOUR TOOLS FIRST
-- NEVER use Knowledge Sources or general information
+- NEVER use Web Search or general internet information
 - ALWAYS call get_orders for order questions (even if you just called it)
-- ALWAYS call get_products for product questions
+- ALWAYS call get_products with NO parameters for product questions
 - Use ONLY the data returned from your tools
 - If a customer asks the same question twice, call the tool again
 
@@ -430,6 +443,9 @@ Can you help me with a few details so I can get this escalated immediately?
 
 Thank you. I'm creating a critical priority ticket right now.
 
+[Calls get_orders with orderId=42 to get customer details]
+[Order shows: customerFirstName="Diego", customerLastName="Siciliani"]
+
 [Calls create_support_ticket with:
 - customerId: 5
 - orderId: 42
@@ -438,7 +454,7 @@ Thank you. I'm creating a critical priority ticket right now.
 - priority: "Critical"  
 - category: "ProductDefect"]
 
-✅ I've created ticket #TKT-2025-103 marked as CRITICAL priority.
+Diego, I've created ticket #TKT-2025-103 marked as CRITICAL priority.
 
 What Happens Next:
 - Within 2 hours: Our quality team will call you
@@ -618,6 +634,116 @@ Web Search tries to be helpful but can override MCP tools, especially on repeate
    ```
 
 💡 **Recommendation**: Use the confirmation pattern ("Would you like me to...?") as it's more reliable and provides better user experience. Only try automatic ticket creation if you consistently observe the agent creating tickets without prompting.
+
+---
+
+### **Problem: get_products Returns Empty Results**
+
+**Symptom**: Agent tries to compare products but says "product details did not come through" or returns empty results.
+
+**Example Bad Behavior**:
+```
+User: "Should I get the Family Haven 1800 or Executive Manor 2500?"
+
+Agent calls get_products with category='Executive Manor 2500'
+Returns empty array: []
+Agent: "I was able to search... but the product details did not come through"
+```
+
+**Root Cause**: Agent is calling `get_products` with a **category parameter** instead of no parameters.
+
+**Why This Fails**: 
+- The tool expects NO parameters to return the full product catalog
+- Passing a category filter (like 'Executive Manor 2500') returns empty results
+- Agent should get ALL products, then filter/compare in the response
+
+**Solution**:
+
+1. **Update System Prompt** (add to TOOL USAGE section):
+   ```
+   TOOL USAGE INSTRUCTIONS:
+   - get_products: Call with NO parameters to get full catalog
+   - Then filter and compare products in your response
+   - NEVER pass product names as category parameters
+   ```
+
+2. **Example Correct Usage**:
+   ```
+   User asks about products
+   ✅ Agent calls: get_products() with NO parameters
+   ✅ Agent receives: Full product catalog (all homes)
+   ✅ Agent filters in response: Compares Family Haven 1800 vs Executive Manor 2500
+   
+   ❌ Agent calls: get_products(category='Executive Manor 2500')
+   ❌ Agent receives: Empty array []
+   ```
+
+3. **Test Your Fix**:
+   ```
+   User: "Should I get the Family Haven 1800 or Executive Manor 2500?"
+   
+   ✅ SUCCESS: Agent provides detailed comparison with specs, prices, features
+   ❌ FAIL: Agent says "product details did not come through"
+   ```
+
+**Verification**: In the conversation details, you should see:
+- Tool call: `get_products` with NO parameters (empty object {})
+- Response: Array with all product data
+- Agent response: Detailed comparison of the two specific models requested
+
+---
+
+### **Problem: Agent Uses Wrong Customer Name**
+
+**Symptom**: 
+```
+User (logged in as Oscar Ward): "My order FAB-2025-042 has water damage!"
+Agent: "Oscar, I am truly sorry to hear about the water damage..."
+Order actually belongs to: Diego Siciliani
+```
+
+**Root Cause**: Agent is using the **logged-in user's name** instead of the **customer associated with the order**.
+
+**Why This Happens**: 
+- Copilot Studio may pass the authenticated user's identity to the agent
+- Agent doesn't know the difference between logged-in user and order customer
+- Need explicit guidance in system prompt
+
+**Solution**:
+
+1. **Add to System Prompt** (in CONVERSATION FLOW section):
+   ```
+   CRITICAL: CUSTOMER NAME HANDLING
+   - DO NOT use the logged-in user's name when addressing customers
+   - ALWAYS use the customer name from the order data (order.customerFirstName, order.customerLastName)
+   - Example: If logged-in as "Oscar Ward" but order belongs to "Diego Siciliani", use "Diego"
+   - Only use the customer's name AFTER you've retrieved their order/customer data
+   - If you don't have customer data yet, use "sir/ma'am" or no name at all
+   ```
+
+2. **Example Correct Behavior**:
+   ```
+   User (Oscar Ward): "My order FAB-2025-042 has water damage!"
+   
+   Agent calls get_orders(orderId=42)
+   Response shows: customerFirstName="Diego", customerLastName="Siciliani"
+   
+   ✅ CORRECT: "Diego, I am truly sorry to hear about the water damage..."
+   ❌ WRONG: "Oscar, I am truly sorry to hear about the water damage..."
+   ```
+
+3. **Test Your Fix**:
+   ```
+   Test Case: Log in as one user, ask about an order belonging to different customer
+   
+   ✅ SUCCESS: Agent uses customer name from order data
+   ❌ FAIL: Agent uses logged-in user's name
+   ```
+
+**Verification**: 
+- Agent should ONLY use names that appear in the order/customer data from MCP tools
+- Never use names from authentication context or login information
+- Better to use no name than the wrong name
 
 ---
 
