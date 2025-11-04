@@ -101,7 +101,7 @@ Customer Request
 #### **Bonus Features (up to 20 points)**
 - 🌟 Parallel specialist consultation (orchestrator asks multiple specialists)
 - 🌟 Learning from past routing decisions
-- 🌟 Sentiment-based routing (frustrated → escalation)
+- 🌟 Sentiment-based routing (frustrated customers go to escalation)
 - 🌟 Conversation summarization at end
 - 🌟 Proactive specialist suggestions
 
@@ -114,7 +114,7 @@ Customer Request
 Customer: "I want to buy the Family Haven 1800. What financing do you offer?"
 
 Expected Flow:
-1. Orchestrator: Identifies "buy" + "financing" → Route to Sales
+1. Orchestrator: Identifies "buy" + "financing", then routes to Sales
 2. Sales Agent: Provides product info + financing options
 3. Sales Agent: Can answer follow-up questions
 ```
@@ -189,19 +189,19 @@ Orchestrator agent that calls specialist "functions" (tools):
 
 ### **💡 Hints & Tips**
 
-**Available Without Spoilers!** [→ View Hints](./hints-multi-agent.md)
+**Available Without Spoilers!** [View Hints](./hints-multi-agent.md)
 
 ---
 
 ### **⚠️ Partial Solution**
 
-**Architecture & Patterns** [→ View Partial Solution](./partial-solution-multi-agent.md)
+**Architecture & Patterns** [View Partial Solution](./partial-solution-multi-agent.md)
 
 ---
 
 ### **🚨 SPOILER ALERT - Full Solution**
 
-**Complete Implementation** [→ View Full Solution](./full-solution-multi-agent.md)
+**Complete Implementation** [View Full Solution](./full-solution-multi-agent.md)
 
 ---
 
@@ -270,19 +270,19 @@ Expected Behavior:
 
 ### **💡 Hints & Tips**
 
-[→ View Vision Hints](./hints-vision.md)
+[View Vision Hints](./hints-vision.md)
 
 ---
 
 ### **⚠️ Partial Solution**
 
-[→ View Partial Solution](./partial-solution-vision.md)
+[View Partial Solution](./partial-solution-vision.md)
 
 ---
 
 ### **🚨 SPOILER ALERT - Full Solution**
 
-[→ View Full Solution](./full-solution-vision.md)
+[View Full Solution](./full-solution-vision.md)
 
 ---
 
@@ -535,19 +535,19 @@ GET /api/invoices/stats
 
 ### **💡 Hints & Tips**
 
-**Available Without Spoilers!** [→ View Hints](./hints-invoice-processing.md)
+**Available Without Spoilers!** [View Hints](./hints-invoice-processing.md)
 
 ---
 
 ### **⚠️ Partial Solution**
 
-**Architecture & Patterns** [→ View Partial Solution](./partial-solution-invoice-processing.md)
+**Architecture & Patterns** [View Partial Solution](./partial-solution-invoice-processing.md)
 
 ---
 
 ### **🚨 SPOILER ALERT - Full Solution**
 
-**Complete Implementation** [→ View Full Solution](./full-solution-invoice-processing.md)
+**Complete Implementation** [View Full Solution](./full-solution-invoice-processing.md)
 
 ---
 
@@ -576,7 +576,7 @@ Across all options, you'll master:
 
 Ready for the ultimate challenge?
 
-[**→ Proceed to Advanced Challenge**](../03-advanced/README.md)
+**Next:** [**Proceed to Advanced Challenge**](../03-advanced/README.md)
 
 Build production-ready agents with code using Azure AI Agent Framework!
 
