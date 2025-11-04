@@ -15,25 +15,37 @@ You've built a solid foundation agent. Now it's time to scale! Real customer ser
 
 ---
 
-## 💡 **Starting from Intermediate? Build Your Foundation First!**
+## 💡 **Smart Start: Your Beginner Agent = Free Technical Specialist!**
 
-If you're jumping straight to intermediate without completing the beginner challenge, we **strongly recommend** using the beginner full solution to quickly create a working base agent first:
+Great news! If you completed the beginner challenge (or use the beginner full solution), you **already have one of your four specialists done**! 🎉
 
-**Why?** The intermediate challenges build on concepts from beginner. Having a working agent helps you:
-- ✅ Verify your MCP tools are connected properly
-- ✅ Understand the Fabrikam business data and APIs
-- ✅ Test that your environment is configured correctly
-- ✅ Have a reference implementation to build upon
+### **The Fast Track Approach:**
 
-### **Quick Start (5-10 minutes):**
+**Your beginner "Fabrikam Customer Service" agent already does:**
+- ✅ Order status inquiries (get_orders)
+- ✅ Product information (get_products)  
+- ✅ Customer lookup (get_customers)
+- ✅ Support ticket creation (create_support_ticket)
+- ✅ Delay detection and escalation
+
+**This is exactly what the Technical Specialist needs!** Just rename it and refine the focus:
+
+1. **Rename your beginner agent** to "Fabrikam Technical Specialist"
+2. **Refine the system prompt** to focus on technical/support scenarios (see [Technical Specialist in full solution](./full-solution-multi-agent.md#technical-specialist-system-prompt))
+3. **Now build 3 more specialists**: Sales, Billing, Escalation
+4. **Create the orchestrator** to route between them
+
+### **Starting from Scratch? No Problem!**
+
+If you're jumping straight to intermediate without doing beginner:
 
 1. **Open the Beginner Full Solution**: [View Full Solution](../01-beginner/full-solution.md)
-2. **Copy the system prompt** and create a basic agent in Copilot Studio
+2. **Create "Fabrikam Technical Specialist"** using the beginner system prompt
 3. **Connect the 4 MCP tools** (get_orders, get_products, get_customers, create_support_ticket)
-4. **Run the 4 test scenarios** from the beginner challenge to verify everything works
-5. **Then proceed** with your intermediate challenge!
+4. **Test with a simple order lookup** to verify MCP tools work
+5. **Proceed with building your other specialists + orchestrator!**
 
-**This 5-10 minute investment saves lots of debugging later!** 🚀
+**Result:** You start with 1 specialist done and only need to build 3 more + orchestrator in 90 minutes! 🚀
 
 ---
 
@@ -90,10 +102,12 @@ Customer Request
 └─────────────────────┘
       ↓ Routes to
       ├─→ 🛒 Sales Specialist Agent
-      ├─→ 🔧 Technical Specialist Agent
+      ├─→ 🔧 Technical Specialist Agent (your beginner agent!)
       ├─→ 💰 Billing Specialist Agent
       └─→ 🚨 Escalation Specialist Agent
 ```
+
+**The Smart Part:** Your beginner "Fabrikam Customer Service" agent already has the tools and logic for Technical Specialist! Just rename and refocus it, then build 3 new specialists around it.
 
 ---
 
@@ -101,12 +115,13 @@ Customer Request
 
 #### **Basic Success (30 points)**
 - ✅ Orchestrator correctly identifies which specialist to route to
-- ✅ At least 2 specialist agents working
+- ✅ **Technical Specialist refined** from beginner agent (or created fresh)
+- ✅ **At least 1 additional specialist** working (Sales, Billing, OR Escalation)
 - ✅ Basic context passed between agents
 - ✅ Customer can complete simple requests
 
 #### **Good Success (60 points)**
-- ✅ All 4 specialist agents implemented
+- ✅ **All 4 specialist agents implemented** (Technical + 3 new specialists)
 - ✅ Seamless handoffs with full context
 - ✅ Multi-turn conversations within specialists
 - ✅ Natural transitions ("Let me connect you to...")
