@@ -19,6 +19,8 @@ Welcome to the Fabrikam Modular Homes AI Agent Workshop! This workshop takes you
 
 ## 📚 Challenge Progression
 
+**Choose Your Starting Point!** Each challenge is designed to work standalone, but they build on each other conceptually:
+
 ### 🟢 [Beginner: Customer Service Foundation](./01-beginner/README.md)
 **Build Your First AI Agent** | 90 minutes | Guided
 
@@ -33,6 +35,8 @@ Master the fundamentals of AI agent development by building a customer service a
 
 **Success Criteria**: Agent successfully handles order lookups, product comparisons, and creates support tickets with professional, empathetic responses.
 
+**Starting Here?** Perfect for those new to AI agents or wanting a guided foundation!
+
 [**Start Beginner Challenge →**](./01-beginner/README.md)
 
 ---
@@ -40,7 +44,7 @@ Master the fundamentals of AI agent development by building a customer service a
 ### 🟡 [Intermediate: Multi-Agent Orchestration](./02-intermediate/README.md)
 **Level Up with Specialist Agents** | 90 minutes | Self-Directed
 
-Build on your foundation by creating a multi-agent system where specialist agents handle different aspects of customer service.
+Build a multi-agent system where specialist agents handle different aspects of customer service.
 
 **Primary Challenge**: Multi-Agent Orchestration
 **Alternative Options**: Vision Integration, Proactive Automation
@@ -54,6 +58,8 @@ Build on your foundation by creating a multi-agent system where specialist agent
 
 **Success Criteria**: Orchestrator agent successfully routes customers to specialist agents, maintains conversation context, and delivers seamless experiences.
 
+**Starting Here?** Use beginner resources for quick foundation, then build your multi-agent system!
+
 [**Start Intermediate Challenge →**](./02-intermediate/README.md)
 
 ---
@@ -61,7 +67,7 @@ Build on your foundation by creating a multi-agent system where specialist agent
 ### 🔴 [Advanced: Production-Ready Agent Framework](./03-advanced/README.md)
 **Build Enterprise-Grade Solutions** | 90 minutes | Completely Self-Directed
 
-Rebuild your customer service solution using code-first approaches with Azure AI Agent Framework, demonstrating production-ready patterns and enterprise best practices.
+Build a customer service solution using code-first approaches with production patterns.
 
 **Your Choice**: Python, .NET, JavaScript, or any framework you prefer!
 
@@ -74,6 +80,8 @@ Rebuild your customer service solution using code-first approaches with Azure AI
 - ✅ Production patterns
 
 **Success Criteria**: Working agent implementation with code, proper error handling, telemetry, and deployment-ready configuration.
+
+**Starting Here?** Leverage beginner/intermediate system prompts and patterns even if you skip those challenges!
 
 [**Start Advanced Challenge →**](./03-advanced/README.md)
 
@@ -211,9 +219,12 @@ Each challenge includes multiple levels of guidance:
 - Learn from different implementation styles
 
 ### **Choose Your Own Adventure**
-- **Beginner**: Follow the guided path or explore on your own
-- **Intermediate**: Pick the option that excites you most
-- **Advanced**: Use ANY tools, frameworks, or approaches you prefer
+- **New to AI Agents?** Start with Beginner for a guided experience
+- **Some Experience?** Jump to Intermediate and use beginner resources as needed
+- **Code Wizard?** Go straight to Advanced and leverage all workshop materials
+- **Explorers Welcome**: Try different challenges, switch between them, or deep-dive into one
+
+Each challenge is designed to work standalone while offering cross-references to help you succeed!
 
 ---
 
@@ -227,13 +238,15 @@ Each challenge includes multiple levels of guidance:
 - [ ] Enthusiasm and curiosity! 🎉
 
 ### **Workshop Flow**
-1. **Introduction** (15 min): Workshop overview, Fabrikam context
-2. **Beginner Challenge** (90 min): Build your first agent
+1. **Introduction** (15 min): Workshop overview, Fabrikam context, choose your challenge
+2. **Challenge Block 1** (90 min): Work on your selected challenge
 3. **Break** (15 min): Recharge and network
-4. **Intermediate Challenge** (90 min): Add sophisticated capabilities
+4. **Challenge Block 2** (90 min): Continue or move to next challenge
 5. **Break** (15 min): Coffee and conversations
-6. **Advanced Challenge** (90 min): Production patterns
+6. **Challenge Block 3** (90 min): Polish your work or tackle another challenge
 7. **Showcase & Wrap-Up** (30 min): Share your creations!
+
+**Note**: You can tackle challenges in any order, repeat challenges with different approaches, or spend all 3 blocks perfecting one solution. Your choice!
 
 ---
 
