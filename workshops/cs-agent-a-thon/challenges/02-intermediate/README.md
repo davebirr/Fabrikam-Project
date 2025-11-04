@@ -463,7 +463,7 @@ Build a custom MCP tool with OCR capabilities:
 
 ### **📄 Sample Invoices**
 
-We've provided 8 realistic supplier invoices in the `sample-invoices/` directory:
+We've provided 8 realistic supplier invoices in **both PDF and Markdown formats** in the `sample-invoices/` directory:
 
 | Invoice | Vendor | Amount | Complexity | Purpose |
 |---------|--------|--------|------------|---------|
@@ -476,7 +476,11 @@ We've provided 8 realistic supplier invoices in the `sample-invoices/` directory
 | 007 | SolarEdge Solutions | $220,480.85 | ⭐⭐⭐⭐⭐ Extremely Complex | Multi-section, 17 items |
 | 008 | Premium Lumber (Duplicate) | $80,433.30 | ⭐ Simple | Tests duplicate detection |
 
-**See**: [sample-invoices/README.md](./sample-invoices/README.md) for complete details
+**File Formats:**
+- 📄 **PDF files** (001-premium-lumber-supply.pdf, etc.) - Ready for OCR, Document Intelligence, or vision-based processing
+- 📝 **Markdown files** (.md) - Human-readable source files
+
+**See**: [sample-invoices/README.md](./sample-invoices/README.md) for complete details and API documentation
 
 ---
 
