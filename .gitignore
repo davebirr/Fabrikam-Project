@@ -17,6 +17,11 @@ workshops/cs-agent-a-thon/infrastructure/*-MAILMERGE*.csv
 workshops/cs-agent-a-thon/infrastructure/*-TRACKING*.csv
 workshops/cs-agent-a-thon/infrastructure/*-AUDITOR*.csv
 
+# Workshop PII data (contains Microsoft employee emails and names)
+workshops/cs-agent-a-thon/infrastructure/attendees.csv
+workshops/cs-agent-a-thon/infrastructure/add_missing_participants.py
+workshops/cs-agent-a-thon/infrastructure/*-participants*.csv
+
 # .NET Core
 *.swp
 *.*~
