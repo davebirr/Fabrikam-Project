@@ -74,6 +74,13 @@ CONVERSATION FLOW:
 6. Offer additional assistance
 7. Escalate to support when appropriate
 
+CRITICAL: ALWAYS USE YOUR TOOLS FIRST
+- NEVER use Knowledge Sources or general information
+- ALWAYS call get_orders for order questions (even if you just called it)
+- ALWAYS call get_products for product questions
+- Use ONLY the data returned from your tools
+- If a customer asks the same question twice, call the tool again
+
 CRITICAL: PRODUCTION TIMELINE AWARENESS
 When checking order status, ALWAYS analyze the timeline:
 
@@ -85,23 +92,30 @@ Production Timeline Rules:
 When You Detect a Delay:
 1. Apologize for the delay (acknowledge it's beyond standard timeline)
 2. Calculate: Days in production - 30 = Days overdue
-3. IMMEDIATELY call create_support_ticket tool with:
+3. Explain that you'd like to create a support ticket to escalate
+4. ASK: "Would you like me to create a high-priority support ticket to have our production team contact you within 24 hours with an update?"
+5. WAIT for customer approval
+6. When approved, IMMEDIATELY call create_support_ticket tool with:
    - customerId: Extract from order data (order.customerId)
    - orderId: The order ID
    - subject: "Production Delay - Order [number] at [days] days ([overdue] days overdue)"
    - description: Include timeline details and customer impact
    - priority: "High"
    - category: "OrderInquiry"
-4. Tell customer what you DID (not what you "will do")
-5. Provide the actual ticket number from the response
-6. Set expectation: Production team will contact within 24 hours
+7. Tell customer what you DID (not what you "will do")
+8. Provide the actual ticket number from the response
+9. Set expectation: Production team will contact within 24 hours
 
 Example Delay Response:
 "I notice your order has been in production for 52 days, which is 22 days beyond our standard 30-day timeline. I apologize for this delay.
 
-[ACTUALLY CALL create_support_ticket TOOL NOW - don't just say you will!]
+I can create a high-priority support ticket to have our production team contact you directly within 24 hours with a specific update and new completion date. Would you like me to do that?
 
-I've created support ticket #TKT-2025-089 (high priority) for your case. Our production team will contact you within 24 hours with a specific update and new completion date."
+[WAIT FOR CUSTOMER RESPONSE]
+
+[When customer says yes, IMMEDIATELY CALL create_support_ticket TOOL]
+
+Perfect! I've created support ticket #TKT-2025-089 (high priority) for your case. Our production team will contact you within 24 hours with a specific update and new completion date."
 
 TICKET CATEGORIES (use exact values):
 - OrderInquiry - Order status, timelines, tracking
@@ -164,6 +178,44 @@ In Copilot Studio, navigate to **Tools** and add the Fabrikam MCP Connection:
 - **Authentication**: None required
 
 💡 **Pro Tip**: You don't need all tools enabled. Disable tools you're not using to keep responses focused.
+
+---
+
+### **⚠️ CRITICAL: Disable Web Search**
+
+**This step is ESSENTIAL to prevent your agent from using wrong information!**
+
+The **Web Search** feature can interfere with MCP tool calls, causing your agent to:
+- ❌ Search public websites instead of using real-time MCP tools
+- ❌ Reference wrong companies or websites (like "Fab" shipping tracking sites)
+- ❌ Provide outdated or incorrect information from the internet
+- ❌ Fail to call tools on repeated questions (uses web results instead)
+
+**How to Disable Web Search:**
+
+1. In Copilot Studio, go to your **Agent Overview** page
+2. Scroll down to the **Knowledge** section
+3. Find **Web Search** toggle
+4. **Disable** the "Enable your agent to search all public websites" option
+5. The agent will automatically save this setting
+
+**Verify It's Disabled:**
+- After disabling, the Web Search toggle should be OFF (gray/unchecked)
+- Test your agent with: "My order is FAB-2025-047, where is it?"
+- Agent should ONLY call `get_orders` tool (not search the web)
+- Ask the same question again - agent should call `get_orders` again (not use web results)
+
+**Why This Matters:**
+With Web Search enabled, your agent might find generic shipping tracking websites (like ship24.com) and reference "Fab" (wrong company!) instead of using the Fabrikam MCP tools. This is the **#1 cause of the "calls tool first time but uses Web Search second time" bug**.
+
+✅ **Best Practice**: Keep Web Search disabled for this challenge. You want your agent to rely ONLY on the MCP tools for accurate, real-time Fabrikam data.
+
+**Other Knowledge Sources:**
+- **SharePoint/OneDrive**: Also disable if present (not needed for this challenge)
+- **Uploaded files**: Also disable if present (not needed for this challenge)
+- **Dataverse**: Also disable if present (not needed for this challenge)
+
+The goal: **No knowledge sources enabled** - only MCP tools!
 
 ---
 
@@ -256,7 +308,16 @@ I found your order for a Cozy Cottage 1200. I need to be honest with you about t
 - Standard production time: 30 days
 - Your order is 22 days beyond our normal timeline
 
-I sincerely apologize for this delay. This is not typical for Fabrikam, and I'm taking action right now.
+I sincerely apologize for this delay. This is not typical for Fabrikam.
+
+I can create a high-priority support ticket to have our production team contact you directly within 24 hours with a specific update and new completion date. Would you like me to do that?
+
+**Customer:**
+> "Yes, please do that."
+
+**Agent:**
+```
+Perfect! Let me create that for you right now.
 
 [Calls create_support_ticket with:
 - customerId: 3 (Johanna Lorenz)
@@ -266,7 +327,7 @@ I sincerely apologize for this delay. This is not typical for Fabrikam, and I'm 
 - priority: "High"
 - category: "OrderInquiry"]
 
-✅ I've created support ticket #TKT-2025-089 (high priority).
+✅ Done! I've created support ticket #TKT-2025-089 (high priority).
 
 What Happens Next:
 - Within 24 hours: Production manager will call you personally
@@ -280,11 +341,20 @@ I apologize again for the delay and lack of communication. Is there anything els
 - ✅ Acknowledges lack of communication (empathy)
 - ✅ Uses get_orders tool correctly
 - ✅ **ANALYZES timeline** (52 days vs 30 standard = 22 overdue)
-- ✅ **ACTUALLY creates ticket** (not just talks about it)
+- ✅ **Asks permission before creating ticket** (better user experience)
+- ✅ **ACTUALLY creates ticket when approved** (not just talks about it)
 - ✅ Provides real ticket number (TKT-2025-089)
 - ✅ Sets specific expectations (24 hours)
 - ✅ Takes ownership ("I apologize" not "system shows")
 - ✅ Offers additional help
+
+💡 **Note on User Confirmation Pattern:**
+Asking "Would you like me to create a support ticket?" before calling the tool is a **workaround for Copilot Studio's reluctance to automatically create tickets**. This pattern:
+- Gets explicit user permission (better UX)
+- Triggers the agent to actually call the tool (not just describe it)
+- Works more reliably than trying to force automatic ticket creation
+
+If your agent consistently creates tickets automatically without prompting, you can remove this confirmation step. But if you notice the agent talks about tickets without creating them, USE this confirmation pattern.
 
 ---
 
@@ -443,15 +513,86 @@ Which would be easiest for you?
 
 ## 🔧 **Troubleshooting Common Issues**
 
+### **Problem: Agent Uses Web Search Instead of MCP Tools**
+
+**Symptom**: Agent calls get_orders the first time, but on the second question uses "Web Search" and references external websites or wrong company information.
+
+**Example Bad Behavior**:
+```
+First question: "Order FAB-2025-047?"
+✅ Agent calls get_orders correctly
+
+Second question (same conversation): "What's the status?"
+❌ Agent uses Web Search, says "log into your Fab account"
+❌ References ship24.com or other external tracking sites
+❌ Doesn't call get_orders again
+```
+
+**Root Cause**: **Web Search** is enabled on the Agent Overview page.
+
+**Solutions** (try in order):
+
+1. **DISABLE WEB SEARCH** (Most Important!):
+   - Go to **Agent Overview** page in Copilot Studio
+   - Scroll to **Knowledge** section
+   - Find **Web Search** toggle
+   - **Disable** "Enable your agent to search all public websites"
+   - Test again in a NEW conversation
+   
+2. **Strengthen System Prompt** (add at the top):
+   ```
+   CRITICAL: ALWAYS USE YOUR TOOLS FIRST
+   - NEVER use Web Search or general internet information
+   - ALWAYS call get_orders for order questions (even if you just called it)
+   - Use ONLY the data returned from your MCP tools
+   - If a customer asks the same question twice, call the tool again
+   ```
+
+3. **Test Your Fix**:
+   ```
+   First message: "My order is FAB-2025-047, where is it?"
+   Second message: "I asked the question again"
+   
+   ✅ SUCCESS: Agent calls get_orders BOTH times, no web references
+   ❌ FAIL: Agent mentions "Fab" company, ship24.com, or external sites
+   ```
+
+**Why This Happens**: 
+Web Search tries to be helpful but can override MCP tools, especially on repeated questions. The agent thinks "I already answered this" and searches the web instead of calling the tool again. It might find generic "Fab" shipping sites (wrong company!) instead of using Fabrikam tools.
+
+**After Fix**: Your agent should NEVER mention:
+- ❌ "log into your Fab account"
+- ❌ ship24.com or tracking websites
+- ❌ "third-party tracking tools"
+- ✅ Only use data from get_orders tool
+
+---
+
 ### **Problem: Agent Says "I will create a ticket" But Never Does**
 
 **Symptom**: Agent understands it should create a ticket but doesn't actually call the tool.
 
-**Root Cause**: Copilot Studio recognizes intent but doesn't automatically execute tools.
+**Root Cause**: Copilot Studio recognizes intent but doesn't automatically execute tools without user confirmation.
 
 **Solutions** (try in order):
 
-1. **Strengthen System Prompt**:
+1. **USE CONFIRMATION PATTERN** (Recommended Workaround):
+   Update your system prompt to ASK before creating tickets:
+   ```
+   When You Detect a Delay:
+   1. Apologize for the delay
+   2. ASK: "Would you like me to create a high-priority support ticket?"
+   3. WAIT for customer approval
+   4. When approved, IMMEDIATELY call create_support_ticket tool
+   5. Provide the actual ticket number
+   ```
+   
+   This pattern works more reliably because:
+   - Gets explicit user permission
+   - Triggers the agent to actually call the tool
+   - Better user experience (customer controls escalation)
+
+2. **Strengthen System Prompt** (if you want automatic tickets):
    ```
    When you detect a delay:
    - DO NOT say "I will create a ticket"
@@ -460,16 +601,22 @@ Which would be easiest for you?
    - Use the actual ticket number from the tool response
    ```
 
-2. **Add Explicit Topic** (if system prompt doesn't work):
-   Create a topic that explicitly calls the tool when delay detected
-
 3. **Test Your Fix**:
    ```
    User: "My order FAB-2025-047 hasn't shipped"
    
-   ✅ SUCCESS: Agent responds with "I've created ticket #TKT-2025-089"
+   ✅ SUCCESS (Confirmation Pattern): 
+      Agent: "Would you like me to create a support ticket?"
+      User: "Yes"
+      Agent: "I've created ticket #TKT-2025-089"
+   
+   ✅ SUCCESS (Automatic): 
+      Agent: "I've created ticket #TKT-2025-089"
+   
    ❌ FAIL: Agent says "I'm creating a ticket..." but no number appears
    ```
+
+💡 **Recommendation**: Use the confirmation pattern ("Would you like me to...?") as it's more reliable and provides better user experience. Only try automatic ticket creation if you consistently observe the agent creating tickets without prompting.
 
 ---
 
