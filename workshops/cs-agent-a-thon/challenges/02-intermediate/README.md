@@ -15,6 +15,28 @@ You've built a solid foundation agent. Now it's time to scale! Real customer ser
 
 ---
 
+## 💡 **Starting from Intermediate? Build Your Foundation First!**
+
+If you're jumping straight to intermediate without completing the beginner challenge, we **strongly recommend** using the beginner full solution to quickly create a working base agent first:
+
+**Why?** The intermediate challenges build on concepts from beginner. Having a working agent helps you:
+- ✅ Verify your MCP tools are connected properly
+- ✅ Understand the Fabrikam business data and APIs
+- ✅ Test that your environment is configured correctly
+- ✅ Have a reference implementation to build upon
+
+### **Quick Start (5-10 minutes):**
+
+1. **Open the Beginner Full Solution**: [View Full Solution](../01-beginner/full-solution.md)
+2. **Copy the system prompt** and create a basic agent in Copilot Studio
+3. **Connect the 4 MCP tools** (get_orders, get_products, get_customers, create_support_ticket)
+4. **Run the 4 test scenarios** from the beginner challenge to verify everything works
+5. **Then proceed** with your intermediate challenge!
+
+**This 5-10 minute investment saves lots of debugging later!** 🚀
+
+---
+
 ## 🎪 Choose Your Path
 
 Pick the challenge that excites you most, or tackle multiple if you're ambitious!
