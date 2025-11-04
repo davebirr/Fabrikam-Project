@@ -341,7 +341,7 @@ For the delayed order test:
 ### **Debug Checklist**
 
 1. **Check MCP Connection**
-   - Go to Tools → Verify Fabrikam connection is added
+   - Go to Tools, then verify Fabrikam connection is added
    - Check which tools are enabled
 
 2. **Review Tool Calls**

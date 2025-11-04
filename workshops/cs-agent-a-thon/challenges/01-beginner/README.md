@@ -105,7 +105,7 @@ Everything above, plus:
 
 **Production Timelines**:
 - Standard production: **30 days**
-- If order is in production > 30 days → **DELAYED** (create ticket!)
+- If order is in production more than 30 days, then it is **DELAYED** (create ticket!)
 - Standard shipping: **5-7 days**
 
 **Ticket Categories** (use exact values):
@@ -289,19 +289,15 @@ Check the [hints](./hints.md) for examples of each without spoiling the full sol
 
 **📈 Suggested Progression**:
 ```
-Start → Test Scenario 1 (order lookup) → Works? → Add product comparison
-                ↓ Doesn't work?                              ↓ Works?
-         Check hints.md for MCP issues              Add error handling (Scenario 5)
-                                                              ↓ Works?
-                                                     Add delay detection (HARD!)
-                                                              ↓
-                                                    Test Scenario 2 & refine
-                                                              ↓
-                                                     Add empathy (Scenario 4)
-                                                              ↓
-                                                         Test all 5 scenarios
-                                                              ↓
-                                                     Achieve 60-100 points! 🎉
+1. Start with Test Scenario 1 (order lookup)
+2. If it works: Add product comparison
+   If it doesn't work: Check hints.md for MCP issues
+3. Add error handling (Scenario 5)
+4. Add delay detection (HARD!)
+5. Test Scenario 2 & refine
+6. Add empathy (Scenario 4)
+7. Test all 5 scenarios
+8. Achieve 60-100 points! 🎉
 ```
 
 💡 **Key Insight**: Each scenario builds on the previous one. Don't try to solve everything at once!
@@ -310,7 +306,7 @@ Start → Test Scenario 1 (order lookup) → Works? → Add product comparison
 
 ## 💡 Hints & Tips
 
-**Available Without Spoilers!** [→ View Hints](./hints.md)
+**Available Without Spoilers!** [View Hints](./hints.md)
 
 Common pitfalls and guidance to help you succeed without giving away the solution.
 
@@ -318,7 +314,7 @@ Common pitfalls and guidance to help you succeed without giving away the solutio
 
 ## 💬 Conversation Examples
 
-**See What Great Looks Like!** [→ View Conversation Examples](./conversation-examples.md)
+**See What Great Looks Like!** [View Conversation Examples](./conversation-examples.md)
 
 Realistic conversations using actual Fabrikam data showing exactly how an excellent agent responds. Learn the patterns without spoiling the solution!
 
@@ -326,7 +322,7 @@ Realistic conversations using actual Fabrikam data showing exactly how an excell
 
 ## ⚠️ Partial Solution
 
-**Architecture & Approach** [→ View Partial Solution](./partial-solution.md)
+**Architecture & Approach** [View Partial Solution](./partial-solution.md)
 
 Stuck on how to structure your agent? This shows the overall approach without the complete implementation.
 
@@ -334,7 +330,7 @@ Stuck on how to structure your agent? This shows the overall approach without th
 
 ## 🚨 SPOILER ALERT - Full Solution
 
-**Complete Working Implementation** [→ View Full Solution](./full-solution.md)
+**Complete Working Implementation** [View Full Solution](./full-solution.md)
 
 ⚠️ **Warning**: This contains the complete, tested solution that achieves 100 points. It includes:
 - Full system prompt with delay detection logic
@@ -348,7 +344,7 @@ Stuck on how to structure your agent? This shows the overall approach without th
 
 ## 📊 Scoring Rubric
 
-[→ View Detailed Scoring](./scoring-rubric.md)
+[View Detailed Scoring](./scoring-rubric.md)
 
 See exactly how your agent will be evaluated across all scenarios.
 
@@ -390,7 +386,7 @@ Once you've completed this challenge:
 3. **Share insights** with your table
 4. **Move to Intermediate** when ready!
 
-[**→ Proceed to Intermediate Challenge**](../02-intermediate/README.md)
+**Next:** [**Proceed to Intermediate Challenge**](../02-intermediate/README.md)
 
 ---
 

@@ -80,7 +80,7 @@ When checking order status, ALWAYS analyze the timeline:
 Production Timeline Rules:
 - Standard production time: 30 days
 - Standard shipping: 5-7 days
-- If "In Production" for > 30 days → This is DELAYED
+- If "In Production" for more than 30 days, then this is DELAYED
 
 When You Detect a Delay:
 1. Apologize for the delay (acknowledge it's beyond standard timeline)
@@ -223,7 +223,7 @@ User: "My order is FAB-2025-047, where is it?"
 ✅ **GOOD (no Topic needed)**: Agent immediately looks up order and provides full analysis  
 ❌ **BAD (add Topic)**: Agent asks "Can you provide your order number?" when user already did
 
-**If Your Agent Asks for Info Already Provided** → Your Topic is too restrictive → Remove it!
+**If Your Agent Asks for Info Already Provided**, then your Topic is too restrictive, so remove it!
 
 ---
 
@@ -485,7 +485,7 @@ CRITICAL ANALYSIS RULE:
 After calling get_orders, you MUST:
 1. Calculate: Current Date - Production Start Date = Days
 2. Compare: Days vs 30-day standard
-3. If Days > 30: This is DELAYED (take action!)
+3. If Days is more than 30: This is DELAYED (take action!)
 4. Never say "should be done soon" if already past deadline
 ```
 
@@ -684,7 +684,7 @@ Now that you have a working solution:
 4. **Share insights** with your table
 5. **Move to Intermediate** to build on this foundation!
 
-[**→ Intermediate Challenge: Multi-Agent Orchestration**](../02-intermediate/README.md)
+**Next: [Intermediate Challenge: Multi-Agent Orchestration](../02-intermediate/README.md)**
 
 ---
 

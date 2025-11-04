@@ -221,20 +221,20 @@ Here's a detailed side-by-side comparison:
 To help guide your choice, consider:
 
 1. **Family Size**: How many people will live there?
-   - 3-5 people → Family Haven is perfect
-   - 5+ people or planning to grow → Executive Manor
+   - 3-5 people: Family Haven is perfect
+   - 5+ people or planning to grow: Executive Manor
 
 2. **Work From Home**: Do you need a dedicated home office?
-   - Yes → Executive Manor has a built-in office
-   - No/flexible → Family Haven works great
+   - Yes: Executive Manor has a built-in office
+   - No/flexible: Family Haven works great
 
 3. **Budget**: What's your total budget including customization?
-   - Moderate ($185K-$220K) → Family Haven with upgrades
-   - Higher ($295K+) → Executive Manor
+   - Moderate ($185K-$220K): Family Haven with upgrades
+   - Higher ($295K+): Executive Manor
 
 4. **Priorities**: What matters most?
-   - Value and functionality → Family Haven
-   - Luxury and space → Executive Manor
+   - Value and functionality: Family Haven
+   - Luxury and space: Executive Manor
 
 Would you like me to connect you with our sales specialist, James, who can walk you through floor plans and discuss financing options? He's fantastic at helping families visualize how they'd use the space!
 
@@ -340,7 +340,7 @@ Is there anything else I should document in your case before Sarah contacts you?
 ✅ **Addresses money concerns** - "no cost to you"  
 ✅ **Addresses time concerns** - "work around YOUR schedule" (acknowledges they took time off)  
 ✅ **Escalates appropriately** - Regional manager involved  
-✅ **Corrects crew's mistake** - "absolutely not our problem" → "This is our problem"  
+✅ **Corrects crew's mistake** - "absolutely not our problem" becomes "This is our problem"  
 ✅ **Provides fallback** - "if you don't hear within 2 hours, call back"  
 ✅ **Maintains composure** - Never defensive, always solution-focused  
 
