@@ -1,0 +1,118 @@
+TeamNumber,TeamType,UserNumber,RealFullName,RealAlias,RealEmail,OriginalTeam,Country,ChallengePreference
+1,Advanced,69,Chandra Mehta,CHAMEHT,chameht@microsoft.com,Complex Solutioning,Canada,Advanced
+1,Advanced,6,Andrew Cook,ANDRCOOK,andrcook@microsoft.com,GTM,United States,Advanced
+1,Advanced,56,Steve Lowe,STEPHENLOWE,stephenlowe@microsoft.com,AI Transformation,United Kingdom,Advanced
+1,Advanced,65,Shaleen Verma,SHALEENV,shaleenv@microsoft.com,BA Solutioning,Singapore,Advanced
+1,Advanced,66,Stephanus Natawardaja,SNATAWARDAJA,snatawardaja@microsoft.com,BA Solutioning,Australia,Advanced
+2,Advanced,104,Mervin Pearce,MEPEARCE,mepearce@microsoft.com,Security Solutioning,Portugal,Advanced
+2,Advanced,44,Anukool A.,ANUKS,anuks@microsoft.com,AI Transformation,Netherlands,Advanced
+2,Advanced,95,Miguel Campos,MCAMPOS,mcampos@microsoft.com,M&M Solutioning,Costa Rica,Advanced
+2,Advanced,86,Saad Siddique,SAADSIDDIQUE,saadsiddique@microsoft.com,I&U Solutioning,United States,Advanced
+2,Advanced,45,David Tagler,DAVIDTAGLER,davidtagler@microsoft.com,AI Transformation,United States,Advanced
+3,Advanced,94,Mai Ve Bugge,MAIVEBUGGE,maivebugge@microsoft.com,M&M Solutioning,Denmark,Advanced
+3,Advanced,17,Mazhar Leghari,MALEGHA,malegha@microsoft.com,I&U Strategy & Shaping,United Arab Emirates,Advanced
+3,Advanced,96,Sree Adigopula,SREEA,sreea@microsoft.com,M&M Solutioning,India,Advanced
+3,Advanced,29,Alessio Giombini,ALGIOMBI,algiombi@microsoft.com,MW Strategy & Shaping,United Kingdom,Advanced
+3,Advanced,81,Ranjiv Sharma,RSHARMA,rsharma@microsoft.com,Complex Solutioning,United States,Advanced
+4,Advanced,53,Olivier Stéphan,OSTEPHAN,ostephan@microsoft.com,AI Transformation,France,Advanced
+4,Advanced,11,Pardeep Atwal,PAATWAL,paatwal@microsoft.com,GTM,United Kingdom,Advanced
+4,Advanced,15,Francesco Sparacio,FRANSPA,franspa@microsoft.com,I&U Strategy & Shaping,Spain,Advanced
+5,Mixed (Beg/Int),76,Marcello Benati,MBENATI,mbenati@microsoft.com,Complex Solutioning,United States,No Preference
+5,Mixed (Beg/Int),24,Doris X CHEN,XUACHE,xuache@microsoft.com,M&M Strategy & Shaping,China,Intermediate
+5,Mixed (Beg/Int),59,Greg Kerns,GRKERNS,grkerns@microsoft.com,BA Solutioning,United States,Intermediate
+5,Mixed (Beg/Int),43,Ainhoa Barturen,ABARTUREN,abarturen@microsoft.com,AI Transformation,United States,Beginner
+5,Mixed (Beg/Int),7,Elwin Quentel,ELWINQUENTEL,elwinquentel@microsoft.com,GTM,France,Intermediate
+6,Mixed (Beg/Int),73,Jose Villanueva,JOSEVILL,josevill@microsoft.com,Complex Solutioning,United States,No Preference
+6,Mixed (Beg/Int),109,Wei Shi,WEISHI,weishi@microsoft.com,Security Solutioning,China,No Preference
+6,Mixed (Beg/Int),63,Nandiprasad Jawali,NANJAW,nanjaw@microsoft.com,BA Solutioning,India,Intermediate
+6,Mixed (Beg/Int),54,Paul Kalsbeek,PAULKALSBEEK,paulkalsbeek@microsoft.com,AI Transformation,Netherlands,Intermediate
+6,Mixed (Beg/Int),91,Ivan Bondy,IBONDY,ibondy@microsoft.com,M&M Solutioning,United States,Beginner
+7,Mixed (Beg/Int),107,Steve Sieverding,STSIEVE,stsieve@microsoft.com,Security Solutioning,United States,No Preference
+7,Mixed (Beg/Int),90,David Stoker,DSTOKER,dstoker@microsoft.com,M&M Solutioning,United States,No Preference
+7,Mixed (Beg/Int),105,Michael Norden,MNORDEN,mnorden@microsoft.com,Security Solutioning,Germany,Beginner
+7,Mixed (Beg/Int),3,Pritha Bhattacharya,PRITHAB,prithab@microsoft.com,BA Strategy & Shaping,United States,No Preference
+7,Mixed (Beg/Int),84,Nishant Srivastava,NISRIV,nisriv@microsoft.com,I&U Solutioning,India,No Preference
+8,Mixed (Beg/Int),13,Ashan Bogol,ASHANBOGOL,ashanbogol@microsoft.com,I&U Strategy & Shaping,United States,No Preference
+8,Mixed (Beg/Int),89,Atul Wats,ATULWATS,atulwats@microsoft.com,M&M Solutioning,India,Intermediate
+8,Mixed (Beg/Int),14,Bulent Alev,BULENTALEV,bulentalev@microsoft.com,I&U Strategy & Shaping,United States,No Preference
+8,Mixed (Beg/Int),57,Antonio Mendez,JAMENDEZ,jamendez@microsoft.com,BA Solutioning,Mexico,Beginner
+8,Mixed (Beg/Int),38,Pramod Nair,PRAMODNAIR,pramodnair@microsoft.com,Security Strategy & Shaping,Ireland,Intermediate
+9,Mixed (Beg/Int),12,Penny Tongsumrith,PETONGSU,petongsu@microsoft.com,GTM,Australia,Beginner
+9,Mixed (Beg/Int),129,Olga Masek,OMASEK,omasek@microsoft.com,Ops,United States,No Preference
+9,Mixed (Beg/Int),30,Brian Richier,BRIANRICHIER,brianrichier@microsoft.com,MW Strategy & Shaping,United States,No Preference
+9,Mixed (Beg/Int),106,Robert Zen,ROBERTZEN,robertzen@microsoft.com,Security Solutioning,Australia,Intermediate
+9,Mixed (Beg/Int),134,Fabian Sirach,FABIANS,fabians@microsoft.com,I&U Solutioning,France,Intermediate
+10,Mixed (Beg/Int),40,Spencer Littlejohn,SPENCERL,spencerl@microsoft.com,Security Strategy & Shaping,United States,Beginner
+10,Mixed (Beg/Int),87,Srutha Kirthi Enugala,SENUGALA,senugala@microsoft.com,I&U Solutioning,India,Intermediate
+10,Mixed (Beg/Int),20,Willie Ahlers,WIAHLERS,wiahlers@microsoft.com,I&U Strategy & Shaping,United States,No Preference
+10,Mixed (Beg/Int),80,Phil Beaumont,PHBEAUMO,phbeaumo@microsoft.com,Complex Solutioning,United Kingdom,Intermediate
+10,Mixed (Beg/Int),51,Jayasimha (Jaya) Rao,JAYASIMHAB,jayasimhab@microsoft.com,AI Transformation,Netherlands,No Preference
+11,Mixed (Beg/Int),27,Loren Nasser,LONASSER,lonasser@microsoft.com,M&M Strategy & Shaping,United States,Beginner
+11,Mixed (Beg/Int),82,Thomas Ellermann,THOMASE,thomase@microsoft.com,Complex Solutioning,Denmark,Beginner
+11,Mixed (Beg/Int),37,Mark Gibson,MAGIBSO,magibso@microsoft.com,Security Strategy & Shaping,Australia,Intermediate
+11,Mixed (Beg/Int),131,Robin Ray-Howett,ROBINRH,robinrh@microsoft.com,MW Strategy & Shaping,Switzerland,Intermediate
+11,Mixed (Beg/Int),39,Ralf Winterer,RALFWINT,ralfwint@microsoft.com,Security Strategy & Shaping,Germany,Beginner
+12,Mixed (Beg/Int),48,Howard Hoy,HOWARDH,howardh@microsoft.com,AI Transformation,United States,No Preference
+12,Mixed (Beg/Int),127,Angelika Konstantinova,ANGELIKAK,angelikak@microsoft.com,Ops,United Kingdom,Beginner
+12,Mixed (Beg/Int),55,Sidra Soilleux,SIDRAJOCUS,sidrajocus@microsoft.com,AI Transformation,United States,Beginner
+12,Mixed (Beg/Int),1,Imran Laljivirani,IMRANLAL,imranlal@microsoft.com,BA Strategy & Shaping,United States,Intermediate
+12,Mixed (Beg/Int),25,Duzianthan Mohanadoss,DUZIM,duzim@microsoft.com,M&M Strategy & Shaping,United States,Intermediate
+13,Mixed (Beg/Int),46,Ela Ciumacencu,ECIUMACENCU,eciumacencu@microsoft.com,AI Transformation,Netherlands,Beginner
+13,Mixed (Beg/Int),19,Susan Meldahl,SUSANMELDAHL,susanmeldahl@microsoft.com,I&U Strategy & Shaping,United States,No Preference
+13,Mixed (Beg/Int),101,Adeel Ahmed,ADAHMED,adahmed@microsoft.com,Security Solutioning,Qatar,Intermediate
+13,Mixed (Beg/Int),42,Natasha Lupescu,NATASHAL,natashal@microsoft.com,ISD Excellence & Partner,Netherlands,No Preference
+13,Mixed (Beg/Int),92,Javier Rosas Hernandez,JROSAS,jrosas@microsoft.com,M&M Solutioning,Mexico,Intermediate
+14,Mixed (Beg/Int),130,Brent Sinclair,BRENTSIN,brentsin@microsoft.com,BA Strategy & Shaping,United States,No Preference
+14,Mixed (Beg/Int),33,Owen Lundberg,OWENLUND,owenlund@microsoft.com,MW Strategy & Shaping,United States,No Preference
+14,Mixed (Beg/Int),128,Ching Leelaphisut,CHINGLE,chingle@microsoft.com,Ops,United States,No Preference
+14,Mixed (Beg/Int),47,Helen Dove,HELENDOVE,helendove@microsoft.com,AI Transformation,United States,Beginner
+14,Mixed (Beg/Int),78,Peter Bertolis,PEBERT,pebert@microsoft.com,Complex Solutioning,Netherlands,No Preference
+15,Mixed (Beg/Int),4,Remy Ntshaykolo,REMYN,remyn@microsoft.com,BA Strategy & Shaping,United States,Beginner
+15,Mixed (Beg/Int),99,Shana Warner,SHANAH,shanah@microsoft.com,MW Solutioning,United States,Beginner
+15,Mixed (Beg/Int),9,Marguerite Cole,MARCOLE,marcole@microsoft.com,GTM,United States,Beginner
+15,Mixed (Beg/Int),75,Leonardo Volkmar,LVOLKMAR,lvolkmar@microsoft.com,Complex Solutioning,Brazil,Intermediate
+15,Mixed (Beg/Int),61,Marc Kravitz,MAKRAVIT,makravit@microsoft.com,BA Solutioning,United States,No Preference
+16,Mixed (Beg/Int),49,Huw Edmunds,HEDMUNDS,hedmunds@microsoft.com,AI Transformation,France,No Preference
+16,Mixed (Beg/Int),88,Wandenkolk Tinoco Neto,WANDENT,wandent@microsoft.com,I&U Solutioning,Brazil,Intermediate
+16,Mixed (Beg/Int),68,Callie Talbott,CALLIELEE,callielee@microsoft.com,Complex Solutioning,United States,No Preference
+16,Mixed (Beg/Int),26,Ignacio Lago Fernandez,IGNACIOL,ignaciol@microsoft.com,M&M Strategy & Shaping,Spain,Intermediate
+16,Mixed (Beg/Int),10,Miranda Felix,MIFELIX,mifelix@microsoft.com,GTM,Belgium,No Preference
+17,Mixed (Beg/Int),133,Pani Murthy,PHNARAS,phnaras@microsoft.com,BA Solutioning,United States,No Preference
+17,Mixed (Beg/Int),132,Anna Deitz,ANNADEITZ,annadeitz@microsoft.com,AI Transformation,United States,No Preference
+17,Mixed (Beg/Int),23,Camilla Giudes,CAGIUDES,cagiudes@microsoft.com,M&M Strategy & Shaping,United Kingdom,No Preference
+17,Mixed (Beg/Int),41,Todd Ray,TODDRAY,toddray@microsoft.com,Security Strategy & Shaping,United States,Beginner
+17,Mixed (Beg/Int),103,Ken St. Cyr,KENNITHS,kenniths@microsoft.com,Security Solutioning,United States,Intermediate
+18,Mixed (Beg/Int),64,Samuel Pramod Bandela,SABANDEL,sabandel@microsoft.com,BA Solutioning,India,Beginner
+18,Mixed (Beg/Int),71,Dottie Shaw,DOTTIES,dotties@microsoft.com,Complex Solutioning,United States,Intermediate
+18,Mixed (Beg/Int),100,Telmo Cruz,TECRUZ,tecruz@microsoft.com,MW Solutioning,Portugal,No Preference
+18,Mixed (Beg/Int),93,Jose Rimada,JORIMA,jorima@microsoft.com,M&M Solutioning,Spain,Intermediate
+18,Mixed (Beg/Int),136,Kevin Sangwell,KEVINSAN,kevinsan@microsoft.com,Survey Responder,United States,Intermediate
+19,Mixed (Beg/Int),60,Kevin Bowling,KBOWLING,kbowling@microsoft.com,BA Solutioning,United States,No Preference
+19,Mixed (Beg/Int),85,Piyush Garg,PIGARG,pigarg@microsoft.com,I&U Solutioning,India,Intermediate
+19,Mixed (Beg/Int),5,Tatiana Sahagun,TSAHAGUN,tsahagun@microsoft.com,BA Strategy & Shaping,United States,Intermediate
+19,Mixed (Beg/Int),67,Trine Tjeldflåt,TRTJELDF,trtjeldf@microsoft.com,BA Solutioning,Norway,No Preference
+19,Mixed (Beg/Int),108,Thiagaraj Sundararajan,THIAGAS,thiagas@microsoft.com,Security Solutioning,United States,No Preference
+20,Mixed (Beg/Int),50,Ines Mauricio,INMAURIC,inmauric@microsoft.com,AI Transformation,Portugal,Beginner
+20,Mixed (Beg/Int),52,Jesse Todd,JTODD,jtodd@microsoft.com,AI Transformation,United States,No Preference
+20,Mixed (Beg/Int),62,Mohamed Dawood,MDAWOOD,mdawood@microsoft.com,BA Solutioning,United Kingdom,Intermediate
+20,Mixed (Beg/Int),83,David Crawford,DAVIDCRA,davidcra@microsoft.com,I&U Solutioning,United States,No Preference
+20,Mixed (Beg/Int),2,Mariana Escalante,MESCALANTE,mescalante@microsoft.com,BA Strategy & Shaping,United States,No Preference
+21,Mixed (Beg/Int),72,Jon Fernandez,JONFERNA,jonferna@microsoft.com,Complex Solutioning,United States,No Preference
+21,Mixed (Beg/Int),22,Andreas Rynes,ARYNES,arynes@microsoft.com,M&M Strategy & Shaping,Austria,Intermediate
+21,Mixed (Beg/Int),18,Philip Carpenter,PHCARPEN,phcarpen@microsoft.com,I&U Strategy & Shaping,United Kingdom,Intermediate
+21,Mixed (Beg/Int),58,Dave Henshall,DAHENSHA,dahensha@microsoft.com,BA Solutioning,United Kingdom,Beginner
+21,Mixed (Beg/Int),8,Irina Brouwer,IRINABROUWER,irinabrouwer@microsoft.com,GTM,Netherlands,No Preference
+22,Mixed (Beg/Int),21,Aggelos Karaglanis,AKARAGLANIS,akaraglanis@microsoft.com,M&M Strategy & Shaping,Greece,Intermediate
+22,Mixed (Beg/Int),98,Pierre TSIBAH,PITSIBAH,pitsibah@microsoft.com,MW Solutioning,France,Beginner
+22,Mixed (Beg/Int),74,Laz Diaz,LAZAROD,lazarod@microsoft.com,Complex Solutioning,United States,No Preference
+22,Mixed (Beg/Int),34,Aanya Hagiwara,AHAGIWARA,ahagiwara@microsoft.com,Security Strategy & Shaping,United States,Beginner
+22,Mixed (Beg/Int),102,Eric Beauchesne,ERICBEA,ericbea@microsoft.com,Security Solutioning,Canada,Beginner
+23,Mixed (Beg/Int),35,Joe Chou,JUACHOU,juachou@microsoft.com,Security Strategy & Shaping,China,Beginner
+23,Mixed (Beg/Int),79,Peter Heese,PETERHEE,peterhee@microsoft.com,Complex Solutioning,Germany,Beginner
+23,Mixed (Beg/Int),28,Mark Piggott,MPIGGOTT,mpiggott@microsoft.com,M&M Strategy & Shaping,United States,No Preference
+23,Mixed (Beg/Int),77,Michelle Newton,MINEWTO,minewto@microsoft.com,Complex Solutioning,United States,No Preference
+23,Mixed (Beg/Int),70,Deepak Kumar,KUMARDEEPA,kumardeepa@microsoft.com,Complex Solutioning,United States,Beginner
+24,Mixed (Beg/Int),137,Hannah Greenfeld,HGREENFELD,hgreenfeld@microsoft.com,Survey Responder,United States,Intermediate
+24,Mixed (Beg/Int),16,Harrison Schwarz,HSCHWARZ,hschwarz@microsoft.com,I&U Strategy & Shaping,United States,Intermediate
+24,Mixed (Beg/Int),36,Jörg Finkeisen,JOERGF,joergf@microsoft.com,Security Strategy & Shaping,Germany,Intermediate
+24,Mixed (Beg/Int),97,Harshlata Bhojane,HBHOJAN,hbhojan@microsoft.com,MW Solutioning,India,No Preference
