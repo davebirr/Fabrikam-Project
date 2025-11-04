@@ -280,9 +280,55 @@ Check the [hints](./hints.md) for examples of each without spoiling the full sol
 
 💡 **New to MCP?** Learn more about the Model Context Protocol and why it matters: [MCP Primer](../../../ws-coe-aug27/README.md#-understanding-mcp-model-context-protocol)
 
-### **Step 3: Test & Iterate**
-1. Start with Scenario 1 (simple order lookup)
-2. Test in Copilot Studio's test pane
+### **Step 3: Test & Iterate (This is where the magic happens!)**
+
+**🔄 Critical Mindset: Building agents is ITERATIVE!**
+
+You won't get it perfect on the first try - nobody does! Great agents emerge through cycles of testing and refinement.
+
+**The Winning Process:**
+1. **Start with Scenario 1** (simple order lookup) - Test basic functionality
+2. **Test in Copilot Studio's test pane** - See what happens
+3. **Analyze what went wrong** - Did it call the tool? Use the results? Sound natural?
+4. **Refine your system prompt** - Add clarity, examples, or business rules
+5. **Test the same scenario again** - Did it improve?
+6. **Move to harder scenarios** - Test Scenario 2, then 3, then 4
+7. **Keep refining** - Each test reveals something new to improve!
+
+**🤖 Pro Tip: Use AI to Build Your AI!**
+
+Don't write system prompts from scratch - you have powerful assistants:
+
+- **M365 Copilot Prompt Coach**: Paste your system prompt and ask:
+  - "Review this agent prompt for clarity and completeness"
+  - "How can I improve this to handle delayed orders better?"
+  - Get expert feedback instantly!
+
+- **GitHub Copilot Chat**: Ask for help:
+  - "Write a system prompt for a customer service agent that detects 30-day delays"
+  - "How should I structure business rules in an agent prompt?"
+  - Copy a failed conversation and ask "What went wrong? How do I fix it?"
+
+- **Copilot in Your Browser**: Research and iterate:
+  - "What makes a good customer service agent empathetic?"
+  - "Example system prompts for e-commerce support"
+
+**Example Evolution Through Testing:**
+```
+Test 1: "You are a customer service agent"
+→ Agent doesn't use tools ❌
+
+Test 2: "Use get_orders when customers ask about orders"
+→ Agent calls tool but just repeats raw data ❌
+
+Test 3: "Use get_orders and ANALYZE the results. If delivery is late, explain why."
+→ Agent analyzes but doesn't create tickets ❌
+
+Test 4: "If delivery is over 30 days late, IMMEDIATELY create a support ticket."
+→ Now it works! ✅
+```
+
+**Remember**: Every test teaches you something. Embrace the iteration!
 3. Refine your instructions
 4. Progress through scenarios
 5. Tackle the delayed order detection (hardest part!)
