@@ -1,0 +1,22 @@
+[
+  {
+    "name": "Authentication__Jwt__SecretKey",
+    "value": "@Microsoft.KeyVault(VaultName=kv-development-tzjeje;SecretName=FabrikamJwtSecret)"
+  },
+  {
+    "name": "Authentication__Jwt__Issuer",
+    "value": "https://fabrikam-api-development-tzjeje.azurewebsites.net"
+  },
+  {
+    "name": "Authentication__Jwt__Audience",
+    "value": "fabrikam-api"
+  },
+  {
+    "name": "Authentication__Jwt__ExpirationMinutes",
+    "value": "60"
+  },
+  {
+    "name": "Dashboard__ServiceGuid",
+    "value": "dashboard-00000000-0000-0000-0000-000000000001"
+  }
+]

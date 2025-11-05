@@ -1,0 +1,17 @@
+<step title="Incoming Request" date="2025-11-05T17:06:39.225" instance="2b261b" url="/api/zipdeploy?isAsync=true" method="POST" type="request" pid="837,1,5" Accept="*/*" Host="fabrikam-dash-development-tzjeje.scm.azurewebsites.net" User-Agent="AZURECLI/2.73.0 (MSI)" Accept-Encoding="gzip, deflate" Authorization="Bas..." Cache-Control="no-cache" Content-Type="application/octet-stream" Content-Length="4877728" x-ms-client-request-id="8f74daa3-ba69-11f0-9b8e-000d3a8f9a64" x-ms-artifact-checksum="ccb0b6d8e0f6b67fe55994e3c390195bc1845064bf2d6e20e1e9ded3f9e6614e" X-ARR-LOG-ID="8f74daa3-ba69-11f0-9b8e-000d3a8f9a64" CLIENT-IP="40.117.66.189:62941" X-SITE-DEPLOYMENT-ID="fabrikam-dash-development-tzjeje" WAS-DEFAULT-HOSTNAME="fabrikam-dash-development-tzjeje.scm.azurewebsites.net" X-Forwarded-Proto="https" X-AppService-Proto="https" X-Forwarded-TlsVersion="1.3" X-WAWS-Unencoded-URL="/api/zipdeploy?isAsync=true" X-Client-IP="40.117.66.189" X-Client-Port="62941" >
+  <step title="ZipPushDeploy" date="2025-11-05T17:06:50.658" >
+    <step title="ZipDeploy. Run from package." date="2025-11-05T17:06:50.951" /><!-- duration: 85ms -->
+    <step title="None repository commit" date="2025-11-05T17:06:51.533" >
+      <step title="Commit id: 36195ecf-1491-4eb0-b4f5-2de21267f6d7" date="2025-11-05T17:06:51.669" Message="N/A" AuthorName="N/A" AuthorEmail="N/A" /><!-- duration: 38ms -->
+    </step><!-- duration: 203ms -->
+    <step title="Starting PushDeployAsync" date="2025-11-05T17:06:51.783" /><!-- duration: 41ms -->
+    <step title="WEBSITE_RUN_FROM_PACKAGE is set to 1. Writing zip to SitePackagesPath" date="2025-11-05T17:06:52.317" /><!-- duration: 217ms -->
+    <step title="Copying zip to SitePackages /home/data/SitePackages/20251105170650.zip from request body" date="2025-11-05T17:06:52.866" /><!-- duration: 458ms -->
+    <step title="Writing multipart request body to /home/data/SitePackages/20251105170650.zip" date="2025-11-05T17:06:53.428" /><!-- duration: 106ms -->
+    <step title="Start deployment in the background" date="2025-11-05T17:06:56.969" >
+      <step title="Acquiring Deployment Lock" date="2025-11-05T17:06:57.030" /><!-- duration: 11ms -->
+      <step title="Acquired Deployment Lock" date="2025-11-05T17:06:57.142" /><!-- duration: 4ms -->
+    </step><!-- duration: 284ms -->
+  </step><!-- duration: 6603ms -->
+  <step title="Outgoing response" date="2025-11-05T17:06:57.287" type="response" statusCode="202" statusText="Accepted" /><!-- duration: 4ms -->
+</step><!-- duration: 18071ms -->
