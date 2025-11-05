@@ -70,6 +70,12 @@
     border-radius: 6px;
 }
 
+.last-update.loading-pulse {
+    color: #3498db;
+    background: #e3f2fd;
+    animation: pulse 1.5s ease-in-out infinite;
+}
+
 .last-update.error {
     color: #e74c3c;
     background: #f8d7da;
