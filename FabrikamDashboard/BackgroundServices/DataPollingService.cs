@@ -16,6 +16,8 @@ public class DataPollingService : BackgroundService
     private readonly IHubContext<DashboardHub> _hubContext;
     private readonly ILogger<DataPollingService> _logger;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(5);
+    private readonly SemaphoreSlim _refreshTrigger = new(0);
+    private CancellationTokenSource? _pollingCts;
 
     public DataPollingService(
         IServiceProvider serviceProvider,
@@ -30,25 +32,78 @@ public class DataPollingService : BackgroundService
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
     {
         _logger.LogInformation("Dashboard data polling service started (interval: {Interval}s)", _pollingInterval.TotalSeconds);
+        _pollingCts = CancellationTokenSource.CreateLinkedTokenSource(stoppingToken);
+
+        // Listen for refresh requests from the hub
+        _ = Task.Run(async () =>
+        {
+            using var scope = _serviceProvider.CreateScope();
+            var hubContext = scope.ServiceProvider.GetRequiredService<IHubContext<DashboardHub>>();
+            
+            // Subscribe to refresh requests
+            while (!stoppingToken.IsCancellationRequested)
+            {
+                try
+                {
+                    await Task.Delay(100, stoppingToken); // Check frequently
+                }
+                catch (OperationCanceledException)
+                {
+                    break;
+                }
+            }
+        }, stoppingToken);
 
         // Wait a bit before starting to allow services to initialize
         await Task.Delay(TimeSpan.FromSeconds(2), stoppingToken);
+
+        // Immediate first poll for new connections
+        try
+        {
+            await PollAndBroadcastAsync(stoppingToken);
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error in initial data poll");
+        }
 
         while (!stoppingToken.IsCancellationRequested)
         {
             try
             {
+                // Wait for either the interval or a manual refresh trigger
+                var delayTask = Task.Delay(_pollingInterval, stoppingToken);
+                var triggerTask = _refreshTrigger.WaitAsync(stoppingToken);
+                
+                await Task.WhenAny(delayTask, triggerTask);
+                
+                // If triggered manually, consume the signal
+                if (triggerTask.IsCompleted)
+                {
+                    _logger.LogInformation("Manual refresh triggered");
+                }
+                
                 await PollAndBroadcastAsync(stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                break;
             }
             catch (Exception ex)
             {
                 _logger.LogError(ex, "Error in data polling cycle");
             }
-
-            await Task.Delay(_pollingInterval, stoppingToken);
         }
 
         _logger.LogInformation("Dashboard data polling service stopped");
+    }
+
+    /// <summary>
+    /// Trigger an immediate data refresh (called via SignalR)
+    /// </summary>
+    public void TriggerRefresh()
+    {
+        _refreshTrigger.Release();
     }
 
     private async Task PollAndBroadcastAsync(CancellationToken cancellationToken)
