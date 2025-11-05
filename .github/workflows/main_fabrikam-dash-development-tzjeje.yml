@@ -62,4 +62,9 @@ jobs:
           app-name: 'fabrikam-dash-development-tzjeje'
           slot-name: 'Production'
           package: .
+      
+      - name: Restart Azure Web App
+        run: |
+          az webapp restart --name fabrikam-dash-development-tzjeje --resource-group rg-agentathon-proctor
+          echo "App restarted successfully"
           
