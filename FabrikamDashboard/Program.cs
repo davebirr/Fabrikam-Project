@@ -17,6 +17,11 @@ builder.Services.AddHttpClient<FabrikamApiClient>(client =>
     var baseUrl = builder.Configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
     client.BaseAddress = new Uri(baseUrl);
     client.Timeout = TimeSpan.FromSeconds(30);
+    
+    // Add X-Tracking-Guid header for API authentication in Disabled mode
+    // This allows the API to track the dashboard as a client
+    var dashboardGuid = builder.Configuration["Dashboard:TrackingGuid"] ?? "dashboard-00000000-0000-0000-0000-000000000001";
+    client.DefaultRequestHeaders.Add("X-Tracking-Guid", dashboardGuid);
 });
 
 // Configure HTTP clients for FabrikamSimulator
