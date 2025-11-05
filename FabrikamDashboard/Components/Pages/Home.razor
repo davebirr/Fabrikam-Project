@@ -13,13 +13,37 @@
         <div class="dashboard-status">
             @if (_isConnected)
             {
-                <span class="status-connected">🟢 Connected</span>
+                <span class="status-connected">🟢 Live</span>
+            }
+            else if (_isReconnecting)
+            {
+                <span class="status-reconnecting">🟡 Reconnecting...</span>
             }
             else
             {
                 <span class="status-disconnected">🔴 Disconnected</span>
             }
-            <span class="last-update">Updated: @_lastUpdate.ToString("HH:mm:ss")</span>
+            
+            @if (_hasData)
+            {
+                <span class="last-update">📊 Updated: @_lastUpdate.ToString("HH:mm:ss")</span>
+            }
+            else if (_isLoading)
+            {
+                <span class="last-update">⏳ Loading data...</span>
+            }
+            else if (_hasError)
+            {
+                <span class="last-update error">⚠️ Error loading data</span>
+            }
+            else
+            {
+                <span class="last-update">⏳ Waiting for data...</span>
+            }
+            
+            <button class="refresh-button" @onclick="RequestManualRefresh" disabled="@(!_isConnected)">
+                🔄 Refresh
+            </button>
         </div>
     </div>
 
@@ -146,7 +170,13 @@
     private HubConnection? _hubConnection;
     private DashboardDataDto? _dashboardData;
     private bool _isConnected;
+    private bool _isReconnecting;
+    private bool _isLoading = true;
+    private bool _hasData;
+    private bool _hasError;
     private DateTime _lastUpdate = DateTime.UtcNow;
+    private int _consecutiveErrors = 0;
+    private const int MaxConsecutiveErrors = 3;
 
     protected override async Task OnInitializedAsync()
     {
@@ -159,8 +189,36 @@
         // Subscribe to dashboard updates
         _hubConnection.On<DashboardDataDto>("DashboardUpdate", data =>
         {
-            _dashboardData = data;
-            _lastUpdate = DateTime.UtcNow;
+            // Check if data is valid (not all zeros)
+            if (data != null && (data.TotalOrders > 0 || data.OpenTickets > 0 || data.TotalRevenue > 0))
+            {
+                _dashboardData = data;
+                _lastUpdate = DateTime.UtcNow;
+                _hasData = true;
+                _hasError = false;
+                _isLoading = false;
+                _consecutiveErrors = 0;
+                Logger.LogInformation("Received valid dashboard update: {Orders} orders, {Tickets} tickets", 
+                    data.TotalOrders, data.OpenTickets);
+            }
+            else if (data != null)
+            {
+                // Received empty data - might be initial state or error
+                _consecutiveErrors++;
+                if (_consecutiveErrors >= MaxConsecutiveErrors && !_hasData)
+                {
+                    _hasError = true;
+                    _isLoading = false;
+                    Logger.LogWarning("Received {Count} consecutive empty data updates", _consecutiveErrors);
+                }
+                else if (!_hasData)
+                {
+                    Logger.LogDebug("Received empty data update (attempt {Count}/{Max})", 
+                        _consecutiveErrors, MaxConsecutiveErrors);
+                }
+                // Keep existing data if we already have some
+            }
+            
             InvokeAsync(StateHasChanged);
         });
 
@@ -168,18 +226,24 @@
         _hubConnection.Reconnected += async connectionId =>
         {
             _isConnected = true;
+            _isReconnecting = false;
+            Logger.LogInformation("Reconnected to dashboard hub");
             await InvokeAsync(StateHasChanged);
         };
 
         _hubConnection.Reconnecting += async error =>
         {
             _isConnected = false;
+            _isReconnecting = true;
+            Logger.LogWarning("Reconnecting to dashboard hub...");
             await InvokeAsync(StateHasChanged);
         };
 
         _hubConnection.Closed += async error =>
         {
             _isConnected = false;
+            _isReconnecting = false;
+            Logger.LogError("Dashboard hub connection closed");
             await InvokeAsync(StateHasChanged);
         };
 
@@ -194,6 +258,38 @@
         {
             Logger.LogError(ex, "Error connecting to dashboard hub");
             _isConnected = false;
+            _hasError = true;
+            _isLoading = false;
+        }
+    }
+
+    private async Task RequestManualRefresh()
+    {
+        if (_hubConnection == null || !_isConnected)
+        {
+            Logger.LogWarning("Cannot refresh - not connected to hub");
+            return;
+        }
+
+        try
+        {
+            _isLoading = true;
+            _hasError = false;
+            await InvokeAsync(StateHasChanged);
+            
+            // Send refresh request to server (server will broadcast updated data)
+            await _hubConnection.SendAsync("RequestRefresh");
+            Logger.LogInformation("Manual refresh requested");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error requesting manual refresh");
+            _hasError = true;
+        }
+        finally
+        {
+            _isLoading = false;
+            await InvokeAsync(StateHasChanged);
         }
     }
 

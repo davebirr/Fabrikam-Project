@@ -1,5 +1,6 @@
 using Microsoft.AspNetCore.SignalR;
 using FabrikamDashboard.Models;
+using FabrikamDashboard.BackgroundServices;
 
 namespace FabrikamDashboard.Services;
 
@@ -9,15 +10,24 @@ namespace FabrikamDashboard.Services;
 public class DashboardHub : Hub
 {
     private readonly ILogger<DashboardHub> _logger;
+    private readonly DataPollingService _pollingService;
 
-    public DashboardHub(ILogger<DashboardHub> logger)
+    public DashboardHub(ILogger<DashboardHub> logger, IServiceProvider serviceProvider)
     {
         _logger = logger;
+        // Get the DataPollingService from hosted services
+        _pollingService = serviceProvider.GetServices<IHostedService>()
+            .OfType<DataPollingService>()
+            .FirstOrDefault() ?? throw new InvalidOperationException("DataPollingService not found");
     }
 
     public override async Task OnConnectedAsync()
     {
         _logger.LogInformation("Client connected: {ConnectionId}", Context.ConnectionId);
+        
+        // Trigger immediate refresh for new clients
+        _pollingService.TriggerRefresh();
+        
         await base.OnConnectedAsync();
     }
 
@@ -32,7 +42,8 @@ public class DashboardHub : Hub
     /// </summary>
     public async Task RequestRefresh()
     {
-        _logger.LogDebug("Client {ConnectionId} requested refresh", Context.ConnectionId);
-        await Clients.All.SendAsync("RefreshRequested");
+        _logger.LogInformation("Client {ConnectionId} requested manual refresh", Context.ConnectionId);
+        _pollingService.TriggerRefresh();
+        await Task.CompletedTask;
     }
 }

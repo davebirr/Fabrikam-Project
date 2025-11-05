@@ -1,0 +1,416 @@
+{
+  "runtimeTarget": {
+    "name": ".NETCoreApp,Version=v9.0",
+    "signature": ""
+  },
+  "compilationOptions": {},
+  "targets": {
+    ".NETCoreApp,Version=v9.0": {
+      "FabrikamDashboard/1.0.0": {
+        "dependencies": {
+          "FabrikamContracts": "1.0.0",
+          "Microsoft.AspNetCore.SignalR.Client": "9.0.10",
+          "System.IdentityModel.Tokens.Jwt": "8.2.1",
+          "System.Net.Http.Json": "9.0.10"
+        },
+        "runtime": {
+          "FabrikamDashboard.dll": {}
+        }
+      },
+      "Microsoft.AspNetCore.Connections.Abstractions/9.0.10": {
+        "dependencies": {
+          "Microsoft.Extensions.Features": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.Connections.Abstractions.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Http.Connections.Client/9.0.10": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Http.Connections.Common": "9.0.10",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.10",
+          "Microsoft.Extensions.Options": "9.0.10",
+          "System.Net.ServerSentEvents": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.Http.Connections.Client.dll": {
+            "assemblyVersion": "9.0.10.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.Http.Connections.Common/9.0.10": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Connections.Abstractions": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.Http.Connections.Common.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.Client/9.0.10": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Http.Connections.Client": "9.0.10",
+          "Microsoft.AspNetCore.SignalR.Client.Core": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.SignalR.Client.dll": {
+            "assemblyVersion": "9.0.10.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.Client.Core/9.0.10": {
+        "dependencies": {
+          "Microsoft.AspNetCore.SignalR.Common": "9.0.10",
+          "Microsoft.AspNetCore.SignalR.Protocols.Json": "9.0.10",
+          "Microsoft.Extensions.DependencyInjection": "9.0.10",
+          "Microsoft.Extensions.Logging": "9.0.10",
+          "System.Threading.Channels": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.SignalR.Client.Core.dll": {
+            "assemblyVersion": "9.0.10.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.Common/9.0.10": {
+        "dependencies": {
+          "Microsoft.AspNetCore.Connections.Abstractions": "9.0.10",
+          "Microsoft.Extensions.Options": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.SignalR.Common.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.AspNetCore.SignalR.Protocols.Json/9.0.10": {
+        "dependencies": {
+          "Microsoft.AspNetCore.SignalR.Common": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.AspNetCore.SignalR.Protocols.Json.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection/9.0.10": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.DependencyInjection.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.10": {
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.DependencyInjection.Abstractions.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.Extensions.Features/9.0.10": {
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.Features.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47517"
+          }
+        }
+      },
+      "Microsoft.Extensions.Logging/9.0.10": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection": "9.0.10",
+          "Microsoft.Extensions.Logging.Abstractions": "9.0.10",
+          "Microsoft.Extensions.Options": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.Logging.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.Extensions.Logging.Abstractions/9.0.10": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.Logging.Abstractions.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.Extensions.Options/9.0.10": {
+        "dependencies": {
+          "Microsoft.Extensions.DependencyInjection.Abstractions": "9.0.10",
+          "Microsoft.Extensions.Primitives": "9.0.10"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.Options.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.Extensions.Primitives/9.0.10": {
+        "runtime": {
+          "lib/net9.0/Microsoft.Extensions.Primitives.dll": {
+            "assemblyVersion": "9.0.0.0",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "Microsoft.IdentityModel.Abstractions/8.2.1": {
+        "runtime": {
+          "lib/net9.0/Microsoft.IdentityModel.Abstractions.dll": {
+            "assemblyVersion": "8.2.1.0",
+            "fileVersion": "8.2.1.51115"
+          }
+        }
+      },
+      "Microsoft.IdentityModel.JsonWebTokens/8.2.1": {
+        "dependencies": {
+          "Microsoft.IdentityModel.Tokens": "8.2.1"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.IdentityModel.JsonWebTokens.dll": {
+            "assemblyVersion": "8.2.1.0",
+            "fileVersion": "8.2.1.51115"
+          }
+        }
+      },
+      "Microsoft.IdentityModel.Logging/8.2.1": {
+        "dependencies": {
+          "Microsoft.IdentityModel.Abstractions": "8.2.1"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.IdentityModel.Logging.dll": {
+            "assemblyVersion": "8.2.1.0",
+            "fileVersion": "8.2.1.51115"
+          }
+        }
+      },
+      "Microsoft.IdentityModel.Tokens/8.2.1": {
+        "dependencies": {
+          "Microsoft.IdentityModel.Logging": "8.2.1"
+        },
+        "runtime": {
+          "lib/net9.0/Microsoft.IdentityModel.Tokens.dll": {
+            "assemblyVersion": "8.2.1.0",
+            "fileVersion": "8.2.1.51115"
+          }
+        }
+      },
+      "System.IdentityModel.Tokens.Jwt/8.2.1": {
+        "dependencies": {
+          "Microsoft.IdentityModel.JsonWebTokens": "8.2.1",
+          "Microsoft.IdentityModel.Tokens": "8.2.1"
+        },
+        "runtime": {
+          "lib/net9.0/System.IdentityModel.Tokens.Jwt.dll": {
+            "assemblyVersion": "8.2.1.0",
+            "fileVersion": "8.2.1.51115"
+          }
+        }
+      },
+      "System.Net.Http.Json/9.0.10": {},
+      "System.Net.ServerSentEvents/9.0.10": {
+        "runtime": {
+          "lib/net9.0/System.Net.ServerSentEvents.dll": {
+            "assemblyVersion": "9.0.0.10",
+            "fileVersion": "9.0.1025.47515"
+          }
+        }
+      },
+      "System.Threading.Channels/9.0.10": {},
+      "FabrikamContracts/1.0.0": {
+        "runtime": {
+          "FabrikamContracts.dll": {
+            "assemblyVersion": "1.0.0.0",
+            "fileVersion": "1.0.0.0"
+          }
+        }
+      }
+    }
+  },
+  "libraries": {
+    "FabrikamDashboard/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    },
+    "Microsoft.AspNetCore.Connections.Abstractions/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-z0sD3sBAgWNZ0omLYUvEO5vmec5NV7tvfMBfrhByRfLd7YLkzGxOZN/KvEWzH4Ifg6dBcHLZ+4cbJoFJHXrUUA==",
+      "path": "microsoft.aspnetcore.connections.abstractions/9.0.10",
+      "hashPath": "microsoft.aspnetcore.connections.abstractions.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Http.Connections.Client/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-wHXxSYZnXYom4sHWZMzGgngIpHBIG0M1/i5HfLF6tQjBpx399OdTwC+BO1yYjbTr6RyWHx4UglRGYNs+6fpUkA==",
+      "path": "microsoft.aspnetcore.http.connections.client/9.0.10",
+      "hashPath": "microsoft.aspnetcore.http.connections.client.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.Http.Connections.Common/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EARfS3nepXK/b3P3ROPKV4euaHuBRFpa63dmy9TSN0qS8Dp/lQAR+RB/Yhlm5CMXvvyr42Ue1QV/dN8XeGXD3w==",
+      "path": "microsoft.aspnetcore.http.connections.common/9.0.10",
+      "hashPath": "microsoft.aspnetcore.http.connections.common.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SignalR.Client/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-TQDXsU5mTtI1el77bS55FoNYi1CPIuPoKUDp6W/j22FA/ajHMjgmeikC87UPiZkdiJDjNyCehj91YMGNi3xCDg==",
+      "path": "microsoft.aspnetcore.signalr.client/9.0.10",
+      "hashPath": "microsoft.aspnetcore.signalr.client.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SignalR.Client.Core/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-LxnasvhMSG7L+asb88VN7Z6yr0PJTdOdN8UnGtZClySbiSIQGMtsaoCNmQxT9AA6Yvb7QBA0/H+4AGDrT34Xew==",
+      "path": "microsoft.aspnetcore.signalr.client.core/9.0.10",
+      "hashPath": "microsoft.aspnetcore.signalr.client.core.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SignalR.Common/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-jwoS5gG0GNwSXX8Fyn7m1sEUzeH/W9q8wqAJs4v2a6ffKBnqjcG4YiiPZDyN7UhJCWAjeU2low+XjJ3YfN7iHQ==",
+      "path": "microsoft.aspnetcore.signalr.common/9.0.10",
+      "hashPath": "microsoft.aspnetcore.signalr.common.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.AspNetCore.SignalR.Protocols.Json/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-AhBUSG98Us2LLW3FjhtAaa6x0zL1jyjjYYZ0CSCoi9fmIuOLl/5WxXOP48VsrChi6NpZ3C31yHpScl4vqLdPcA==",
+      "path": "microsoft.aspnetcore.signalr.protocols.json/9.0.10",
+      "hashPath": "microsoft.aspnetcore.signalr.protocols.json.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-iEtXCkNd5XhjNJAOb/wO4IhDRdLIE2CsPxZggZQWJ/q2+sa8dmEPC393nnsiqdH8/4KV8Xn25IzgKPR1UEQ0og==",
+      "path": "microsoft.extensions.dependencyinjection/9.0.10",
+      "hashPath": "microsoft.extensions.dependencyinjection.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.DependencyInjection.Abstractions/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-r9waLiOPe9ZF1PvzUT+RDoHvpMmY8MW+lb4lqjYGObwKpnyPMLI3odVvlmshwuZcdoHynsGWOrCPA0hxZ63lIA==",
+      "path": "microsoft.extensions.dependencyinjection.abstractions/9.0.10",
+      "hashPath": "microsoft.extensions.dependencyinjection.abstractions.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Features/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-/94E6QLu+0jOWRzcaq80a0/7EmOzuwDWDNOyVYezMTeX4BzhXCfAsUrZi9Lg+4VP2J+21sTa+AaCgMdXiG/cpw==",
+      "path": "microsoft.extensions.features/9.0.10",
+      "hashPath": "microsoft.extensions.features.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-UBXHqE9vyptVhaFnT1R7YJKCve7TqVI10yjjUZBNGMlW2lZ4c031Slt9hxsOzWCzlpPxxIFyf1Yk4a6Iubxx7w==",
+      "path": "microsoft.extensions.logging/9.0.10",
+      "hashPath": "microsoft.extensions.logging.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Logging.Abstractions/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-MFUPv/nN1rAQ19w43smm6bbf0JDYN/1HEPHoiMYY50pvDMFpglzWAuoTavByDmZq7UuhjaxwrET3joU69ZHoHQ==",
+      "path": "microsoft.extensions.logging.abstractions/9.0.10",
+      "hashPath": "microsoft.extensions.logging.abstractions.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Options/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-zMNABt8eBv0B0XrWjFy9nZNgddavaOeq3ZdaD5IlHhRH65MrU7HM+Hd8GjWE3e2VDGFPZFfSAc6XVXC17f9fOA==",
+      "path": "microsoft.extensions.options/9.0.10",
+      "hashPath": "microsoft.extensions.options.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.Extensions.Primitives/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-3pl8D1O5ZwMpDkZAT2uXrhQ6NipkwEgDLMFuURiHTf72TvkoMP61QYH3Vk1yrzVHnHBdNZk3cQACz8Zc7YGNhQ==",
+      "path": "microsoft.extensions.primitives/9.0.10",
+      "hashPath": "microsoft.extensions.primitives.9.0.10.nupkg.sha512"
+    },
+    "Microsoft.IdentityModel.Abstractions/8.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-8sMlmHhh5HdP3+yCSCUpJpN1yYrJ6J/V39df9siY8PeMckRMrSBRL/TMs/Jex6P1ly/Ie2mFqvhcPHHrNmCd/w==",
+      "path": "microsoft.identitymodel.abstractions/8.2.1",
+      "hashPath": "microsoft.identitymodel.abstractions.8.2.1.nupkg.sha512"
+    },
+    "Microsoft.IdentityModel.JsonWebTokens/8.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-Oo0SBOzK6p3YIUcc1YTJCaYezVUa5HyUJ/AAB35QwxhhD6Blei5tNjNYDR0IbqHdb5EPUIiKcIbQGoj2b1mIbg==",
+      "path": "microsoft.identitymodel.jsonwebtokens/8.2.1",
+      "hashPath": "microsoft.identitymodel.jsonwebtokens.8.2.1.nupkg.sha512"
+    },
+    "Microsoft.IdentityModel.Logging/8.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-EgSEAtBoWBynACdhKnMlVAFGGWqOIdmbpW7Vvx2SQ7u7ogZ50NcEGSoGljEsQoGIRYpo0UxXYktKcYMp+G/Bcg==",
+      "path": "microsoft.identitymodel.logging/8.2.1",
+      "hashPath": "microsoft.identitymodel.logging.8.2.1.nupkg.sha512"
+    },
+    "Microsoft.IdentityModel.Tokens/8.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-oQeLWCATuVXOCdIvouM4GG2xl1YNng+uAxYwu7CG6RuW+y+1+slXrOBq5csTU2pnV2SH3B1GmugDf6Jv/lexjw==",
+      "path": "microsoft.identitymodel.tokens/8.2.1",
+      "hashPath": "microsoft.identitymodel.tokens.8.2.1.nupkg.sha512"
+    },
+    "System.IdentityModel.Tokens.Jwt/8.2.1": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-GVQmbjr2N8awFWPTWyThLxgKnFINObG1P+oX7vFrBY8um3V7V7Dh3wnxaGxNH6v6lSTeVQrY+SaUUBX9H3TPcw==",
+      "path": "system.identitymodel.tokens.jwt/8.2.1",
+      "hashPath": "system.identitymodel.tokens.jwt.8.2.1.nupkg.sha512"
+    },
+    "System.Net.Http.Json/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-CoTeijb2aexUlNq6qfaQeuCMP6945g77DDW5ztqPoar+/z6aPySwao693yCrosh4X1tVdQzIm1x+KGM+MC4TnQ==",
+      "path": "system.net.http.json/9.0.10",
+      "hashPath": "system.net.http.json.9.0.10.nupkg.sha512"
+    },
+    "System.Net.ServerSentEvents/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-PuUpJ0Hl37jY8lTY9+A1zyE+KxHIkomBJ9K8iMoDEeHiSN4BKModSeC6mopzEsw7hdhEv6upSpuT+wKE6HGuHw==",
+      "path": "system.net.serversentevents/9.0.10",
+      "hashPath": "system.net.serversentevents.9.0.10.nupkg.sha512"
+    },
+    "System.Threading.Channels/9.0.10": {
+      "type": "package",
+      "serviceable": true,
+      "sha512": "sha512-2skUPYIRYwMyOg+BQkHaUDc3mOjHmIqT6U67+oIiRJVVtDrkCG2GZxceui6bos18kosyIE0Eg6FyJWgNsc+6og==",
+      "path": "system.threading.channels/9.0.10",
+      "hashPath": "system.threading.channels.9.0.10.nupkg.sha512"
+    },
+    "FabrikamContracts/1.0.0": {
+      "type": "project",
+      "serviceable": false,
+      "sha512": ""
+    }
+  }
+}
