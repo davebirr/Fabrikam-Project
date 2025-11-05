@@ -1,0 +1,35 @@
+@* Reusable component for displaying a metric card with icon, value, and title *@
+
+<div class="metric-card metric-@Color">
+    <div class="metric-icon">@Icon</div>
+    <div class="metric-content">
+        <div class="metric-value">@Value</div>
+        <div class="metric-title">@Title</div>
+    </div>
+</div>
+
+@code {
+    /// <summary>
+    /// The title/label of the metric
+    /// </summary>
+    [Parameter]
+    public string Title { get; set; } = string.Empty;
+
+    /// <summary>
+    /// The value to display (can be formatted number, currency, etc.)
+    /// </summary>
+    [Parameter]
+    public string Value { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Emoji or icon to display
+    /// </summary>
+    [Parameter]
+    public string Icon { get; set; } = "📊";
+
+    /// <summary>
+    /// Color theme: blue, green, orange, purple, red
+    /// </summary>
+    [Parameter]
+    public string Color { get; set; } = "blue";
+}

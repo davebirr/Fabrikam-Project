@@ -1,0 +1,153 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentTemplate.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "dashboardAppName": {
+      "type": "string",
+      "defaultValue": "fabrikam-dash-development-tzjeje",
+      "metadata": {
+        "description": "Name of the dashboard web app"
+      }
+    },
+    "apiAppName": {
+      "type": "string",
+      "defaultValue": "fabrikam-api-development-tzjeje",
+      "metadata": {
+        "description": "Name of the existing API app (for URL configuration)"
+      }
+    },
+    "simAppName": {
+      "type": "string",
+      "defaultValue": "fabrikam-sim-development-tzjeje",
+      "metadata": {
+        "description": "Name of the existing Simulator app (for URL configuration)"
+      }
+    },
+    "location": {
+      "type": "string",
+      "defaultValue": "[resourceGroup().location]",
+      "metadata": {
+        "description": "Location for the dashboard app"
+      }
+    },
+    "appServicePlanSku": {
+      "type": "string",
+      "defaultValue": "B1",
+      "allowedValues": [
+        "B1",
+        "B2",
+        "B3",
+        "S1",
+        "S2",
+        "S3"
+      ],
+      "metadata": {
+        "description": "SKU for the new App Service Plan"
+      }
+    }
+  },
+  "variables": {
+    "appServicePlanName": "plan-dash-development-tzjeje",
+    "apiUrl": "[concat('https://', parameters('apiAppName'), '.azurewebsites.net')]",
+    "simUrl": "[concat('https://', parameters('simAppName'), '.azurewebsites.net')]"
+  },
+  "resources": [
+    {
+      "type": "Microsoft.Web/serverfarms",
+      "apiVersion": "2023-01-01",
+      "name": "[variables('appServicePlanName')]",
+      "location": "[parameters('location')]",
+      "sku": {
+        "name": "[parameters('appServicePlanSku')]",
+        "tier": "Basic",
+        "capacity": 1
+      },
+      "kind": "linux",
+      "properties": {
+        "reserved": true
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2023-01-01",
+      "name": "[parameters('dashboardAppName')]",
+      "location": "[parameters('location')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]"
+      ],
+      "kind": "app,linux",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', variables('appServicePlanName'))]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "linuxFxVersion": "DOTNETCORE|9.0",
+          "minTlsVersion": "1.2",
+          "ftpsState": "Disabled",
+          "appSettings": [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "Production"
+            },
+            {
+              "name": "FabrikamApi__BaseUrl",
+              "value": "[variables('apiUrl')]"
+            },
+            {
+              "name": "FabrikamSimulator__BaseUrl",
+              "value": "[variables('simUrl')]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2023-01-01",
+      "name": "[concat(parameters('dashboardAppName'), '/logs')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('dashboardAppName'))]"
+      ],
+      "properties": {
+        "applicationLogs": {
+          "fileSystem": {
+            "level": "Information"
+          }
+        },
+        "httpLogs": {
+          "fileSystem": {
+            "retentionInMb": 35,
+            "retentionInDays": 7,
+            "enabled": true
+          }
+        },
+        "detailedErrorMessages": {
+          "enabled": true
+        },
+        "failedRequestsTracing": {
+          "enabled": true
+        }
+      }
+    }
+  ],
+  "outputs": {
+    "dashboardAppName": {
+      "type": "string",
+      "value": "[parameters('dashboardAppName')]"
+    },
+    "dashboardUrl": {
+      "type": "string",
+      "value": "[concat('https://', parameters('dashboardAppName'), '.azurewebsites.net')]"
+    },
+    "dashboardPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('dashboardAppName')), '2023-01-01', 'Full').identity.principalId]"
+    }
+  }
+}
