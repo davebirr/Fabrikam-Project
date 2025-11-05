@@ -30,7 +30,7 @@
             }
             else if (_isLoading)
             {
-                <span class="last-update">⏳ Loading data...</span>
+                <span class="last-update loading-pulse">⏳ Loading data... (@_loadingElapsed seconds)</span>
             }
             else if (_hasError)
             {
@@ -177,9 +177,20 @@
     private DateTime _lastUpdate = DateTime.UtcNow;
     private int _consecutiveErrors = 0;
     private const int MaxConsecutiveErrors = 3;
+    private DateTime _loadingStartTime = DateTime.UtcNow;
+    private int _loadingElapsed;
+    private System.Threading.Timer? _loadingTimer;
 
     protected override async Task OnInitializedAsync()
     {
+        // Start loading timer to show elapsed time
+        _loadingStartTime = DateTime.UtcNow;
+        _loadingTimer = new System.Threading.Timer(_ =>
+        {
+            _loadingElapsed = (int)(DateTime.UtcNow - _loadingStartTime).TotalSeconds;
+            InvokeAsync(StateHasChanged);
+        }, null, TimeSpan.Zero, TimeSpan.FromSeconds(1));
+
         // Create SignalR connection
         _hubConnection = new HubConnectionBuilder()
             .WithUrl(Navigation.ToAbsoluteUri("/dashboardHub"))
@@ -198,6 +209,11 @@
                 _hasError = false;
                 _isLoading = false;
                 _consecutiveErrors = 0;
+                
+                // Stop loading timer
+                _loadingTimer?.Dispose();
+                _loadingTimer = null;
+                
                 Logger.LogInformation("Received valid dashboard update: {Orders} orders, {Tickets} tickets", 
                     data.TotalOrders, data.OpenTickets);
             }
