@@ -35,6 +35,9 @@
     "simAppName": {
       "type": "string"
     },
+    "dashboardAppName": {
+      "type": "string"
+    },
     "keyVaultName": {
       "type": "string"
     },
@@ -45,6 +48,9 @@
       "type": "string"
     },
     "apiUrl": {
+      "type": "string"
+    },
+    "simUrl": {
       "type": "string"
     }
   },
@@ -227,6 +233,49 @@
       }
     },
     {
+      "type": "Microsoft.Web/sites",
+      "apiVersion": "2021-02-01",
+      "name": "[parameters('dashboardAppName')]",
+      "location": "[parameters('location')]",
+      "kind": "app,linux",
+      "identity": {
+        "type": "SystemAssigned"
+      },
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('apiAppName'))]",
+        "[resourceId('Microsoft.Web/sites', parameters('simAppName'))]"
+      ],
+      "properties": {
+        "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
+        "httpsOnly": true,
+        "siteConfig": {
+          "linuxFxVersion": "DOTNETCORE|9.0",
+          "alwaysOn": "[if(equals(parameters('skuName'), 'F1'), false(), true())]",
+          "ftpsState": "Disabled",
+          "minTlsVersion": "1.2",
+          "appSettings": [
+            {
+              "name": "ASPNETCORE_ENVIRONMENT",
+              "value": "[parameters('environment')]"
+            },
+            {
+              "name": "FabrikamApi__BaseUrl",
+              "value": "[parameters('apiUrl')]"
+            },
+            {
+              "name": "FabrikamSimulator__BaseUrl",
+              "value": "[parameters('simUrl')]"
+            },
+            {
+              "name": "WEBSITE_RUN_FROM_PACKAGE",
+              "value": "1"
+            }
+          ]
+        }
+      }
+    },
+    {
       "type": "Microsoft.Web/sites/config",
       "apiVersion": "2021-02-01",
       "name": "[concat(parameters('apiAppName'), '/logs')]",
@@ -309,6 +358,34 @@
           "enabled": true
         }
       }
+    },
+    {
+      "type": "Microsoft.Web/sites/config",
+      "apiVersion": "2021-02-01",
+      "name": "[concat(parameters('dashboardAppName'), '/logs')]",
+      "dependsOn": [
+        "[resourceId('Microsoft.Web/sites', parameters('dashboardAppName'))]"
+      ],
+      "properties": {
+        "applicationLogs": {
+          "fileSystem": {
+            "level": "Information"
+          }
+        },
+        "httpLogs": {
+          "fileSystem": {
+            "enabled": true,
+            "retentionInMb": 35,
+            "retentionInDays": 7
+          }
+        },
+        "detailedErrorMessages": {
+          "enabled": true
+        },
+        "failedRequestsTracing": {
+          "enabled": true
+        }
+      }
     }
   ],
   "outputs": {
@@ -324,6 +401,10 @@
       "type": "string",
       "value": "[parameters('simAppName')]"
     },
+    "dashboardAppName": {
+      "type": "string",
+      "value": "[parameters('dashboardAppName')]"
+    },
     "apiAppPrincipalId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Web/sites', parameters('apiAppName')), '2021-02-01', 'Full').identity.principalId]"
@@ -335,6 +416,10 @@
     "simAppPrincipalId": {
       "type": "string",
       "value": "[reference(resourceId('Microsoft.Web/sites', parameters('simAppName')), '2021-02-01', 'Full').identity.principalId]"
+    },
+    "dashboardAppPrincipalId": {
+      "type": "string",
+      "value": "[reference(resourceId('Microsoft.Web/sites', parameters('dashboardAppName')), '2021-02-01', 'Full').identity.principalId]"
     }
   }
 }

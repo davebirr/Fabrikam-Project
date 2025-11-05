@@ -116,6 +116,43 @@
             }
         },
         {
+            "label": "📊 Start Dashboard",
+            "type": "shell",
+            "command": "dotnet",
+            "args": ["run", "--project", "FabrikamDashboard/FabrikamDashboard.csproj"],
+            "options": {
+                "env": {
+                    "ASPNETCORE_ENVIRONMENT": "Development"
+                }
+            },
+            "group": "build",
+            "presentation": {
+                "echo": true,
+                "reveal": "always",
+                "focus": false,
+                "panel": "dedicated",
+                "showReuseMessage": true,
+                "clear": false
+            },
+            "runOptions": {
+                "runOn": "default"
+            },
+            "isBackground": true,
+            "problemMatcher": {
+                "pattern": {
+                    "regexp": "^.*$",
+                    "file": 1,
+                    "location": 2,
+                    "message": 3
+                },
+                "background": {
+                    "activeOnStart": true,
+                    "beginsPattern": "^.*Building.*$",
+                    "endsPattern": "^.*Application started.*|.*Now listening on.*$"
+                }
+            }
+        },
+        {
             "label": "🌐 Start All Services (PowerShell)",
             "type": "shell",
             "command": ".\\Start-Services.ps1",
@@ -158,7 +195,8 @@
             "dependsOn": [
                 "🚀 Start API Server",
                 "🤖 Start MCP Server",
-                "🎲 Start Simulator"
+                "🎲 Start Simulator",
+                "📊 Start Dashboard"
             ],
             "group": "build",
             "presentation": {

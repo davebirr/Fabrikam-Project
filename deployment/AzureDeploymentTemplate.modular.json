@@ -161,13 +161,16 @@
     "apiAppName": "[toLower(concat('fabrikam-api-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "mcpAppName": "[toLower(concat('fabrikam-mcp-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "simAppName": "[toLower(concat('fabrikam-sim-', variables('envShortName'), '-', variables('finalSuffix')))]",
+    "dashboardAppName": "[toLower(concat('fabrikam-dash-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "appServicePlanName": "[toLower(concat('asp-fabrikam-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "apiUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-api-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('apiAppName'), '.azurewebsites.net'))]",
     "mcpUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-mcp-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('mcpAppName'), '.azurewebsites.net'))]",
     "simUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-sim-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('simAppName'), '.azurewebsites.net'))]",
+    "dashboardUrl": "[if(parameters('enableCustomDomains'), concat('https://fabrikam-dash-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain')), concat('https://', variables('dashboardAppName'), '.azurewebsites.net'))]",
     "apiCustomDomain": "[concat('fabrikam-api-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
     "mcpCustomDomain": "[concat('fabrikam-mcp-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
     "simCustomDomain": "[concat('fabrikam-sim-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
+    "dashboardCustomDomain": "[concat('fabrikam-dash-', variables('envShortName'), '-', variables('finalSuffix'), '.', parameters('customDomain'))]",
     "sqlServerName": "[toLower(concat('sql-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "sqlDatabaseName": "[toLower(concat('sqldb-', variables('envShortName'), '-', variables('finalSuffix')))]",
     "keyVaultName": "[toLower(concat('kv-', variables('envShortName'), '-', variables('finalSuffix')))]",
@@ -247,6 +250,9 @@
           "simAppName": {
             "value": "[variables('simAppName')]"
           },
+          "dashboardAppName": {
+            "value": "[variables('dashboardAppName')]"
+          },
           "keyVaultName": {
             "value": "[variables('keyVaultName')]"
           },
@@ -258,6 +264,9 @@
           },
           "apiUrl": {
             "value": "[variables('apiUrl')]"
+          },
+          "simUrl": {
+            "value": "[variables('simUrl')]"
           }
         }
       }
@@ -352,6 +361,10 @@
       "type": "string",
       "value": "[variables('simAppName')]"
     },
+    "dashboardAppName": {
+      "type": "string",
+      "value": "[variables('dashboardAppName')]"
+    },
     "apiUrl": {
       "type": "string",
       "value": "[variables('apiUrl')]"
@@ -364,6 +377,10 @@
       "type": "string",
       "value": "[variables('simUrl')]"
     },
+    "dashboardUrl": {
+      "type": "string",
+      "value": "[variables('dashboardUrl')]"
+    },
     "apiHealthCheck": {
       "type": "string",
       "value": "[concat(variables('apiUrl'), '/health')]"
@@ -375,6 +392,10 @@
     "simHealthCheck": {
       "type": "string",
       "value": "[concat(variables('simUrl'), '/api/simulator/status')]"
+    },
+    "dashboardHealthCheck": {
+      "type": "string",
+      "value": "[concat(variables('dashboardUrl'), '/')]"
     },
     "customDomainsEnabled": {
       "type": "bool",
@@ -391,6 +412,10 @@
     "simCustomDomain": {
       "type": "string",
       "value": "[if(parameters('enableCustomDomains'), variables('simCustomDomain'), 'Not configured')]"
+    },
+    "dashboardCustomDomain": {
+      "type": "string",
+      "value": "[if(parameters('enableCustomDomains'), variables('dashboardCustomDomain'), 'Not configured')]"
     },
     "dnsRecordsNeeded": {
       "type": "string",

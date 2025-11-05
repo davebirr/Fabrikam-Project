@@ -1,0 +1,240 @@
+﻿@page "/"
+@using Microsoft.AspNetCore.SignalR.Client
+@inject NavigationManager Navigation
+@inject SimulatorClient SimulatorClient
+@inject ILogger<Home> Logger
+@implements IAsyncDisposable
+
+<PageTitle>Fabrikam Dashboard</PageTitle>
+
+<div class="dashboard-container">
+    <div class="dashboard-header">
+        <h1 class="dashboard-title">🏭 Fabrikam Modular Homes - Live Dashboard</h1>
+        <div class="dashboard-status">
+            @if (_isConnected)
+            {
+                <span class="status-connected">🟢 Connected</span>
+            }
+            else
+            {
+                <span class="status-disconnected">🔴 Disconnected</span>
+            }
+            <span class="last-update">Updated: @_lastUpdate.ToString("HH:mm:ss")</span>
+        </div>
+    </div>
+
+    @if (_dashboardData != null)
+    {
+        <!-- Metric Cards -->
+        <div class="metrics-grid">
+            <MetricCard Title="Active Orders" 
+                        Value="@_dashboardData.TotalOrders.ToString()" 
+                        Icon="📦" 
+                        Color="blue" />
+            <MetricCard Title="Open Tickets" 
+                        Value="@_dashboardData.OpenTickets.ToString()" 
+                        Icon="🎫" 
+                        Color="orange" />
+            <MetricCard Title="Total Revenue" 
+                        Value="@($"${_dashboardData.TotalRevenue:N0}")" 
+                        Icon="💰" 
+                        Color="green" />
+            <MetricCard Title="Avg Order Value" 
+                        Value="@($"${_dashboardData.AverageOrderValue:N0}")" 
+                        Icon="📊" 
+                        Color="purple" />
+        </div>
+
+        <!-- Charts Section -->
+        <div class="charts-row">
+            <div class="chart-card">
+                <h3>Orders by Status</h3>
+                <div class="status-chart">
+                    @foreach (var status in _dashboardData.OrdersByStatus.OrderByDescending(x => x.Value))
+                    {
+                        var percentage = _dashboardData.TotalOrders > 0 
+                            ? (status.Value * 100.0 / _dashboardData.TotalOrders) 
+                            : 0;
+                        <div class="status-bar">
+                            <div class="status-label">
+                                <span class="status-badge status-@status.Key.ToLower()">@status.Key</span>
+                                <span class="status-count">@status.Value orders</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill status-@status.Key.ToLower()" 
+                                     style="width: @percentage%"></div>
+                            </div>
+                            <span class="status-percentage">@percentage.ToString("F1")%</span>
+                        </div>
+                    }
+                </div>
+            </div>
+
+            <div class="chart-card">
+                <h3>Orders by Region</h3>
+                <div class="status-chart">
+                    @foreach (var region in _dashboardData.OrdersByRegion.OrderByDescending(x => x.Value))
+                    {
+                        var percentage = _dashboardData.TotalOrders > 0 
+                            ? (region.Value * 100.0 / _dashboardData.TotalOrders) 
+                            : 0;
+                        <div class="status-bar">
+                            <div class="status-label">
+                                <span class="region-badge">@GetRegionIcon(region.Key) @region.Key</span>
+                                <span class="status-count">@region.Value orders</span>
+                            </div>
+                            <div class="progress-bar">
+                                <div class="progress-fill region-bar" 
+                                     style="width: @percentage%"></div>
+                            </div>
+                            <span class="status-percentage">@percentage.ToString("F1")%</span>
+                        </div>
+                    }
+                </div>
+            </div>
+        </div>
+
+        <!-- Simulator Controls -->
+        @if (_dashboardData.SimulatorStatus != null)
+        {
+            <div class="simulator-section">
+                <h2>🎲 Simulator Controls</h2>
+                <p class="simulator-description">
+                    Control the FabrikamSimulator background workers to generate realistic business activity.
+                </p>
+                <div class="simulator-controls">
+                    <SimulatorToggle Name="Order Progression" 
+                                     Enabled="@_dashboardData.SimulatorStatus.OrderProgression.Enabled"
+                                     LastRun="@_dashboardData.SimulatorStatus.OrderProgression.LastRun"
+                                     NextRun="@_dashboardData.SimulatorStatus.OrderProgression.NextRun"
+                                     OnToggle="@(() => ToggleSimulator("orders/progression", !_dashboardData.SimulatorStatus.OrderProgression.Enabled))" />
+                    
+                    <SimulatorToggle Name="Order Generator" 
+                                     Enabled="@_dashboardData.SimulatorStatus.OrderGenerator.Enabled"
+                                     LastRun="@_dashboardData.SimulatorStatus.OrderGenerator.LastRun"
+                                     NextRun="@_dashboardData.SimulatorStatus.OrderGenerator.NextRun"
+                                     OnToggle="@(() => ToggleSimulator("orders/generator", !_dashboardData.SimulatorStatus.OrderGenerator.Enabled))" />
+                    
+                    <SimulatorToggle Name="Ticket Generator" 
+                                     Enabled="@_dashboardData.SimulatorStatus.TicketGenerator.Enabled"
+                                     LastRun="@_dashboardData.SimulatorStatus.TicketGenerator.LastRun"
+                                     NextRun="@_dashboardData.SimulatorStatus.TicketGenerator.NextRun"
+                                     OnToggle="@(() => ToggleSimulator("tickets", !_dashboardData.SimulatorStatus.TicketGenerator.Enabled))" />
+                </div>
+            </div>
+        }
+        else
+        {
+            <div class="simulator-section">
+                <h2>🎲 Simulator Status</h2>
+                <div class="info-message">
+                    ⚠️ FabrikamSimulator is not running. Start the simulator to enable worker controls.
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="loading-container">
+            <div class="loading-spinner">⏳</div>
+            <p>Loading dashboard data...</p>
+        </div>
+    }
+</div>
+
+@code {
+    private HubConnection? _hubConnection;
+    private DashboardDataDto? _dashboardData;
+    private bool _isConnected;
+    private DateTime _lastUpdate = DateTime.UtcNow;
+
+    protected override async Task OnInitializedAsync()
+    {
+        // Create SignalR connection
+        _hubConnection = new HubConnectionBuilder()
+            .WithUrl(Navigation.ToAbsoluteUri("/dashboardHub"))
+            .WithAutomaticReconnect()
+            .Build();
+
+        // Subscribe to dashboard updates
+        _hubConnection.On<DashboardDataDto>("DashboardUpdate", data =>
+        {
+            _dashboardData = data;
+            _lastUpdate = DateTime.UtcNow;
+            InvokeAsync(StateHasChanged);
+        });
+
+        // Handle reconnection
+        _hubConnection.Reconnected += async connectionId =>
+        {
+            _isConnected = true;
+            await InvokeAsync(StateHasChanged);
+        };
+
+        _hubConnection.Reconnecting += async error =>
+        {
+            _isConnected = false;
+            await InvokeAsync(StateHasChanged);
+        };
+
+        _hubConnection.Closed += async error =>
+        {
+            _isConnected = false;
+            await InvokeAsync(StateHasChanged);
+        };
+
+        // Start connection
+        try
+        {
+            await _hubConnection.StartAsync();
+            _isConnected = true;
+            Logger.LogInformation("Connected to dashboard hub");
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error connecting to dashboard hub");
+            _isConnected = false;
+        }
+    }
+
+    private async Task ToggleSimulator(string endpoint, bool enable)
+    {
+        try
+        {
+            var success = await SimulatorClient.ToggleWorkerAsync(endpoint, enable);
+            if (success)
+            {
+                Logger.LogInformation("Toggled {Endpoint} to {State}", endpoint, enable ? "ON" : "OFF");
+            }
+            else
+            {
+                Logger.LogWarning("Failed to toggle {Endpoint}", endpoint);
+            }
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error toggling simulator worker");
+        }
+    }
+
+    private string GetRegionIcon(string region)
+    {
+        return region switch
+        {
+            "Northeast" => "🏔️",
+            "Southeast" => "🌴",
+            "Midwest" => "🌾",
+            "Southwest" => "🌵",
+            "West" => "🏖️",
+            _ => "📍"
+        };
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        if (_hubConnection is not null)
+        {
+            await _hubConnection.DisposeAsync();
+        }
+    }
+}
