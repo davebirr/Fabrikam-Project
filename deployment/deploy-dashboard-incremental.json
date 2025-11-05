@@ -93,6 +93,10 @@
               "value": "Production"
             },
             {
+              "name": "Authentication__Mode",
+              "value": "Disabled"
+            },
+            {
               "name": "FabrikamApi__BaseUrl",
               "value": "[variables('apiUrl')]"
             },

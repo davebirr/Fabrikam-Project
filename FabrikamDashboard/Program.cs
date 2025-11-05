@@ -11,18 +11,42 @@ builder.Services.AddRazorComponents()
 // Add SignalR for real-time updates
 builder.Services.AddSignalR();
 
-// Add JWT token service for API authentication
-builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
-builder.Services.AddTransient<JwtAuthenticationHandler>();
+// Determine authentication mode from configuration
+var authMode = builder.Configuration.GetValue<string>("Authentication:Mode", "Disabled");
+var dashboardGuid = builder.Configuration["Dashboard:ServiceGuid"] ?? "dashboard-00000000-0000-0000-0000-000000000001";
 
-// Configure HTTP clients for FabrikamApi with JWT authentication
-builder.Services.AddHttpClient<FabrikamApiClient>(client =>
+// Configure API client based on authentication mode
+if (authMode.Equals("BearerToken", StringComparison.OrdinalIgnoreCase))
 {
-    var baseUrl = builder.Configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
-    client.BaseAddress = new Uri(baseUrl);
-    client.Timeout = TimeSpan.FromSeconds(30);
-})
-.AddHttpMessageHandler<JwtAuthenticationHandler>();
+    // BearerToken mode: Use JWT authentication
+    builder.Services.AddSingleton<IJwtTokenService, JwtTokenService>();
+    builder.Services.AddTransient<JwtAuthenticationHandler>();
+    
+    builder.Services.AddHttpClient<FabrikamApiClient>(client =>
+    {
+        var baseUrl = builder.Configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
+        client.BaseAddress = new Uri(baseUrl);
+        client.Timeout = TimeSpan.FromSeconds(30);
+    })
+    .AddHttpMessageHandler<JwtAuthenticationHandler>();
+    
+    Console.WriteLine($"Dashboard configured for BearerToken authentication mode");
+}
+else
+{
+    // Disabled mode: Use X-Tracking-Guid header
+    builder.Services.AddHttpClient<FabrikamApiClient>(client =>
+    {
+        var baseUrl = builder.Configuration["FabrikamApi:BaseUrl"] ?? "https://localhost:7297";
+        client.BaseAddress = new Uri(baseUrl);
+        client.Timeout = TimeSpan.FromSeconds(30);
+        
+        // Note: X-Tracking-Guid will be set per-request by FabrikamApiClient
+        // to allow user-specific GUIDs from browser sessions
+    });
+    
+    Console.WriteLine($"Dashboard configured for Disabled authentication mode");
+}
 
 // Configure HTTP clients for FabrikamSimulator
 builder.Services.AddHttpClient<SimulatorClient>(client =>

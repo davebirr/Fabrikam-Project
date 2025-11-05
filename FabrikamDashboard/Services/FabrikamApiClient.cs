@@ -12,11 +12,33 @@ public class FabrikamApiClient
 {
     private readonly HttpClient _httpClient;
     private readonly ILogger<FabrikamApiClient> _logger;
+    private readonly IConfiguration _configuration;
 
-    public FabrikamApiClient(HttpClient httpClient, ILogger<FabrikamApiClient> logger)
+    public FabrikamApiClient(HttpClient httpClient, ILogger<FabrikamApiClient> logger, IConfiguration configuration)
     {
         _httpClient = httpClient;
         _logger = logger;
+        _configuration = configuration;
+    }
+
+    /// <summary>
+    /// Add X-Tracking-Guid header for Disabled authentication mode
+    /// </summary>
+    private HttpRequestMessage CreateRequestWithGuid(HttpMethod method, string requestUri, string? userGuid = null)
+    {
+        var request = new HttpRequestMessage(method, requestUri);
+        
+        // In Disabled mode, use X-Tracking-Guid header
+        var authMode = _configuration.GetValue<string>("Authentication:Mode", "Disabled");
+        if (authMode.Equals("Disabled", StringComparison.OrdinalIgnoreCase))
+        {
+            // Use user's GUID if provided, otherwise use dashboard service GUID
+            var guid = userGuid ?? _configuration["Dashboard:ServiceGuid"] ?? "dashboard-00000000-0000-0000-0000-000000000001";
+            request.Headers.Add("X-Tracking-Guid", guid);
+            _logger.LogDebug("Adding X-Tracking-Guid header: {Guid}", guid);
+        }
+        
+        return request;
     }
 
     /// <summary>
@@ -26,7 +48,8 @@ public class FabrikamApiClient
     {
         try
         {
-            var response = await _httpClient.GetAsync("/api/orders", cancellationToken);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, "/api/orders");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             
             if (response.IsSuccessStatusCode)
             {
@@ -51,7 +74,8 @@ public class FabrikamApiClient
     {
         try
         {
-            var response = await _httpClient.GetAsync("/api/orders/analytics", cancellationToken);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, "/api/orders/analytics");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             
             if (response.IsSuccessStatusCode)
             {
@@ -75,7 +99,8 @@ public class FabrikamApiClient
     {
         try
         {
-            var response = await _httpClient.GetAsync("/api/supporttickets", cancellationToken);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, "/api/supporttickets");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             
             if (response.IsSuccessStatusCode)
             {
@@ -100,7 +125,8 @@ public class FabrikamApiClient
     {
         try
         {
-            var response = await _httpClient.GetAsync("/api/customers", cancellationToken);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, "/api/customers");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
             
             if (response.IsSuccessStatusCode)
             {
