@@ -23,6 +23,10 @@ public class FabrikamIdentityDbContext : IdentityDbContext<FabrikamUser, Fabrika
     public DbSet<OrderItem> OrderItems { get; set; }
     public DbSet<SupportTicket> SupportTickets { get; set; }
     public DbSet<TicketNote> TicketNotes { get; set; }
+    
+    // Supplier Invoice Management
+    public DbSet<Invoice> Invoices { get; set; }
+    public DbSet<InvoiceLineItem> InvoiceLineItems { get; set; }
 
     protected override void OnModelCreating(ModelBuilder modelBuilder)
     {
@@ -269,6 +273,57 @@ public class FabrikamIdentityDbContext : IdentityDbContext<FabrikamUser, Fabrika
 
         modelBuilder.Entity<Product>()
             .HasIndex(p => p.Category);
+
+        // Configure Invoice relationships
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(i => i.InvoiceNumber)
+            .IsUnique();
+
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(i => i.Vendor);
+
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(i => i.Status);
+
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(i => i.InvoiceDate);
+
+        modelBuilder.Entity<Invoice>()
+            .HasIndex(i => new { i.Vendor, i.TotalAmount, i.InvoiceDate });
+
+        modelBuilder.Entity<InvoiceLineItem>()
+            .HasOne(ili => ili.Invoice)
+            .WithMany(i => i.LineItems)
+            .HasForeignKey(ili => ili.InvoiceId)
+            .OnDelete(DeleteBehavior.Cascade);
+
+        // Configure decimal precision for invoice financial fields (conditional for SQL Server)
+        if (!isInMemory)
+        {
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.SubtotalAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.TaxAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.ShippingAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<Invoice>()
+                .Property(i => i.TotalAmount)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<InvoiceLineItem>()
+                .Property(ili => ili.UnitPrice)
+                .HasPrecision(18, 2);
+
+            modelBuilder.Entity<InvoiceLineItem>()
+                .Property(ili => ili.Amount)
+                .HasPrecision(18, 2);
+        }
 
         // Note: Role seeding is handled by AuthenticationSeedService to avoid conflicts
         // SeedIdentityData(modelBuilder);

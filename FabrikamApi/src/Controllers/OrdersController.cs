@@ -247,4 +247,184 @@ public class OrdersController : ControllerBase
             return StatusCode(500, "Internal server error");
         }
     }
+
+    /// <summary>
+    /// Update order status and related dates (for simulator use)
+    /// </summary>
+    [HttpPatch("{id}/status")]
+    public async Task<ActionResult> UpdateOrderStatus(
+        int id,
+        [FromBody] UpdateOrderStatusRequest request)
+    {
+        try
+        {
+            var order = await _context.Orders.FindAsync(id);
+
+            if (order == null)
+            {
+                return NotFound($"Order with ID {id} not found");
+            }
+
+            // Update status if provided
+            if (!string.IsNullOrEmpty(request.Status))
+            {
+                if (Enum.TryParse<OrderStatus>(request.Status, true, out var statusEnum))
+                {
+                    order.Status = statusEnum;
+                    _logger.LogInformation("Updated order {OrderId} status to {Status}", id, request.Status);
+                }
+                else
+                {
+                    return BadRequest($"Invalid status: {request.Status}");
+                }
+            }
+
+            // Update shipped date if provided
+            if (request.ShippedDate.HasValue)
+            {
+                order.ShippedDate = request.ShippedDate.Value;
+                _logger.LogInformation("Updated order {OrderId} shipped date to {ShippedDate}", id, request.ShippedDate);
+            }
+
+            // Update delivered date if provided
+            if (request.DeliveredDate.HasValue)
+            {
+                order.DeliveredDate = request.DeliveredDate.Value;
+                _logger.LogInformation("Updated order {OrderId} delivered date to {DeliveredDate}", id, request.DeliveredDate);
+            }
+
+            await _context.SaveChangesAsync();
+
+            return Ok(new { 
+                message = $"Order {order.OrderNumber} updated successfully",
+                orderId = id,
+                status = order.Status.ToString(),
+                shippedDate = order.ShippedDate,
+                deliveredDate = order.DeliveredDate
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error updating order {OrderId} status", id);
+            return StatusCode(500, "Internal server error");
+        }
+    }
+
+    /// <summary>
+    /// Create a new order (for simulator use)
+    /// </summary>
+    [HttpPost]
+    public async Task<ActionResult<OrderDetailDto>> CreateOrder([FromBody] CreateOrderRequest request)
+    {
+        try
+        {
+            // Validate customer exists
+            var customer = await _context.Customers.FindAsync(request.CustomerId);
+            if (customer == null)
+            {
+                return BadRequest($"Customer with ID {request.CustomerId} not found");
+            }
+
+            // Generate order number
+            var lastOrder = await _context.Orders
+                .OrderByDescending(o => o.Id)
+                .FirstOrDefaultAsync();
+            
+            var year = DateTime.UtcNow.Year;
+            var nextNumber = lastOrder != null ? 
+                int.Parse(lastOrder.OrderNumber.Split('-').Last()) + 1 : 1;
+            var orderNumber = $"FAB-{year}-{nextNumber:D3}";
+
+            // Create order
+            var order = new Order
+            {
+                OrderNumber = orderNumber,
+                CustomerId = request.CustomerId,
+                OrderDate = request.OrderDate ?? DateTime.UtcNow,
+                Status = string.IsNullOrEmpty(request.Status) ? OrderStatus.Pending :
+                         Enum.Parse<OrderStatus>(request.Status, true),
+                OrderItems = new List<OrderItem>()
+            };
+
+            // Add order items if provided
+            if (request.Items != null && request.Items.Any())
+            {
+                foreach (var itemRequest in request.Items)
+                {
+                    var product = await _context.Products.FindAsync(itemRequest.ProductId);
+                    if (product != null)
+                    {
+                        order.OrderItems.Add(new OrderItem
+                        {
+                            ProductId = itemRequest.ProductId,
+                            Quantity = itemRequest.Quantity,
+                            UnitPrice = itemRequest.UnitPrice ?? product.Price
+                        });
+                    }
+                }
+            }
+
+            // Calculate total
+            order.Total = order.OrderItems.Sum(i => i.Quantity * i.UnitPrice);
+
+            _context.Orders.Add(order);
+            await _context.SaveChangesAsync();
+
+            _logger.LogInformation("Created new order {OrderNumber} for customer {CustomerId}", 
+                orderNumber, request.CustomerId);
+
+            // Return created order
+            var createdOrder = await _context.Orders
+                .Include(o => o.Customer)
+                .Include(o => o.OrderItems)
+                    .ThenInclude(i => i.Product)
+                .FirstAsync(o => o.Id == order.Id);
+
+            return CreatedAtAction(nameof(GetOrder), new { id = order.Id }, new
+            {
+                id = createdOrder.Id,
+                orderNumber = createdOrder.OrderNumber,
+                customerId = createdOrder.CustomerId,
+                customer = new
+                {
+                    id = createdOrder.Customer.Id,
+                    name = $"{createdOrder.Customer.FirstName} {createdOrder.Customer.LastName}",
+                    email = createdOrder.Customer.Email
+                },
+                orderDate = createdOrder.OrderDate,
+                status = createdOrder.Status.ToString(),
+                total = createdOrder.Total,
+                items = createdOrder.OrderItems.Select(i => new
+                {
+                    productId = i.ProductId,
+                    productName = i.Product?.Name,
+                    quantity = i.Quantity,
+                    unitPrice = i.UnitPrice,
+                    lineTotal = i.Quantity * i.UnitPrice
+                })
+            });
+        }
+        catch (Exception ex)
+        {
+            _logger.LogError(ex, "Error creating order for customer {CustomerId}", request.CustomerId);
+            return StatusCode(500, "Internal server error");
+        }
+    }
 }
+
+// Request models for new endpoints
+public record UpdateOrderStatusRequest(
+    string? Status = null,
+    DateTime? ShippedDate = null,
+    DateTime? DeliveredDate = null);
+
+public record CreateOrderRequest(
+    int CustomerId,
+    DateTime? OrderDate = null,
+    string? Status = null,
+    List<CreateOrderItemRequest>? Items = null);
+
+public record CreateOrderItemRequest(
+    int ProductId,
+    int Quantity,
+    decimal? UnitPrice = null);

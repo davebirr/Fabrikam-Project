@@ -25,6 +25,8 @@ Project("{2150E333-8FDC-42A3-9474-1A3956D46DE8}") = "src", "src", "{9DC8EE6D-FEB
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabrikamSimulator", "FabrikamSimulator\src\FabrikamSimulator.csproj", "{6E05A1B8-B1BB-4889-97DA-A00E2214D431}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "FabrikamDashboard", "FabrikamDashboard\FabrikamDashboard.csproj", "{46067E91-074C-48E9-8EEE-D2B8FFED0C54}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -95,6 +97,18 @@ Global
 		{6E05A1B8-B1BB-4889-97DA-A00E2214D431}.Release|x64.Build.0 = Release|Any CPU
 		{6E05A1B8-B1BB-4889-97DA-A00E2214D431}.Release|x86.ActiveCfg = Release|Any CPU
 		{6E05A1B8-B1BB-4889-97DA-A00E2214D431}.Release|x86.Build.0 = Release|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Debug|x64.Build.0 = Debug|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Debug|x86.Build.0 = Debug|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Release|Any CPU.Build.0 = Release|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Release|x64.ActiveCfg = Release|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Release|x64.Build.0 = Release|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Release|x86.ActiveCfg = Release|Any CPU
+		{46067E91-074C-48E9-8EEE-D2B8FFED0C54}.Release|x86.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

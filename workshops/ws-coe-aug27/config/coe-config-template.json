@@ -29,13 +29,13 @@
     }
   ],
   "_examples": {
-    "tenantId": "394985c9-594b-433f-973d-c6a1f9c124f3",
-    "tenantDomain": "fabrikam.cspsecurityaccelerate.com",
-    "azureSubscriptionId": "b7699934-0c99-4899-8799-763fffc90878",
+    "tenantId": "12345678-1234-1234-1234-123456789abc",
+    "tenantDomain": "contoso.cspsecurityaccelerate.com",
+    "azureSubscriptionId": "87654321-4321-4321-4321-cba987654321",
     "realUserExample": {
-      "displayName": "Chris DePalma",
-      "username": "chridep", 
-      "originalEmail": "chridep@microsoft.com"
+      "displayName": "John Doe",
+      "username": "johndoe", 
+      "originalEmail": "johndoe@example.com"
     }
   }
 }
