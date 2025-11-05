@@ -35,9 +35,15 @@ public class FabrikamApiClient
         if (authMode.Equals("Disabled", StringComparison.OrdinalIgnoreCase))
         {
             // Use user's GUID if provided, otherwise use dashboard service GUID
-            var guid = userGuid ?? _configuration["Dashboard:ServiceGuid"] ?? "dashboard-00000000-0000-0000-0000-000000000001";
+            var rawGuid = userGuid ?? _configuration["Dashboard:ServiceGuid"] ?? "dashboard-00000000-0000-0000-0000-000000000001";
+            
+            // Strip "dashboard-" prefix if present to get valid GUID format
+            var guid = rawGuid.StartsWith("dashboard-", StringComparison.OrdinalIgnoreCase) 
+                ? rawGuid.Substring(10)  // Remove "dashboard-" (10 characters)
+                : rawGuid;
+            
             request.Headers.Add("X-Tracking-Guid", guid);
-            Console.WriteLine($"✅ Added X-Tracking-Guid header: {guid} for {requestUri}");
+            Console.WriteLine($"✅ Added X-Tracking-Guid header: {guid} (raw: {rawGuid}) for {requestUri}");
             _logger.LogInformation("Adding X-Tracking-Guid header: {Guid} for {Uri}", guid, requestUri);
         }
         else
