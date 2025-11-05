@@ -365,6 +365,72 @@ Fabrikam Invoice API
 
 ---
 
+### **🎯 Choose Your Approach**
+
+The Fabrikam MCP server now includes invoice processing tools! You can choose your integration approach based on your learning goals:
+
+#### **Approach 1: Using MCP Invoice Tools** ⭐ (Recommended for 90-minute timeline)
+
+**What You Get**:
+- `get_invoices` - Query invoices with filtering for duplicate detection
+- `submit_invoice` - Validate and submit invoices with automatic validation
+
+**Workflow**:
+```
+1. Extract invoice data from PDF (your code/AI)
+2. Use get_invoices to check for duplicates
+3. Use submit_invoice to validate and submit
+4. Focus your time on document processing and business logic
+```
+
+**Why Choose This**:
+- ✅ Faster implementation (focus on extraction logic)
+- ✅ Built-in validation (math checks, duplicates, dates)
+- ✅ Consistent with Options A & B (uses MCP tools)
+- ✅ Demonstrates MCP integration patterns
+- ✅ Better for the 60-90 minute timeline
+
+**MCP Tools Available**:
+- **get_invoices**(invoiceNumber, vendor, status, fromDate, toDate, category, page, pageSize)
+  - Returns invoice list for duplicate checking
+  - Filter by any field to find matching invoices
+- **submit_invoice**(invoiceNumber, vendor, invoiceDate, dueDate, subtotal, tax, total, category, lineItems, notes, purchaseOrderNumber)
+  - Validates all fields and math
+  - Detects duplicates automatically
+  - Returns detailed validation errors if submission fails
+
+#### **Approach 2: Direct API Integration** 🚀 (For the ambitious!)
+
+**What You Build**:
+- Direct HTTP calls to `POST /api/invoices`
+- Your own validation logic
+- HTTP client and error handling
+
+**Workflow**:
+```
+1. Extract invoice data from PDF (your code/AI)
+2. Implement validation (math, duplicates, dates)
+3. Make HTTP POST to /api/invoices endpoint
+4. Handle API responses and errors
+```
+
+**Why Choose This**:
+- ✅ Learn HTTP client patterns
+- ✅ Understand API contracts directly
+- ✅ More control over validation logic
+- ✅ Production integration experience
+- ⚠️ Requires more time (consider 90+ minutes)
+
+**API Endpoints**:
+- **GET** `/api/invoices` - List invoices (filter by vendor, status, dates, category)
+- **GET** `/api/invoices/{id}` - Get specific invoice with line items
+- **POST** `/api/invoices` - Submit new invoice
+- Returns: 200 (success), 400 (validation failed), 409 (duplicate)
+
+**💡 Tip**: You can mix approaches! Use MCP tools for duplicate checking but direct API for submission to learn both patterns.
+
+---
+
 ### **✅ Success Criteria**
 
 #### **Basic Success (30 points)**
