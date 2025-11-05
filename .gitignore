@@ -28,6 +28,10 @@ workshops/ws-coe-aug27/config/coe-users-actual.csv
 workshops/ws-coe-aug27/config/coe-users.csv
 workshops/ws-coe-aug27/config/*-actual.csv
 
+# Azure service principal credentials and secrets
+service-principal-github.json
+**/service-principal*.json
+
 # .NET Core
 *.swp
 *.*~
