@@ -340,15 +340,25 @@ public class GuidTrackingService : IGuidTrackingService
         var guidString = context.Request.Headers["X-Tracking-Guid"].FirstOrDefault() ??
                         context.Request.Query["trackingGuid"].FirstOrDefault();
 
-        if (Guid.TryParse(guidString, out var existingGuid))
+        if (!string.IsNullOrWhiteSpace(guidString))
         {
-            _logger.LogDebug("Using existing tracking GUID: {TrackingGuid}", existingGuid);
-            return Task.FromResult(existingGuid);
+            if (Guid.TryParse(guidString, out var existingGuid))
+            {
+                _logger.LogDebug("Using existing tracking GUID: {TrackingGuid} from request", existingGuid);
+                return Task.FromResult(existingGuid);
+            }
+            else
+            {
+                // Log invalid GUID format as a warning
+                _logger.LogWarning("⚠️ Invalid GUID format received in X-Tracking-Guid header: '{InvalidGuid}'. Length: {Length}. Creating new GUID instead.",
+                    guidString, guidString.Length);
+            }
         }
 
-        // Create new GUID
+        // Create new GUID (either no GUID provided or invalid format)
         var newGuid = Guid.NewGuid();
-        _logger.LogInformation("Created new tracking GUID: {TrackingGuid}", newGuid);
+        _logger.LogInformation("Created new tracking GUID: {TrackingGuid} for request to {Path}",
+            newGuid, context.Request.Path);
         
         // Store in response headers for client reference
         context.Response.Headers.Append("X-Tracking-Guid", newGuid.ToString());
