@@ -1,29 +1,107 @@
-Email,ChallengeLevel,Timestamp
-jimbanach@microsoft.com,Intermediate,10/28/2025 11:14:31
-elwinquentel@microsoft.com,Intermediate,10/28/2025 11:16:12
-maivebugge@microsoft.com,Advanced,10/28/2025 11:16:23
-ostephan@microsoft.com,Advanced,10/28/2025 11:16:48
-ibondy@microsoft.com,Beginner,10/28/2025 11:18:23
-davidtagler@microsoft.com,Advanced,10/28/2025 11:19:38
-mcampos@microsoft.com,Advanced,10/28/2025 11:21:18
-inmauric@microsoft.com,Beginner,10/28/2025 11:23:52
-shanah@microsoft.com,Beginner,10/28/2025 11:24:34
-thomase@microsoft.com,Beginner,10/28/2025 11:28:36
-lvolkmar@microsoft.com,Intermediate,10/28/2025 11:29:19
-paatwal@microsoft.com,Advanced,10/28/2025 11:29:33
-atulwats@microsoft.com,Intermediate,10/28/2025 11:30:24
-kevinsan@microsoft.com,Intermediate,10/28/2025 11:31:49
-angelikak@microsoft.com,Beginner,10/28/2025 11:47:55
-ignaciol@microsoft.com,Intermediate,10/28/2025 12:07:58
-abarturen@microsoft.com,Beginner,10/28/2025 12:45:20
-rsharma@microsoft.com,Advanced,10/28/2025 13:08:19
-saadsiddique@microsoft.com,Advanced,10/28/2025 13:57:10
-phbeaumo@microsoft.com,Intermediate,10/28/2025 14:54:10
-sarahburg@microsoft.com,Beginner,10/28/2025 15:24:21
-robertzen@microsoft.com,Intermediate,10/28/2025 17:27:13
-petongsu@microsoft.com,Beginner,10/28/2025 17:49:38
-magibso@microsoft.com,Intermediate,10/28/2025 17:52:43
-snatawardaja@microsoft.com,Advanced,10/28/2025 19:10:21
-tsahagun@microsoft.com,Intermediate,10/28/2025 19:43:21
-pigarg@microsoft.com,Intermediate,10/28/2025 21:50:26
-hgreenfeld@microsoft.com,Intermediate,10/28/2025 22:29:30
+﻿ID,Start time,Completion time,Email,Name,Last modified time,davidb,Preferred Challenge Level,Team Preference
+1,10/28/25 8:14:24,10/28/25 8:14:31,jimbanach@microsoft.com,Jim Banach,,jimbanach,Intermediate,Work on a team
+2,10/28/25 8:14:58,10/28/25 8:16:12,elwinquentel@microsoft.com,Elwin Quentel,,elwinquentel@microsoft.com,Intermediate,Work on a team
+3,10/28/25 8:13:57,10/28/25 8:16:23,maivebugge@microsoft.com,Mai Ve Bugge,,maivebugge,Advanced,Work on a team
+4,10/28/25 8:16:25,10/28/25 8:16:48,ostephan@microsoft.com,Olivier Stéphan,,ostephan,Advanced,Work on a team
+5,10/28/25 8:18:10,10/28/25 8:18:23,ibondy@microsoft.com,Ivan Bondy,,ibondy,Beginner,Work individually (team of one)
+6,10/28/25 8:19:10,10/28/25 8:19:38,davidtagler@microsoft.com,David Tagler,,david.tagler@microsoft.com,Advanced,Work on a team
+7,10/28/25 8:20:27,10/28/25 8:21:18,mcampos@microsoft.com,Miguel Campos,,mcampos,Advanced,Work on a team
+8,10/28/25 8:21:13,10/28/25 8:23:52,inmauric@microsoft.com,Ines Mauricio,,inmauric@microsoft.com,Beginner,Work on a team
+9,10/28/25 8:24:09,10/28/25 8:24:34,shanah@microsoft.com,Shana Warner,,shanah@microsoft.com,Beginner,Work on a team
+10,10/28/25 8:28:18,10/28/25 8:28:36,thomase@microsoft.com,Thomas Ellermann,,thomase,Beginner,Work individually (team of one)
+11,10/28/25 8:28:32,10/28/25 8:29:19,lvolkmar@microsoft.com,Leonardo Volkmar,,lvolkmar@microsoft.com,Intermediate,Work on a team
+12,10/28/25 8:29:15,10/28/25 8:29:33,paatwal@microsoft.com,Pardeep Atwal,,paatwal@microsoft.com,Advanced,Work on a team
+13,10/28/25 8:28:11,10/28/25 8:30:24,atulwats@microsoft.com,Atul Wats,,atulwats@microsoft.com,Intermediate,Work on a team
+14,10/28/25 8:30:28,10/28/25 8:31:49,kevinsan@microsoft.com,Kevin Sangwell,,kevinsan,Intermediate,Work on a team
+15,10/28/25 8:47:36,10/28/25 8:47:55,angelikak@microsoft.com,Angelika Konstantinova,,angelikak,Beginner,Work on a team
+16,10/28/25 9:06:07,10/28/25 9:07:58,ignaciol@microsoft.com,Ignacio Lago Fernandez,,ignaciol,Intermediate,Work on a team
+17,10/28/25 9:44:57,10/28/25 9:45:20,abarturen@microsoft.com,Ainhoa Barturen,,abarturen@microsoft.com,Beginner,Work on a team
+18,10/28/25 10:07:05,10/28/25 10:08:19,rsharma@microsoft.com,Ranjiv Sharma,,rsharma,Advanced,Work individually (team of one)
+19,10/28/25 10:56:38,10/28/25 10:57:10,saadsiddique@microsoft.com,Saad Siddique,,saadsiddique@microsoft.com,Advanced,Work individually (team of one)
+20,10/28/25 11:53:10,10/28/25 11:54:10,phbeaumo@microsoft.com,Phil Beaumont,,Phbeaumo,Intermediate,Work on a team
+21,10/28/25 12:23:49,10/28/25 12:24:21,sarahburg@microsoft.com,Sarah Burg,,sarahburg@microsoft.com,Beginner,Work individually (team of one)
+22,10/28/25 14:26:05,10/28/25 14:27:13,robertzen@microsoft.com,Robert Zen,,robertzen,Intermediate,Work on a team
+23,10/28/25 14:49:27,10/28/25 14:49:38,petongsu@microsoft.com,Penny Tongsumrith,,petongsu,Beginner,Work on a team
+24,10/28/25 14:50:30,10/28/25 14:52:43,magibso@microsoft.com,Mark Gibson,,magibso@microsoft.com,Intermediate,Work individually (team of one)
+25,10/28/25 16:09:50,10/28/25 16:10:21,snatawardaja@microsoft.com,Stephanus Natawardaja,,snatawardaja,Advanced,Work on a team
+26,10/28/25 16:43:09,10/28/25 16:43:21,tsahagun@microsoft.com,Tatiana Sahagun,,tsahagun,Intermediate,Work on a team
+27,10/28/25 10:24:51,10/28/25 18:50:26,pigarg@microsoft.com,Piyush Garg,,pigarg,Intermediate,Work on a team
+28,10/28/25 19:28:18,10/28/25 19:29:30,hgreenfeld@microsoft.com,Hannah Greenfeld,,hgreenfeld@microsoft.com,Intermediate,Work on a team
+29,10/28/25 19:43:22,10/28/25 19:43:50,sabandel@microsoft.com,Samuel Pramod Bandela,,sabandel@microsoft.com,Beginner,Work on a team
+30,10/28/25 20:04:34,10/28/25 20:04:44,davidb@microsoft.com,David Bjurman-Birr,,davidb@microsoft.com,Proctor,Work on a team
+31,10/29/25 1:22:46,10/29/25 1:22:59,malegha@microsoft.com,Mazhar Leghari,,malegha,Advanced,Work on a team
+32,10/29/25 1:14:01,10/29/25 1:23:29,akaraglanis@microsoft.com,Aggelos Karaglanis,,akaraglanis,Intermediate,Work on a team
+33,10/29/25 4:59:56,10/29/25 5:00:39,algiombi@microsoft.com,Alessio Giombini,,algiombi@microsoft.com,Advanced,Work on a team
+34,10/28/25 8:50:51,10/29/25 8:10:11,mdawood@microsoft.com,Mohamed Dawood,,Mohamed Dawood,Intermediate,Work on a team
+35,10/29/25 3:21:48,10/29/25 8:51:14,ralfwint@microsoft.com,Ralf Winterer,,ralfwint,Beginner,Work on a team
+36,10/29/25 9:36:00,10/29/25 9:36:31,eciumacencu@microsoft.com,Ela Ciumacencu,,ela.ciumacencu@microsoft.com,Beginner,Work on a team
+37,10/29/25 16:11:23,10/29/25 16:13:39,shaleenv@microsoft.com,Shaleen Verma,,shaleenv@microsoft.com,Advanced,Work on a team
+38,10/29/25 17:21:13,10/29/25 17:22:35,jrosas@microsoft.com,Javier Rosas Hernandez,,jrosas,Intermediate,Work on a team
+39,10/30/25 8:27:23,10/30/25 8:27:52,helendove@microsoft.com,Helen Dove,,helendove@microsoft.com,Beginner,Work on a team
+40,10/30/25 8:44:54,10/30/25 8:47:49,juachou@microsoft.com,Joe Chou,,juachou,Beginner,Work on a team
+41,10/30/25 8:48:30,10/30/25 8:48:52,ericbea@microsoft.com,Eric Beauchesne,,EricBea,Beginner,Work on a team
+42,10/30/25 8:51:04,10/30/25 8:51:33,adahmed@microsoft.com,Adeel Ahmed,,adahmed,Intermediate,Work on a team
+43,10/30/25 8:53:01,10/30/25 8:53:48,pramodnair@microsoft.com,Pramod Nair,,pramodnair,Intermediate,Work on a team
+44,10/30/25 8:54:56,10/30/25 8:55:27,joergf@microsoft.com,Jörg Finkeisen,,joergf,Intermediate,Work on a team
+45,10/30/25 9:01:30,10/30/25 9:02:42,pitsibah@microsoft.com,Pierre TSIBAH,,Pitsibah@microsoft.com,Beginner,Work individually (team of one)
+46,10/30/25 9:26:00,10/30/25 9:26:55,mnorden@microsoft.com,Michael Norden,,mnorden,Intermediate,Work on a team
+47,10/30/25 10:27:28,10/30/25 10:27:34,mnorden@microsoft.com,Michael Norden,,mnorden,Beginner,Work on a team
+48,10/30/25 11:24:12,10/30/25 11:24:35,sidrajocus@microsoft.com,Sidra Soilleux,,sidrajocus,Beginner,Work on a team
+49,10/30/25 12:14:49,10/30/25 12:15:17,spencerl@microsoft.com,Spencer Littlejohn,,spencerl,Beginner,Work individually (team of one)
+50,10/30/25 17:53:24,10/30/25 17:56:42,ahagiwara@microsoft.com,Aanya Hagiwara,,ahagiwara,Beginner,Work on a team
+51,10/30/25 18:04:37,10/30/25 18:08:09,tsahagun@microsoft.com,Tatiana Sahagun,,tsahagun,Intermediate,Work on a team
+52,10/30/25 18:11:12,10/30/25 18:11:56,hschwarz@microsoft.com,Harrison Schwarz,,Hschwarz,Intermediate,Work on a team
+53,10/30/25 18:25:47,10/30/25 18:26:19,xuache@microsoft.com,CHEN Doris X,,XUACHE,Intermediate,Work on a team
+54,10/30/25 19:39:10,10/30/25 19:39:46,senugala@microsoft.com,Srutha Kirthi Enugala,,senugala@microsoft.com,Intermediate,Work on a team
+55,10/30/25 20:04:27,10/30/25 20:06:43,jamendez@microsoft.com,Antonio Mendez,,jamendez,Beginner,Work on a team
+56,10/30/25 20:21:22,10/30/25 20:21:42,nanjaw@microsoft.com,Nandiprasad Jawali,,nanjaw,Intermediate,Work on a team
+57,10/30/25 23:29:44,10/30/25 23:30:34,dahensha@microsoft.com,Dave Henshall,,Dahensha,Beginner,Work on a team
+58,10/31/25 0:08:00,10/31/25 0:08:27,robinrh@microsoft.com,Robin Ray-Howett,,robinrh,Intermediate,Work on a team
+59,10/31/25 0:20:06,10/31/25 0:22:55,arynes@microsoft.com,Andreas Rynes,,arynes,Intermediate,Work on a team
+60,10/31/25 1:17:21,10/31/25 1:17:46,peterhee@microsoft.com,Peter Heese,,peterhee,Beginner,Work on a team
+61,10/31/25 1:29:53,10/31/25 1:33:24,mepearce@microsoft.com,Mervin Pearce,,mepearce@microsoft.com,Advanced,Work on a team
+62,10/31/25 2:08:15,10/31/25 2:09:40,andrcook@microsoft.com,Andrew Cook,,andrcook,Advanced,Work on a team
+63,10/31/25 1:54:53,10/31/25 2:23:05,maivebugge@microsoft.com,Mai Ve Bugge,,maivebugge,Intermediate,Work on a team
+64,10/31/25 2:24:10,10/31/25 2:24:34,fabians@microsoft.com,Fabian Sirach,,fabians,Intermediate,Work individually (team of one)
+65,10/31/25 2:47:03,10/31/25 2:53:02,stephenlowe@microsoft.com,Steve Lowe,,stephenlowe,Advanced,Work individually (team of one)
+66,10/31/25 3:17:14,10/31/25 3:18:13,phcarpen@microsoft.com,Philip Carpenter,,phcarpen,Intermediate,Work individually (team of one)
+67,10/31/25 4:52:33,10/31/25 4:53:02,paulkalsbeek@microsoft.com,Paul Kalsbeek,,paulkalsbeek,Intermediate,Work on a team
+68,10/31/25 5:37:21,10/31/25 5:40:00,kenniths@microsoft.com,Ken St. Cyr,,kenniths,Intermediate,Work on a team
+69,10/31/25 6:11:23,10/31/25 6:12:07,sreea@microsoft.com,Sree Adigopula,,sreea,Advanced,Work on a team
+70,10/31/25 6:14:27,10/31/25 6:14:49,sreea@microsoft.com,Sree Adigopula,,sreea,Advanced,Work on a team
+71,10/31/25 6:20:52,10/31/25 6:21:24,wandent@microsoft.com,Wandenkolk Tinoco Neto,,wandent,Intermediate,Work individually (team of one)
+72,10/31/25 6:36:27,10/31/25 6:36:43,grkerns@microsoft.com,Greg Kerns,,grkerns,Intermediate,Work individually (team of one)
+73,10/31/25 7:19:30,10/31/25 7:20:03,chameht@microsoft.com,Chandra Mehta,,chameht,Advanced,Work on a team
+74,10/31/25 7:52:19,10/31/25 7:52:37,jathorwa@microsoft.com,Jason Thorwall,,jathorwa,Intermediate,Work individually (team of one)
+75,10/31/25 7:55:10,10/31/25 7:55:25,mcampos@microsoft.com,Miguel Campos,,mcampos,Intermediate,Work on a team
+76,10/31/25 7:58:40,10/31/25 7:59:32,imranlal@microsoft.com,Imran Laljivirani,,imranlal,Intermediate,Work on a team
+77,10/31/25 7:57:51,10/31/25 8:11:13,remyn@microsoft.com,Remy Ntshaykolo,,remyn,Beginner,Work on a team
+78,10/31/25 8:13:49,10/31/25 8:14:16,angelikak@microsoft.com,Angelika Konstantinova,,angelikak,Beginner,Work on a team
+79,10/31/25 8:22:09,10/31/25 8:22:29,maboam@microsoft.com,Martin Boam,,maboam,Advanced,Work on a team
+80,10/31/25 8:26:28,10/31/25 8:27:25,lonasser@microsoft.com,Loren Nasser,,lonasser,Beginner,Work on a team
+81,10/31/25 8:32:41,10/31/25 8:39:14,franspa@microsoft.com,Francesco Sparacio,,franspa,Advanced,Work on a team
+82,10/31/25 9:32:36,10/31/25 9:33:18,dotties@microsoft.com,Dottie Shaw,,dotties,Intermediate,Work on a team
+83,10/31/25 11:43:01,10/31/25 11:43:42,esalvarez@microsoft.com,Estefanie Alvarez,,esalvarez,Proctor,Work individually (team of one)
+84,10/31/25 11:48:26,10/31/25 11:49:09,toddray@microsoft.com,Todd Ray,,toddray@microsoft.com,Beginner,Work on a team
+85,10/31/25 12:24:51,10/31/25 12:25:09,marcole@microsoft.com,Marguerite Cole,,marcole,Beginner,Work on a team
+86,10/31/25 14:00:12,10/31/25 14:01:24,anuks@microsoft.com,Anukool A.,,anuks,Advanced,Work on a team
+87,10/31/25 16:58:54,10/31/25 16:59:39,kumardeepa@microsoft.com,Deepak Kumar,,Kumardeepa,Beginner,Work on a team
+88,10/31/25 21:47:47,10/31/25 21:48:22,duzim@microsoft.com,Duzianthan Mohanadoss,,Duzim,Intermediate,Work on a team
+89,11/1/25 0:20:34,11/1/25 0:22:17,jorima@microsoft.com,Jose Rimada,,Jorima,Intermediate,Work on a team
+90,11/1/25 16:12:05,11/1/25 16:12:43,jamendez@microsoft.com,Antonio Mendez,,jamendez,Beginner,Work on a team
+91,11/2/25 12:05:26,11/2/25 12:06:14,pebert@microsoft.com,Peter Bertolis,,Pebert,Intermediate,Work individually (team of one)
+92,11/2/25 14:37:37,11/2/25 14:38:01,madavi@microsoft.com,Matthew Davis,,Madavi,Proctor,Work individually (team of one)
+93,11/2/25 16:18:17,11/2/25 16:18:46,ashanbogol@microsoft.com,Ashan Bogol,,ashanbogol,Beginner,Work on a team
+94,11/2/25 20:22:57,11/2/25 20:23:11,kbowling@microsoft.com,Kevin Bowling,,kbowling,Intermediate,Work on a team
+95,11/2/25 21:47:45,11/2/25 21:48:08,makravit@microsoft.com,Marc Kravitz,,makravit,Beginner,Work individually (team of one)
+96,11/2/25 22:39:00,11/2/25 22:40:12,mpiggott@microsoft.com,Mark Piggott,,mpiggott,Beginner,Work on a team
+97,11/3/25 0:20:32,11/3/25 0:21:00,trtjeldf@microsoft.com,Trine Tjeldflåt (SHE/HER),,Trtjeldf,Beginner,Work on a team
+98,11/3/25 5:44:35,11/3/25 5:45:22,thiagas@microsoft.com,Thiagaraj Sundararajan,,thiagas,Beginner,Work on a team
+99,11/3/25 10:10:37,11/3/25 10:10:54,brentsin@microsoft.com,Brent Sinclair,,brentsin,Beginner,Work on a team
+100,11/3/25 15:38:06,11/3/25 15:38:22,mifelix@microsoft.com,Miranda Felix,,mifelix,Beginner,Work on a team
+101,11/3/25 17:40:33,11/3/25 17:41:26,jayasimhab@microsoft.com,Jayasimha (Jaya) Rao,,jayasimhab@microsoft.com,Advanced,Work on a team
+102,11/4/25 6:56:30,11/4/25 7:00:16,weishi@microsoft.com,Wei Shi,,weishi,Intermediate,Work on a team
+103,11/4/25 11:05:08,11/4/25 11:05:28,mescalante@microsoft.com,Mariana Escalante,,Mescalante@microsoft.com,Beginner,Work on a team
+104,11/4/25 14:23:07,11/4/25 14:23:26,prithab@microsoft.com,Pritha Bhattacharya,,prithab,Beginner,Work on a team
+105,11/4/25 15:03:30,11/4/25 15:03:48,hbhojan@microsoft.com,Harshlata Bhojane,,hbhojan,Beginner,Work on a team
+106,11/5/25 8:16:37,11/5/25 8:16:53,kirkda@microsoft.com,Kirk Daues,,KirkDa,Proctor,Work on a team
