@@ -268,6 +268,26 @@
               "value": "[parameters('simUrl')]"
             },
             {
+              "name": "Authentication__Jwt__SecretKey",
+              "value": "[concat('@Microsoft.KeyVault(VaultName=', parameters('keyVaultName'), ';SecretName=', parameters('jwtSecretName'), ')')]"
+            },
+            {
+              "name": "Authentication__Jwt__Issuer",
+              "value": "[parameters('apiUrl')]"
+            },
+            {
+              "name": "Authentication__Jwt__Audience",
+              "value": "fabrikam-api"
+            },
+            {
+              "name": "Authentication__Jwt__ExpirationMinutes",
+              "value": "60"
+            },
+            {
+              "name": "Dashboard__ServiceGuid",
+              "value": "dashboard-00000000-0000-0000-0000-000000000001"
+            },
+            {
               "name": "WEBSITE_RUN_FROM_PACKAGE",
               "value": "1"
             }
