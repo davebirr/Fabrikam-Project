@@ -22,10 +22,25 @@ builder.Services.AddHttpContextAccessor();
 // Add memory cache for GUID validation caching
 builder.Services.AddMemoryCache();
 
-// Add Data Protection for stateless MCP sessions (prevents "Session not found" -32001 errors)
-// This enables Copilot Studio to make multiple tool calls without session affinity issues
-// Reference: https://github.com/modelcontextprotocol/csharp-sdk/issues/814
+// Add distributed cache for MCP protocol negotiation state
+// MCP business logic is stateless, but protocol negotiation (capabilities, tool schemas)
+// requires minimal session tracking for Copilot Studio compatibility
+// Using in-memory for single-instance, should use Redis for multi-instance production
+builder.Services.AddDistributedMemoryCache();
+
+// Add Data Protection for secure session cookies
 builder.Services.AddDataProtection();
+
+// Configure minimal session for MCP protocol negotiation only
+// NOT for business state - business logic remains stateless
+builder.Services.AddSession(options =>
+{
+    options.IdleTimeout = TimeSpan.FromMinutes(30); // Extended for Copilot Studio delays between calls
+    options.Cookie.HttpOnly = true;
+    options.Cookie.IsEssential = true; // Required for MCP capabilities negotiation
+    options.Cookie.SecurePolicy = CookieSecurePolicy.SameAsRequest;
+    options.Cookie.Name = ".Fabrikam.McpProtocol"; // Explicit name for MCP protocol session
+});
 
 // Configure authentication settings
 var contractAuthSettings = builder.Configuration.GetSection(AuthenticationSettings.SectionName).Get<AuthenticationSettings>() ?? new AuthenticationSettings();
@@ -136,13 +151,16 @@ builder.Services.Configure<AuthenticationSettings>(builder.Configuration.GetSect
 builder.Services.Configure<JwtSettings>(builder.Configuration.GetSection(JwtSettings.SectionName));
 
 // Add MCP server services with HTTP transport and Fabrikam business tools
+// Note: MCP SDK 0.4.0-preview.3 requires session management - we handle this via DataProtection
+// which provides distributed session storage across multiple instances
 builder.Services.AddMcpServer()
     .WithHttpTransport()
     .WithTools<FabrikamSalesTools>()
     .WithTools<FabrikamInventoryTools>()
     .WithTools<FabrikamCustomerServiceTools>()
     .WithTools<FabrikamProductTools>()
-    .WithTools<FabrikamBusinessIntelligenceTools>();
+    .WithTools<FabrikamBusinessIntelligenceTools>()
+    .WithTools<FabrikamInvoiceTools>();
 
 // Add CORS for HTTP transport support in browsers
 builder.Services.AddCors(options =>
@@ -165,6 +183,11 @@ if (app.Environment.IsDevelopment())
 
 // Enable CORS
 app.UseCors();
+
+// Enable session for MCP protocol negotiation (capabilities, tool schemas)
+// This is NOT for business state - business logic remains stateless
+// Copilot Studio expects minimal session for protocol handshake continuity
+app.UseSession();
 
 // Add authentication and authorization middleware
 if (mcpAuthSettings.RequireUserAuthentication && !string.IsNullOrEmpty(jwtSettings.SecretKey))
@@ -218,7 +241,8 @@ app.MapGet("/status", (IConfiguration configuration, McpAuthenticationSettings m
             "Inventory - Product catalog and stock monitoring", 
             "Customer Service - Support ticket management and resolution",
             "Products - Product catalog, inventory analytics and management",
-            "Business Intelligence - Executive dashboards and performance alerts"
+            "Business Intelligence - Executive dashboards and performance alerts",
+            "Invoices - Invoice processing, validation and duplicate detection"
         },
         Timestamp = DateTime.UtcNow,
         Environment = app.Environment.EnvironmentName

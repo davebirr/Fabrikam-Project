@@ -1,0 +1,91 @@
+@* Component for toggling simulator workers on/off *@
+
+<div class="simulator-toggle">
+    <div class="toggle-info">
+        <span class="toggle-name">@Name</span>
+        <span class="toggle-status status-@(Enabled ? "on" : "off")">
+            @(Enabled ? "🟢 ON" : "🔴 OFF")
+        </span>
+        @if (LastRun.HasValue)
+        {
+            <span class="toggle-detail">Last: @FormatTimeAgo(LastRun.Value)</span>
+        }
+        @if (NextRun.HasValue && Enabled)
+        {
+            <span class="toggle-detail">Next: @FormatTimeAgo(NextRun.Value)</span>
+        }
+    </div>
+    <button class="toggle-button @(IsToggling ? "disabled" : "")" 
+            @onclick="HandleToggle" 
+            disabled="@IsToggling">
+        @if (IsToggling)
+        {
+            <span>⏳</span>
+        }
+        else
+        {
+            @(Enabled ? "Stop" : "Start")
+        }
+    </button>
+</div>
+
+@code {
+    /// <summary>
+    /// Display name of the worker
+    /// </summary>
+    [Parameter]
+    public string Name { get; set; } = string.Empty;
+
+    /// <summary>
+    /// Whether the worker is currently enabled
+    /// </summary>
+    [Parameter]
+    public bool Enabled { get; set; }
+
+    /// <summary>
+    /// Last time the worker ran
+    /// </summary>
+    [Parameter]
+    public DateTime? LastRun { get; set; }
+
+    /// <summary>
+    /// Next scheduled run time
+    /// </summary>
+    [Parameter]
+    public DateTime? NextRun { get; set; }
+
+    /// <summary>
+    /// Callback when toggle button is clicked
+    /// </summary>
+    [Parameter]
+    public EventCallback OnToggle { get; set; }
+
+    private bool IsToggling { get; set; }
+
+    private async Task HandleToggle()
+    {
+        IsToggling = true;
+        try
+        {
+            await OnToggle.InvokeAsync();
+        }
+        finally
+        {
+            IsToggling = false;
+        }
+    }
+
+    private string FormatTimeAgo(DateTime dateTime)
+    {
+        var timeSpan = DateTime.UtcNow - dateTime;
+        
+        if (timeSpan.TotalMinutes < 1)
+            return "just now";
+        if (timeSpan.TotalMinutes < 60)
+            return $"{(int)timeSpan.TotalMinutes}m ago";
+        if (timeSpan.TotalHours < 24)
+            return $"{(int)timeSpan.TotalHours}h ago";
+        
+        return dateTime.ToString("MMM dd, HH:mm");
+    }
+}

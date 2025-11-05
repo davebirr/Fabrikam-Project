@@ -12,6 +12,25 @@ docs/demo-coe/coe-config.json
 # Workshop sensitive data (contains temporary passwords)
 workshops/cs-agent-a-thon/infrastructure/workshop-user-credentials.csv
 workshops/cs-agent-a-thon/infrastructure/proctor-mail-merge.csv
+workshops/cs-agent-a-thon/infrastructure/participant-credentials-*.csv
+workshops/cs-agent-a-thon/infrastructure/*-MAILMERGE*.csv
+workshops/cs-agent-a-thon/infrastructure/*-TRACKING*.csv
+workshops/cs-agent-a-thon/infrastructure/*-AUDITOR*.csv
+
+# Workshop PII data (contains Microsoft employee emails and names)
+workshops/cs-agent-a-thon/infrastructure/attendees.csv
+workshops/cs-agent-a-thon/infrastructure/add_missing_participants.py
+workshops/cs-agent-a-thon/infrastructure/*-participants*.csv
+
+# ws-coe-aug27 workshop PII data (contains Microsoft employee emails, names, and passwords)
+workshops/ws-coe-aug27/config/coe-config.json
+workshops/ws-coe-aug27/config/coe-users-actual.csv
+workshops/ws-coe-aug27/config/coe-users.csv
+workshops/ws-coe-aug27/config/*-actual.csv
+
+# Azure service principal credentials and secrets
+service-principal-github.json
+**/service-principal*.json
 
 # .NET Core
 *.swp

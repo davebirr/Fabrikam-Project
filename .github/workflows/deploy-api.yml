@@ -1,0 +1,74 @@
+# Generic API deployment workflow
+# Deploys to different Azure environments based on branch/environment selection
+
+name: Deploy FabrikamApi
+
+on:
+  push:
+    branches:
+      - main                # Development environment
+      - workshop-stable     # Workshop proctor environment
+  workflow_dispatch:
+    inputs:
+      environment:
+        description: 'Target deployment environment'
+        required: true
+        type: choice
+        options:
+          - development
+          - workshop-proctor
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Set up .NET Core
+        uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: '9.x'
+
+      - name: Build with dotnet
+        run: dotnet build FabrikamApi/src/FabrikamApi.csproj --configuration Release
+
+      - name: dotnet publish
+        run: dotnet publish FabrikamApi/src/FabrikamApi.csproj -c Release -o ${{env.DOTNET_ROOT}}/fabrikam-api
+
+      - name: Upload artifact for deployment job
+        uses: actions/upload-artifact@v4
+        with:
+          name: fabrikam-api
+          path: ${{env.DOTNET_ROOT}}/fabrikam-api
+
+  deploy:
+    runs-on: ubuntu-latest
+    needs: build
+    permissions:
+      contents: read
+      id-token: write
+    
+    # Determine environment: manual input, or branch-based
+    environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/workshop-stable' && 'workshop-proctor' || 'development') }}
+
+    steps:
+      - name: Download artifact from build job
+        uses: actions/download-artifact@v4
+        with:
+          name: fabrikam-api
+
+      - name: Deploy to Azure Web App
+        uses: azure/webapps-deploy@v3
+        with:
+          app-name: ${{ vars.AZURE_API_WEBAPP_NAME }}
+          publish-profile: ${{ secrets.AZURE_API_PUBLISH_PROFILE }}
+          package: .
+
+      - name: Deployment Summary
+        run: |
+          echo "✅ FabrikamApi deployed to ${{ vars.AZURE_API_WEBAPP_NAME }}"
+          echo "🌐 Environment: ${{ github.event.inputs.environment || (github.ref == 'refs/heads/workshop-stable' && 'workshop-proctor' || 'development') }}"
+          echo "📦 Branch: ${{ github.ref_name }}"
