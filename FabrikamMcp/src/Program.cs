@@ -159,7 +159,8 @@ builder.Services.AddMcpServer()
     .WithTools<FabrikamInventoryTools>()
     .WithTools<FabrikamCustomerServiceTools>()
     .WithTools<FabrikamProductTools>()
-    .WithTools<FabrikamBusinessIntelligenceTools>();
+    .WithTools<FabrikamBusinessIntelligenceTools>()
+    .WithTools<FabrikamInvoiceTools>();
 
 // Add CORS for HTTP transport support in browsers
 builder.Services.AddCors(options =>
@@ -240,7 +241,8 @@ app.MapGet("/status", (IConfiguration configuration, McpAuthenticationSettings m
             "Inventory - Product catalog and stock monitoring", 
             "Customer Service - Support ticket management and resolution",
             "Products - Product catalog, inventory analytics and management",
-            "Business Intelligence - Executive dashboards and performance alerts"
+            "Business Intelligence - Executive dashboards and performance alerts",
+            "Invoices - Invoice processing, validation and duplicate detection"
         },
         Timestamp = DateTime.UtcNow,
         Environment = app.Environment.EnvironmentName
