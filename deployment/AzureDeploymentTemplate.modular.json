@@ -63,7 +63,7 @@
     },
     "skuName": {
       "type": "string",
-      "defaultValue": "B1",
+      "defaultValue": "S1",
       "allowedValues": [
         "F1",
         "B1",
@@ -74,7 +74,7 @@
         "P2v2"
       ],
       "metadata": {
-        "description": "App Service Plan pricing tier"
+        "description": "App Service Plan pricing tier (S1+ recommended for AlwaysOn support)"
       }
     },
     "databaseProvider": {

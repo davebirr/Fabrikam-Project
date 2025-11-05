@@ -32,7 +32,7 @@
     },
     "appServicePlanSku": {
       "type": "string",
-      "defaultValue": "B1",
+      "defaultValue": "S1",
       "allowedValues": [
         "B1",
         "B2",
@@ -42,14 +42,15 @@
         "S3"
       ],
       "metadata": {
-        "description": "SKU for the new App Service Plan"
+        "description": "SKU for the App Service Plan (S1+ recommended for AlwaysOn support)"
       }
     }
   },
   "variables": {
     "appServicePlanName": "plan-dash-development-tzjeje",
     "apiUrl": "[concat('https://', parameters('apiAppName'), '.azurewebsites.net')]",
-    "simUrl": "[concat('https://', parameters('simAppName'), '.azurewebsites.net')]"
+    "simUrl": "[concat('https://', parameters('simAppName'), '.azurewebsites.net')]",
+    "skuTier": "[if(startsWith(parameters('appServicePlanSku'), 'B'), 'Basic', 'Standard')]"
   },
   "resources": [
     {
@@ -59,7 +60,7 @@
       "location": "[parameters('location')]",
       "sku": {
         "name": "[parameters('appServicePlanSku')]",
-        "tier": "Basic",
+        "tier": "[variables('skuTier')]",
         "capacity": 1
       },
       "kind": "linux",
