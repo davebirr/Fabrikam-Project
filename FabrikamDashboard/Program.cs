@@ -1,6 +1,7 @@
 using FabrikamDashboard.Components;
 using FabrikamDashboard.Services;
 using FabrikamDashboard.BackgroundServices;
+using Microsoft.AspNetCore.HttpOverrides;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -9,7 +10,14 @@ builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
 // Add SignalR for real-time updates
-builder.Services.AddSignalR();
+builder.Services.AddSignalR(options =>
+{
+    // Configure for Azure App Service
+    options.EnableDetailedErrors = true;
+    options.HandshakeTimeout = TimeSpan.FromSeconds(30);
+    options.KeepAliveInterval = TimeSpan.FromSeconds(15);
+    options.ClientTimeoutInterval = TimeSpan.FromSeconds(60);
+});
 
 // Determine authentication mode from configuration
 var authMode = builder.Configuration.GetValue<string>("Authentication:Mode", "Disabled");
@@ -59,6 +67,14 @@ builder.Services.AddHttpClient<SimulatorClient>(client =>
 // Add background service for polling and broadcasting updates
 builder.Services.AddHostedService<DataPollingService>();
 
+// Configure forwarded headers for Azure App Service
+builder.Services.Configure<ForwardedHeadersOptions>(options =>
+{
+    options.ForwardedHeaders = ForwardedHeaders.XForwardedFor | ForwardedHeaders.XForwardedProto;
+    options.KnownNetworks.Clear();
+    options.KnownProxies.Clear();
+});
+
 // Add CORS for development (optional, useful for testing)
 builder.Services.AddCors(options =>
 {
@@ -84,7 +100,11 @@ else
     app.UseDeveloperExceptionPage();
 }
 
-app.UseHttpsRedirection();
+// Use forwarded headers for Azure App Service
+app.UseForwardedHeaders();
+
+// Don't use HTTPS redirection on Azure (it handles SSL termination)
+// app.UseHttpsRedirection();
 app.UseCors();
 app.UseAntiforgery();
 
