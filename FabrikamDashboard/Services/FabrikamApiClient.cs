@@ -30,12 +30,19 @@ public class FabrikamApiClient
         
         // In Disabled mode, use X-Tracking-Guid header
         var authMode = _configuration.GetValue<string>("Authentication:Mode", "Disabled");
+        Console.WriteLine($"🔍 FabrikamApiClient - Auth Mode: {authMode}");
+        
         if (authMode.Equals("Disabled", StringComparison.OrdinalIgnoreCase))
         {
             // Use user's GUID if provided, otherwise use dashboard service GUID
             var guid = userGuid ?? _configuration["Dashboard:ServiceGuid"] ?? "dashboard-00000000-0000-0000-0000-000000000001";
             request.Headers.Add("X-Tracking-Guid", guid);
-            _logger.LogDebug("Adding X-Tracking-Guid header: {Guid}", guid);
+            Console.WriteLine($"✅ Added X-Tracking-Guid header: {guid} for {requestUri}");
+            _logger.LogInformation("Adding X-Tracking-Guid header: {Guid} for {Uri}", guid, requestUri);
+        }
+        else
+        {
+            Console.WriteLine($"⚠️ NOT adding X-Tracking-Guid - auth mode is: {authMode}");
         }
         
         return request;
@@ -53,15 +60,20 @@ public class FabrikamApiClient
             
             if (response.IsSuccessStatusCode)
             {
-                return await response.Content.ReadFromJsonAsync<List<OrderDto>>(cancellationToken) 
+                var orders = await response.Content.ReadFromJsonAsync<List<OrderDto>>(cancellationToken) 
                     ?? new List<OrderDto>();
+                Console.WriteLine($"✅ Successfully fetched {orders.Count} orders");
+                return orders;
             }
 
-            _logger.LogWarning("Failed to get orders: {StatusCode}", response.StatusCode);
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            Console.WriteLine($"❌ Failed to get orders: {response.StatusCode} - {errorContent}");
+            _logger.LogWarning("Failed to get orders: {StatusCode} - {Error}", response.StatusCode, errorContent);
             return new List<OrderDto>();
         }
         catch (Exception ex)
         {
+            Console.WriteLine($"💥 Exception fetching orders: {ex.Message}");
             _logger.LogError(ex, "Error fetching orders from API");
             return new List<OrderDto>();
         }
