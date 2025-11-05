@@ -49,11 +49,36 @@ jobs:
       with:
         dotnet-version: '9.0.x'
     
+    - name: Restore dependencies
+      run: dotnet restore
+    
+    - name: Build API
+      run: dotnet build FabrikamApi/src/FabrikamApi.csproj --no-restore
+    
     - name: Start API
       run: |
         cd FabrikamApi/src
-        dotnet run --urls "http://localhost:5235" &
-        sleep 10
+        dotnet run --no-build --urls "http://localhost:5235" &
+        echo "Waiting for API to start..."
+        sleep 15
+    
+    - name: Health Check
+      run: |
+        max_attempts=30
+        attempt=0
+        while [ $attempt -lt $max_attempts ]; do
+          if curl -f -s http://localhost:5235/api/info > /dev/null 2>&1; then
+            echo "✅ API is ready!"
+            break
+          fi
+          attempt=$((attempt + 1))
+          echo "⏳ Waiting for API... (attempt $attempt/$max_attempts)"
+          sleep 2
+        done
+        if [ $attempt -eq $max_attempts ]; then
+          echo "❌ API failed to start within timeout"
+          exit 1
+        fi
     
     - name: Test API Contract
       run: |
@@ -63,6 +88,7 @@ jobs:
         curl -f http://localhost:5235/api/customers || exit 1
         curl -f http://localhost:5235/api/products || exit 1
         curl -f http://localhost:5235/api/supporttickets || exit 1
+        curl -f http://localhost:5235/api/invoices || exit 1
         curl -f http://localhost:5235/api/info || exit 1
     
     - name: Validate Analytics Response Structure

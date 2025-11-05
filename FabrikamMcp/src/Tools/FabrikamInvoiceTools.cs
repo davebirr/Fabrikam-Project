@@ -4,6 +4,7 @@ using System.Text.Json;
 using Microsoft.Extensions.Configuration;
 using FabrikamMcp.Attributes;
 using FabrikamMcp.Services;
+using FabrikamContracts.DTOs.Invoices;
 using ModelContextProtocol.Server;
 
 namespace FabrikamMcp.Tools;
@@ -163,7 +164,7 @@ public class FabrikamInvoiceTools : AuthenticatedMcpToolBase
         [Description("REQUIRED: Tax amount")] decimal tax = 0,
         [Description("REQUIRED: Total amount (subtotal + tax)")] decimal total = 0,
         [Description("REQUIRED: Category (Materials, Services, Equipment, Logistics, or Utilities)")] string category = "",
-        [Description("Optional: Line items with description, quantity, unitPrice, and amount")] List<InvoiceLineItemRequest>? lineItems = null,
+        [Description("Optional: Line items with description, quantity, unitPrice, and amount")] List<CreateInvoiceLineItemRequest>? lineItems = null,
         [Description("Optional: Additional notes or comments")] string? notes = null,
         [Description("Optional: Purchase order number if applicable")] string? purchaseOrderNumber = null)
     {
@@ -183,7 +184,7 @@ public class FabrikamInvoiceTools : AuthenticatedMcpToolBase
                 tax,
                 total,
                 category,
-                lineItems = lineItems ?? new List<InvoiceLineItemRequest>(),
+                lineItems = lineItems ?? new List<CreateInvoiceLineItemRequest>(),
                 notes,
                 purchaseOrderNumber
             };
@@ -437,15 +438,4 @@ public class FabrikamInvoiceTools : AuthenticatedMcpToolBase
             return $"❌ Invoice validation failed for {invoiceNumber}. Please check all required fields and amounts.";
         }
     }
-}
-
-/// <summary>
-/// Request model for invoice line items
-/// </summary>
-public class InvoiceLineItemRequest
-{
-    public string Description { get; set; } = "";
-    public decimal Quantity { get; set; }
-    public decimal UnitPrice { get; set; }
-    public decimal Amount { get; set; }
 }
