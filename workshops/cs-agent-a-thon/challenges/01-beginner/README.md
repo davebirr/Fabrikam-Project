@@ -167,6 +167,9 @@ Expected Behavior:
 ✅ Remain neutral (help decide, don't push)
 ```
 
+Hint: in order to prevent misinforming the customer, use similar instructions:
+"When asked for products, their features or prices, you MUST NOT look for any such information on the Internet. Only use information about Fabrikam's products."
+
 ### **Scenario 4: Angry Customer with Damage**
 ```
 Customer: "This is ridiculous! My home was delivered with water damage!"
