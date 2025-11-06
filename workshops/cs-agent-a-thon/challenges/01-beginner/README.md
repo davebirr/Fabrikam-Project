@@ -61,9 +61,9 @@ The first time you test your agent and try to use the MCP tools, **it will NOT w
 
 ### **Step 2: Configure Your Agent**
 
-#### **1. Set the Instructions (System Prompt)**
+#### **1. Set the Instructions**
 
-The system prompt is how you teach your agent its role, capabilities, and behavior. Here's a **starter template** to get you going:
+The Instructions are how you teach your agent its role, capabilities, and behavior. Here's a **starter template** to get you going:
 
 ```
 You are a helpful customer service agent for Fabrikam, a manufacturer of modular homes.
@@ -104,7 +104,7 @@ When you don't know something, admit it honestly and offer to escalate to a huma
 
 💡 **Tip**: Start with this, test with Scenario 1 (simple order lookup), then incrementally add more as you tackle harder scenarios!
 
-**🎯 What Makes a Great System Prompt?**
+**🎯 What Makes Great Instructions?**
 As you refine your starter prompt, consider adding:
 
 | Element | Why It Matters | Example |
@@ -133,8 +133,6 @@ Check the [hints](./hints.md) for examples of each without spoiling the full sol
 - `get_customers` ✅
 - `create_support_ticket` ✅
 
-💡 **New to MCP?** Learn more about the Model Context Protocol and why it matters: [MCP Primer](../../../ws-coe-aug27/README.md#-understanding-mcp-model-context-protocol)
-
 ### **Step 3: Test & Iterate (This is where the magic happens!)**
 
 **🔄 Critical Mindset: Building agents is ITERATIVE!**
@@ -145,28 +143,28 @@ You won't get it perfect on the first try - nobody does! Great agents emerge thr
 1. **Start with Scenario 1** (simple order lookup) - Test basic functionality
 2. **Test in Copilot Studio's test pane** - See what happens
 3. **Analyze what went wrong** - Did it call the tool? Use the results? Sound natural?
-4. **Refine your system prompt** - Add clarity, examples, or business rules
+4. **Refine your instructions** - Add clarity, examples, or business rules
 5. **Test the same scenario again** - Did it improve?
 6. **Move to harder scenarios** - Test Scenario 2, then 3, then 4
 7. **Keep refining** - Each test reveals something new to improve!
 
 **🤖 Pro Tip: Use AI to Build Your AI!**
 
-Don't write system prompts from scratch - you have powerful assistants:
+Don't write instructions from scratch - you have powerful assistants:
 
-- **M365 Copilot Prompt Coach**: Paste your system prompt and ask:
+- **M365 Copilot Prompt Coach**: Paste your agent instructions and ask:
   - "Review this agent prompt for clarity and completeness"
   - "How can I improve this to handle delayed orders better?"
   - Get expert feedback instantly!
 
 - **GitHub Copilot Chat**: Ask for help:
-  - "Write a system prompt for a customer service agent that detects 30-day delays"
+  - "Write instructions for a customer service agent that detects 30-day delays"
   - "How should I structure business rules in an agent prompt?"
   - Copy a failed conversation and ask "What went wrong? How do I fix it?"
 
 - **Copilot in Your Browser**: Research and iterate:
   - "What makes a good customer service agent empathetic?"
-  - "Example system prompts for e-commerce support"
+  - "Example agent instructions for e-commerce support"
 
 **Example Evolution Through Testing:**
 ```
@@ -362,9 +360,9 @@ Expected Behavior:
 
 ### **Step 2: Configure Your Agent**
 
-#### **1. Set the Instructions (System Prompt)**
+#### **1. Set the Instructions**
 
-The system prompt is how you teach your agent its role, capabilities, and behavior. Here's a **starter template** to get you going:
+The Instructions are how you teach your agent its role, capabilities, and behavior. Here's a **starter template** to get you going:
 
 ```
 You are a helpful customer service agent for Fabrikam, a manufacturer of modular homes.
@@ -405,7 +403,7 @@ When you don't know something, admit it honestly and offer to escalate to a huma
 
 💡 **Tip**: Start with this, test with Scenario 1 (simple order lookup), then incrementally add more as you tackle harder scenarios!
 
-**🎯 What Makes a Great System Prompt?**
+**🎯 What Makes Great Instructions?**
 As you refine your starter prompt, consider adding:
 
 | Element | Why It Matters | Example |
@@ -446,28 +444,28 @@ You won't get it perfect on the first try - nobody does! Great agents emerge thr
 1. **Start with Scenario 1** (simple order lookup) - Test basic functionality
 2. **Test in Copilot Studio's test pane** - See what happens
 3. **Analyze what went wrong** - Did it call the tool? Use the results? Sound natural?
-4. **Refine your system prompt** - Add clarity, examples, or business rules
+4. **Refine your instructions** - Add clarity, examples, or business rules
 5. **Test the same scenario again** - Did it improve?
 6. **Move to harder scenarios** - Test Scenario 2, then 3, then 4
 7. **Keep refining** - Each test reveals something new to improve!
 
 **🤖 Pro Tip: Use AI to Build Your AI!**
 
-Don't write system prompts from scratch - you have powerful assistants:
+Don't write instructions from scratch - you have powerful assistants:
 
-- **M365 Copilot Prompt Coach**: Paste your system prompt and ask:
+- **M365 Copilot Prompt Coach**: Paste your agent instructions and ask:
   - "Review this agent prompt for clarity and completeness"
   - "How can I improve this to handle delayed orders better?"
   - Get expert feedback instantly!
 
 - **GitHub Copilot Chat**: Ask for help:
-  - "Write a system prompt for a customer service agent that detects 30-day delays"
+  - "Write instructions for a customer service agent that detects 30-day delays"
   - "How should I structure business rules in an agent prompt?"
   - Copy a failed conversation and ask "What went wrong? How do I fix it?"
 
 - **Copilot in Your Browser**: Research and iterate:
   - "What makes a good customer service agent empathetic?"
-  - "Example system prompts for e-commerce support"
+  - "Example agent instructions for e-commerce support"
 
 **Example Evolution Through Testing:**
 ```
@@ -535,7 +533,7 @@ Stuck on how to structure your agent? This shows the overall approach without th
 **Complete Working Implementation** [View Full Solution](./full-solution.md)
 
 ⚠️ **Warning**: This contains the complete, tested solution that achieves 100 points. It includes:
-- Full system prompt with delay detection logic
+- Full instructions with delay detection logic
 - Complete MCP tool configuration
 - All 4 example conversations with annotations
 - Troubleshooting for common beginner issues
@@ -564,7 +562,7 @@ The agent needs explicit instruction to ANALYZE dates, not just repeat them. Che
 
 By completing this challenge, you'll master:
 - ✅ **Copilot Studio fundamentals** - Agent creation, configuration
-- ✅ **System prompt engineering** - Writing effective instructions
+- ✅ **Instructions engineering** - Writing effective instructions
 - ✅ **MCP tool integration** - Connecting external systems
 - ✅ **Conversation design** - Natural, empathetic interactions
 - ✅ **Error handling** - Graceful failures and edge cases
@@ -585,3 +583,5 @@ Once you've completed this challenge:
 ---
 
 **Good luck! Remember: The goal is learning, not perfection. Ask for help anytime!** 🚀
+
+💡 **New to MCP?** Learn more about the Model Context Protocol and why it matters: [MCP Primer](../../../ws-coe-aug27/README.md#-understanding-mcp-model-context-protocol)
