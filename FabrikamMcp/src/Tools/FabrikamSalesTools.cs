@@ -179,13 +179,13 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
                             type = "object",
                             properties = new
                             {
-                                id = new { type = "integer", description = "Order ID (use this for orderId parameter in create_support_ticket)" },
+                                id = new { type = "integer", description = "Order ID - use for orderId parameter when creating tickets" },
                                 orderNumber = new { type = "string", description = "Order number" },
                                 customer = new { 
                                     type = "object", 
                                     description = "Customer information",
                                     properties = new {
-                                        id = new { type = "integer", description = "Customer ID (use this for customerId parameter in create_support_ticket, NOT the order ID!)" },
+                                        id = new { type = "integer", description = "Customer ID - use for customerId parameter (NOT the order ID)" },
                                         name = new { type = "string", description = "Customer name" },
                                         email = new { type = "string", description = "Customer email" }
                                     }
