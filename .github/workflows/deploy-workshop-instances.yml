@@ -38,7 +38,7 @@ jobs:
     runs-on: ubuntu-latest
     strategy:
       matrix:
-        project: [api, mcp, sim]
+        project: [api, mcp, sim, dash]
     
     steps:
       - name: Checkout code
@@ -56,7 +56,9 @@ jobs:
           elif [ "${{ matrix.project }}" == "mcp" ]; then
             dotnet restore FabrikamMcp/src/FabrikamMcp.csproj
           elif [ "${{ matrix.project }}" == "sim" ]; then
-            dotnet restore FabrikamSim/FabrikamSim.csproj
+            dotnet restore FabrikamSimulator/src/FabrikamSimulator.csproj
+          elif [ "${{ matrix.project }}" == "dash" ]; then
+            dotnet restore FabrikamDashboard/FabrikamDashboard.csproj
           fi
       
       - name: Build ${{ matrix.project }}
@@ -66,7 +68,9 @@ jobs:
           elif [ "${{ matrix.project }}" == "mcp" ]; then
             dotnet build FabrikamMcp/src/FabrikamMcp.csproj --configuration Release --no-restore
           elif [ "${{ matrix.project }}" == "sim" ]; then
-            dotnet build FabrikamSim/FabrikamSim.csproj --configuration Release --no-restore
+            dotnet build FabrikamSimulator/src/FabrikamSimulator.csproj --configuration Release --no-restore
+          elif [ "${{ matrix.project }}" == "dash" ]; then
+            dotnet build FabrikamDashboard/FabrikamDashboard.csproj --configuration Release --no-restore
           fi
       
       - name: Publish ${{ matrix.project }}
@@ -76,7 +80,9 @@ jobs:
           elif [ "${{ matrix.project }}" == "mcp" ]; then
             dotnet publish FabrikamMcp/src/FabrikamMcp.csproj -c Release -o ./publish
           elif [ "${{ matrix.project }}" == "sim" ]; then
-            dotnet publish FabrikamSim/FabrikamSim.csproj -c Release -o ./publish
+            dotnet publish FabrikamSimulator/src/FabrikamSimulator.csproj -c Release -o ./publish
+          elif [ "${{ matrix.project }}" == "dash" ]; then
+            dotnet publish FabrikamDashboard/FabrikamDashboard.csproj -c Release -o ./publish
           fi
       
       - name: Upload artifact for ${{ matrix.project }}
@@ -95,7 +101,7 @@ jobs:
       fail-fast: false  # Continue deploying even if one fails
       matrix:
         team: ${{ fromJson(needs.prepare.outputs.teams-matrix) }}
-        project: [api, mcp, sim]
+        project: [api, mcp, sim, dash]
     
     steps:
       - name: Download ${{ matrix.project }} build artifact
@@ -161,6 +167,24 @@ jobs:
               echo "✓ MCP health check passed (HTTP 200)"
             else
               echo "⚠️ MCP health check returned HTTP $RESPONSE"
+              exit 1
+            fi
+          elif [ "${{ matrix.project }}" == "sim" ]; then
+            URL="https://$APP_URL/api/simulator/status"
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL || echo "000")
+            if [ "$RESPONSE" == "200" ]; then
+              echo "✓ Simulator health check passed (HTTP 200)"
+            else
+              echo "⚠️ Simulator health check returned HTTP $RESPONSE"
+              exit 1
+            fi
+          elif [ "${{ matrix.project }}" == "dash" ]; then
+            URL="https://$APP_URL/"
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL || echo "000")
+            if [ "$RESPONSE" == "200" ]; then
+              echo "✓ Dashboard health check passed (HTTP 200)"
+            else
+              echo "⚠️ Dashboard health check returned HTTP $RESPONSE"
               exit 1
             fi
           fi
