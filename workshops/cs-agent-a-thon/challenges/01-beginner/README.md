@@ -431,13 +431,18 @@ Expected Behavior:
 Customer: "This is ridiculous! My home was delivered with water damage!"
 
 Expected Behavior:
-✅ Acknowledge frustration with empathy
-✅ Gather information (order number, damage description)
-✅ Create CRITICAL priority ticket
-✅ Set immediate action expectations (2-hour callback)
+✅ Acknowledge frustration with empathy ("I'm truly sorry to hear this")
+✅ ASK for order number or customer information (don't assume!)
+✅ ASK for damage details (location, severity, when discovered)
+✅ Only AFTER gathering information: Create CRITICAL priority ticket
+✅ Use category: ProductDefect (not OrderInquiry)
+✅ Set immediate action expectations (24-48 hour inspection)
 ✅ Take ownership (not "system says" or "they said")
-✅ Provide ticket number and next steps
+✅ Provide actual ticket number from response
+✅ Offer immediate next steps
 ```
+
+**Key Test**: Agent must ASK questions before creating ticket, not assume details!
 
 ### **Scenario 5: Order Not Found**
 ```
