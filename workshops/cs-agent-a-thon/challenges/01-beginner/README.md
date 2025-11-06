@@ -132,7 +132,7 @@ Use these to validate your agent:
 
 ### **Scenario 1: Standard Order Inquiry**
 ```
-Customer: "Hi, what's the status of order FAB-2025-015?"
+Customer: "Hi, what's the status of order FAB-2025-047?"
 
 Expected Behavior:
 ✅ Look up order using get_orders tool
