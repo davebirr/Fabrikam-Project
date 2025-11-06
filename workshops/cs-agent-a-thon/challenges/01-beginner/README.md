@@ -390,7 +390,7 @@ Use these to validate your agent:
 
 ### **Scenario 1: Standard Order Inquiry**
 ```
-Customer: "Hi, what's the status of order FAB-2025-015?"
+Customer: "Hi, what's the status of order FAB-2025-037?"
 
 Expected Behavior:
 ✅ Look up order using get_orders tool
@@ -401,15 +401,16 @@ Expected Behavior:
 
 ### **Scenario 2: Delayed Order Detection** (CRITICAL!)
 ```
-Customer: "I ordered a home 7 weeks ago. When will it be done?"
+Customer: "Hi, this is Johanna Lorenz. I ordered a home 11 weeks ago (order FAB-2025-042). When will it be done?"
 
 Expected Behavior:
-✅ Look up order
-✅ ANALYZE timeline (7 weeks = 49 days > 30 day standard)
-✅ RECOGNIZE this is delayed
+✅ Look up order using get_orders tool with order number
+✅ ANALYZE timeline (11 weeks = 78 days > 30 day standard)
+✅ RECOGNIZE this is severely delayed (48 days overdue)
 ✅ APOLOGIZE for the delay
-✅ AUTOMATICALLY create support ticket (don't just say you will!)
-✅ Provide ticket number
+✅ AUTOMATICALLY create support ticket with HIGH priority
+✅ Use correct customerId from orderData.customer.id (should be 3, NOT 42!)
+✅ Provide actual ticket number from response
 ✅ Set 24-hour callback expectation
 ```
 

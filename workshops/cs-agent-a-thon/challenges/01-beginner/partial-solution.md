@@ -239,11 +239,11 @@ ACTION: Create ticket immediately with category "OrderInquiry",
 **What to do with results:**
 ```json
 {
-  "id": 15,
-  "orderNumber": "FAB-2025-015",
-  "orderDate": "2024-11-12T00:00:00",
+  "id": 37,
+  "orderNumber": "FAB-2025-037",
+  "orderDate": "2025-06-28T14:15:00",
   "status": "InProduction",
-  "productName": "Starter Studio 400"
+  "productName": "Retail Flex 1500"
 }
 ```
 
@@ -285,6 +285,33 @@ Multiple products returned - you need to:
 
 ### **create_support_ticket**
 
+**⚠️ CRITICAL: Customer ID vs Order ID**
+
+When you call `get_orders`, the response contains TWO different IDs:
+```json
+{
+  "orderData": {
+    "id": 42,              // This is the ORDER ID (use for orderId parameter)
+    "customer": {
+      "id": 3,             // This is the CUSTOMER ID (use for customerId parameter)
+      "name": "Johanna Lorenz"
+    }
+  }
+}
+```
+
+**Step-by-step extraction**:
+1. Get the ORDER ID: Look at `orderData.id` (example: 42)
+2. Get the CUSTOMER ID: Navigate to `orderData.customer.id` (example: 3)
+3. When calling create_support_ticket:
+   - customerId: 3 (from orderData.customer.id)
+   - orderId: 42 (from orderData.id)
+
+**WRONG**: `customerId: 42` (that's the order ID!)  
+**CORRECT**: `customerId: 3` (that's from orderData.customer.id)
+
+---
+
 **When to call:**
 - ✅ Delayed order detected (AUTOMATIC)
 - ✅ Customer reports damage or defect
@@ -300,7 +327,8 @@ Multiple products returned - you need to:
 **Required parameters:**
 ```javascript
 {
-  customerId: number,        // From get_customers or get_orders
+  customerId: number,        // From orderData.customer.id (NOT orderData.id!)
+  orderId: number,           // From orderData.id (if ticket relates to an order)
   subject: string,           // Clear, specific (not "Help")
   description: string,       // Detailed context
   category: string,          // EXACT category from approved list
@@ -311,7 +339,7 @@ Multiple products returned - you need to:
 **Best practice structure:**
 ```
 Subject: "[Category] - [Specific Issue]"
-Example: "Order Delay - FAB-2025-015 exceeded 30-day production timeline"
+Example: "Order Delay - FAB-2025-037 exceeded 30-day production timeline"
 
 Description: 
 - Customer: [Name]
@@ -656,13 +684,13 @@ Create support tickets when:
 
 **Symptom:**
 ```
-Agent: "Order FAB-2025-015 status: InProduction. Timeline: 49 days."
+Agent: "Order FAB-2025-037 status: InProduction. Timeline: 49 days."
 ```
 
 **Fix:** Add personality guidance:
 ```
 Use natural language:
-  ❌ "Order FAB-2025-015 status: InProduction"
+  ❌ "Order FAB-2025-037 status: InProduction"
   ✅ "I can see your Starter Studio 400 is currently in production"
   
 Show empathy when needed:
