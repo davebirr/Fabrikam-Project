@@ -152,7 +152,7 @@ jobs:
           
           # Health check based on project type
           if [ "${{ matrix.project }}" == "api" ]; then
-            URL="https://$APP_URL/api/info"
+            URL="https://$APP_URL/health"
             RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL || echo "000")
             if [ "$RESPONSE" == "200" ]; then
               echo "✓ API health check passed (HTTP 200)"
