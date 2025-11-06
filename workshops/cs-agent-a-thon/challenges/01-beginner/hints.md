@@ -234,9 +234,10 @@ Agent: "I can help! What's your order number?"  ❌
 **Why this happens**: Topics or conversation flows are forcing unnecessary questions.
 
 **The Fix**:
-- Keep Topics simple or don't use them at all!
-- Let the agent extract information naturally from the conversation
-- Trust the instructions to guide the agent
+- **Note**: Copilot Studio includes built-in topics (Goodbye, Greeting, Start Over, Thank you) - these are fine to keep!
+- Don't add complex custom topics - let your Instructions handle the conversation flow
+- For this challenge, focus on writing great Instructions rather than creating topics
+- Trust the instructions to guide the agent's behavior naturally
 
 ### **Problem**: "Agent responses feel robotic"
 
