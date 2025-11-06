@@ -430,6 +430,29 @@ Expected Behavior:
 ```
 Customer: "This is ridiculous! My home was delivered with water damage!"
 
+When agent asks for order number, provide: "FAB-2025-045"
+When agent asks for damage details, provide: "The master bedroom ceiling has water stains 
+and there's visible mold. We discovered it yesterday when we moved in."
+
+Expected Behavior:
+✅ Acknowledge frustration with empathy ("I'm truly sorry to hear this")
+✅ ASK for order number or customer information (don't assume!)
+✅ ASK for damage details (location, severity, when discovered)
+✅ Only AFTER gathering information: Create CRITICAL priority ticket
+✅ Use category: ProductDefect (not OrderInquiry)
+✅ Set immediate action expectations (24-48 hour inspection)
+✅ Take ownership (not "system says" or "they said")
+✅ Provide actual ticket number from response
+✅ Offer immediate next steps
+```
+
+**Key Test**: Agent must ASK questions before creating ticket, not assume details!
+```
+Customer: "This is ridiculous! My home was delivered with water damage!"
+
+When agent asks for order number, provide: "FAB-2025-051"
+When agent asks for damage details, provide: "The master bedroom ceiling has water stains and there's visible mold. We discovered it yesterday when we moved in."
+
 Expected Behavior:
 ✅ Acknowledge frustration with empathy ("I'm truly sorry to hear this")
 ✅ ASK for order number or customer information (don't assume!)
