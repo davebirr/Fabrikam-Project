@@ -310,17 +310,17 @@ public abstract class AuthenticatedMcpToolBase
         {
             errorMessage = "❌ **User GUID Required**\n\n" +
                           "In Disabled authentication mode, you must provide a valid user GUID.\n\n" +
-                          "**How to provide GUID:**\n" +
-                          "• Via parameter: `\"userGuid\": \"12345678-1234-1234-1234-123456789012\"`\n" +
-                          "• Via header: `X-User-GUID: 12345678-1234-1234-1234-123456789012`\n\n" +
-                          "**Expected format:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`";
+                          "**How to provide GUID -**\n" +
+                          "• Via parameter - `\"userGuid\" = \"12345678-1234-1234-1234-123456789012\"`\n" +
+                          "• Via header - `X-User-GUID = 12345678-1234-1234-1234-123456789012`\n\n" +
+                          "**Expected format -** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`";
         }
         else
         {
             errorMessage = $"❌ **Invalid GUID Format**\n\n" +
                           $"The provided GUID `{userGuid}` is not in the correct format.\n\n" +
-                          "**Expected format:** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`\n" +
-                          "**Example:** `12345678-1234-1234-1234-123456789012`";
+                          "**Expected format -** `xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx`\n" +
+                          "**Example -** `12345678-1234-1234-1234-123456789012`";
         }
 
         return new
