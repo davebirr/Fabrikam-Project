@@ -241,11 +241,11 @@ jobs:
           API_URL="https://${{ needs.setup.outputs.api_app_name }}.azurewebsites.net"
           
           # Test health endpoint
-          response=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/api/info")
+          response=$(curl -s -o /dev/null -w "%{http_code}" "$API_URL/health")
           
           if [ $response -eq 200 ]; then
             echo "✅ API is healthy and responding"
-            curl -s "$API_URL/api/info" | jq .
+            curl -s "$API_URL/health" | jq .
           else
             echo "⚠️ API returned status code: $response"
             echo "Deployment may need time to fully start. Check Azure Portal for details."
