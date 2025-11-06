@@ -48,22 +48,63 @@ Your agent will use **MCP tools** to connect to Fabrikam's business systems. Thi
 
 ## 🚀 Getting Started
 
-### **Step 1: Access Your Tools**
-1. Open **[Microsoft Copilot Studio](https://copilotstudio.microsoft.com)**
-2. Create a new agent (name it under 30 characters!)
-3. Connect to the **Fabrikam MCP Server**:
-   - In Copilot Studio, go to **Tools**
-   - Look for existing **Fabrikam MCP Connection**
-   - Add it to your agent
+### **👋 First Time in Copilot Studio? You're in the Right Place!**
 
-**⚠️ Important First-Time Setup:**
-The first time you test your agent and try to use the MCP tools, **it will NOT work immediately**. This is normal! You'll be prompted to open the **Connection Manager** and create a connection. Simply follow the prompts to authenticate and establish the connection. After that, your agent will work perfectly.
+**We know this might be a completely new experience for many of you** - and that's totally okay! It's normal to feel a bit overwhelmed at the beginning. Here's what you should know:
 
-### **Step 2: Configure Your Agent**
+- ✅ **You're not alone** - There are **20 proctors in the room** ready to help you succeed
+- ✅ **No coding required** - You'll write instructions in plain English
+- ✅ **The interface is intuitive** - If you can use Microsoft Word, you can use Copilot Studio
+- ✅ **Mistakes are learning opportunities** - Testing and fixing is part of the process
+- ✅ **It gets easier quickly** - After about an hour, you'll feel much more confident
+- ✅ **Start simple, build up** - You don't need to be perfect on the first try
 
-#### **1. Set the Instructions**
+**Don't hesitate to raise your hand and ask for help** - that's what the proctors are here for!
 
-The Instructions are how you teach your agent its role, capabilities, and behavior. Here's a **starter template** to get you going:
+**Time expectation**: 30-60 minutes for beginners (that's normal!)
+
+---
+
+### **Step 1: Create Your Agent**
+
+**What you're doing**: Setting up a new AI agent in Copilot Studio (think of it like creating a new document in Word)
+
+1. Open **[Microsoft Copilot Studio](https://copilotstudio.microsoft.com)** in your browser
+2. Click **"Create"** → Choose **"New agent"**
+3. Give it a name (under 30 characters) - something like "Fabrikam Helper"
+4. Click **Create**
+
+**📸 What you'll see**: A screen with your new agent and some built-in topics (Greeting, Goodbye, etc.) - that's normal! Leave those as-is.
+
+---
+
+### **Step 2: Connect to Your Data (The MCP Tools)**
+
+**What you're doing**: Giving your agent access to Fabrikam's systems so it can look up orders, products, and create tickets
+
+1. In the left sidebar, click **"Tools"** (it's near the bottom)
+2. Look for **"Fabrikam MCP Connection"** in the list
+3. Click the **checkbox** next to these four tools to enable them:
+   - ✅ `get_orders` - Look up order information
+   - ✅ `get_products` - Get product details
+   - ✅ `get_customers` - Find customer info
+   - ✅ `create_support_ticket` - Create support tickets
+
+**⚠️ First-Time Connection Setup:**
+When you first test your agent, it will ask you to set up a connection. **This is normal!** Just:
+- Click **"Connection Manager"** when prompted
+- Follow the simple authentication steps
+- You only have to do this once
+
+---
+
+### **Step 3: Write Your Agent's Instructions**
+
+**What you're doing**: Teaching your agent how to help customers (like writing a training manual for a new employee)
+
+**Where to find it**: Look for **"Instructions"** in the main agent editor (usually at the top)
+
+**Start with this simple template** - just copy and paste it:
 
 ```
 You are a helpful customer service agent for Fabrikam, a manufacturer of modular homes.
@@ -96,7 +137,70 @@ CONVERSATION FLOW:
 When you don't know something, admit it honestly and offer to escalate to a human agent.
 ```
 
-**⚠️ Important**: This starter prompt will get you started, but **won't achieve 100 points**! You'll need to add:
+**💡 Pro Tip**: This starter template gets you started quickly! You'll improve it as you test (that's the fun part).
+
+---
+
+### **Step 4: Test Your Agent (The Most Important Step!)**
+
+**What you're doing**: Talking to your agent like a customer would, seeing what works and what doesn't
+
+1. Click the **"Test"** button (usually top-right corner)
+2. A chat window opens - type this simple question:
+   ```
+   What's the status of order FAB-2025-047?
+   ```
+3. Watch what your agent does!
+
+**What to expect**:
+- ✅ **If it works**: Your agent looks up the order and tells you about it - awesome!
+- ⚠️ **If it doesn't work**: That's totally normal! Read the hints below for troubleshooting.
+
+**🔄 The Testing Cycle** (This is how professionals build agents too!):
+1. Test with a simple question
+2. See what happens
+3. Think: "What could be better?"
+4. Update your Instructions
+5. Test again
+6. Repeat until it works great!
+
+**Remember**: You learn more from what doesn't work than what does. Every error is progress!
+
+---
+
+### **🆘 Quick Troubleshooting (Common First-Timer Issues)**
+
+**Problem**: "My agent just says it can't help"
+- **Fix**: Make sure you checked the boxes for all 4 MCP tools in Step 2
+
+**Problem**: "Connection error" or "Authentication required"
+- **Fix**: Click "Connection Manager" and complete the one-time setup
+
+**Problem**: "Agent repeats order data in a weird format"
+- **Fix**: Add to your Instructions: "Explain order information in a friendly, conversational way"
+
+**Problem**: "I'm stuck and don't know what to do"
+- **Fix**: Check the [hints.md](./hints.md) file - it has step-by-step help!
+
+---
+
+### **🎯 Ready to Level Up?**
+
+Once your agent can answer "What's the status of order FAB-2025-047?" successfully, you're ready to tackle the test scenarios below!
+
+**The path to success**:
+1. ✅ Get basic order lookup working (Scenario 1)
+2. ✅ Add product comparison (Scenario 3)  
+3. ✅ Add error handling (Scenario 5)
+4. 🏆 Tackle the challenge: delay detection (Scenario 2)
+
+**Don't try to do everything at once** - build up one scenario at a time!
+
+---
+
+## 📋 Test Scenarios
+
+Now that you have a working agent, try these scenarios to earn points:
 - Business rules (production timelines, ticket categories)
 - Delay detection logic (the hardest part!)
 - Error handling guidance
