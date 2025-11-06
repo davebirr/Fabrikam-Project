@@ -152,21 +152,21 @@ public class FabrikamInvoiceTools : AuthenticatedMcpToolBase
     /// <summary>
     /// Submit a new invoice to the Fabrikam invoice system with validation
     /// </summary>
-    [McpServerTool, Description("Submit a new invoice to Fabrikam's invoice processing system. IMPORTANT: Include all required fields (invoiceNumber, vendor, invoiceDate, dueDate, subtotal, tax, total, category, lineItems). The API performs validation including math checks, duplicate detection, and date validation. Returns the created invoice with ID on success, or detailed validation errors if submission fails.")]
+    [McpServerTool, Description("Submit a new invoice to Fabrikam's invoice processing system. IMPORTANT - Include all required fields (invoiceNumber, vendor, invoiceDate, dueDate, subtotal, tax, total, category, lineItems). The API performs validation including math checks, duplicate detection, and date validation. Returns the created invoice with ID on success, or detailed validation errors if submission fails.")]
     [McpAuthorize(McpRoles.Admin, McpRoles.Sales)]
     public async Task<object> submit_invoice(
         string? userGuid = null,
-        [Description("REQUIRED: Unique invoice number from the invoice document")] string invoiceNumber = "",
-        [Description("REQUIRED: Vendor/supplier name")] string vendor = "",
-        [Description("REQUIRED: Invoice date (YYYY-MM-DD format)")] DateTime? invoiceDate = null,
-        [Description("REQUIRED: Payment due date (YYYY-MM-DD format)")] DateTime? dueDate = null,
-        [Description("REQUIRED: Subtotal amount before tax")] decimal subtotal = 0,
-        [Description("REQUIRED: Tax amount")] decimal tax = 0,
-        [Description("REQUIRED: Total amount (subtotal + tax)")] decimal total = 0,
-        [Description("REQUIRED: Category (Materials, Services, Equipment, Logistics, or Utilities)")] string category = "",
-        [Description("Optional: Line items with description, quantity, unitPrice, and amount")] List<CreateInvoiceLineItemRequest>? lineItems = null,
-        [Description("Optional: Additional notes or comments")] string? notes = null,
-        [Description("Optional: Purchase order number if applicable")] string? purchaseOrderNumber = null)
+        [Description("REQUIRED - Unique invoice number from the invoice document")] string invoiceNumber = "",
+        [Description("REQUIRED - Vendor/supplier name")] string vendor = "",
+        [Description("REQUIRED - Invoice date (YYYY-MM-DD format)")] DateTime? invoiceDate = null,
+        [Description("REQUIRED - Payment due date (YYYY-MM-DD format)")] DateTime? dueDate = null,
+        [Description("REQUIRED - Subtotal amount before tax")] decimal subtotal = 0,
+        [Description("REQUIRED - Tax amount")] decimal tax = 0,
+        [Description("REQUIRED - Total amount (subtotal + tax)")] decimal total = 0,
+        [Description("REQUIRED - Category (Materials, Services, Equipment, Logistics, or Utilities)")] string category = "",
+        [Description("Optional - Line items with description, quantity, unitPrice, and amount")] List<CreateInvoiceLineItemRequest>? lineItems = null,
+        [Description("Optional - Additional notes or comments")] string? notes = null,
+        [Description("Optional - Purchase order number if applicable")] string? purchaseOrderNumber = null)
     {
         try
         {
