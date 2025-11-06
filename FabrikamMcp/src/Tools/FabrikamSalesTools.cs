@@ -56,7 +56,8 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
             if (!string.IsNullOrEmpty(orderNumber))
             {
                 // Get all orders and find by order number (API doesn't have direct orderNumber endpoint)
-                var searchResponse = await SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=100");
+                // Use a very large pageSize to ensure we search ALL orders, not just recent ones
+                var searchResponse = await SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=1000");
                 
                 if (searchResponse.IsSuccessStatusCode)
                 {
