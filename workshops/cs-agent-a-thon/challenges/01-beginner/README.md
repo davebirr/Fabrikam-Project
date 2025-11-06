@@ -42,19 +42,22 @@ Your agent will use **MCP tools** to connect to Fabrikam's business systems. Thi
 
 **The key insight**: When your agent detects a problem (like a delayed order), it doesn't just tell you about it—it TAKES ACTION by creating a support ticket automatically!
 
-💡 **Want to learn more about MCP?** See our [MCP Primer](../../../ws-coe-aug27/README.md#-understanding-mcp-model-context-protocol) for the full story of why this protocol is revolutionizing AI integration.
+💡 **Want to learn more about MCP?** See our <a href="../../../ws-coe-aug27/README.md#-understanding-mcp-model-context-protocol" target="_blank">MCP Primer</a> for the full story of why this protocol is revolutionizing AI integration.
 
 ---
 
 ## 🚀 Getting Started
 
 ### **Step 1: Access Your Tools**
-1. Open **Microsoft Copilot Studio**
+1. Open **[Microsoft Copilot Studio](https://copilotstudio.microsoft.com)**
 2. Create a new agent (name it under 30 characters!)
 3. Connect to the **Fabrikam MCP Server**:
    - In Copilot Studio, go to **Tools**
    - Look for existing **Fabrikam MCP Connection**
    - Add it to your agent
+
+**⚠️ Important First-Time Setup:**
+The first time you test your agent and try to use the MCP tools, **it will NOT work immediately**. This is normal! You'll be prompted to open the **Connection Manager** and create a connection. Simply follow the prompts to authenticate and establish the connection. After that, your agent will work perfectly.
 
 ### **Step 2: Configure Your Agent**
 
