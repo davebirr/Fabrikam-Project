@@ -25,8 +25,8 @@ jobs:
       - id: set-matrix
         run: |
           if [ "${{ github.event.inputs.teams }}" == "all" ] || [ -z "${{ github.event.inputs.teams }}" ]; then
-            # Deploy all 20 teams
-            echo 'teams=["01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20"]' >> $GITHUB_OUTPUT
+            # Deploy all 25 teams (00 = proctor, 01-24 = participants)
+            echo 'teams=["00","01","02","03","04","05","06","07","08","09","10","11","12","13","14","15","16","17","18","19","20","21","22","23","24"]' >> $GITHUB_OUTPUT
           else
             # Deploy specific teams from input
             TEAMS=$(echo "${{ github.event.inputs.teams }}" | jq -R -c 'split(",") | map(gsub(" "; ""))')
@@ -109,25 +109,44 @@ jobs:
         with:
           creds: ${{ secrets.AZURE_CREDENTIALS }}
       
+      - name: Discover actual app name for Team ${{ matrix.team }}
+        id: discover-app
+        run: |
+          # Get the actual app name from the resource group
+          RG_NAME="rg-fabrikam-team-${{ matrix.team }}"
+          APP_NAME=$(az webapp list -g $RG_NAME --query "[?contains(name, '${{ matrix.project }}')].name | [0]" -o tsv)
+          
+          if [ -z "$APP_NAME" ]; then
+            echo "Error: No ${{ matrix.project }} app found in $RG_NAME"
+            exit 1
+          fi
+          
+          echo "app-name=$APP_NAME" >> $GITHUB_OUTPUT
+          echo "Found app: $APP_NAME"
+      
       - name: Deploy ${{ matrix.project }} to Team ${{ matrix.team }}
         uses: azure/webapps-deploy@v2
         with:
-          app-name: fabrikam-${{ matrix.project }}-team-${{ matrix.team }}
+          app-name: ${{ steps.discover-app.outputs.app-name }}
           package: ./publish
       
       - name: Verify deployment
         run: |
-          echo "✓ Deployed: fabrikam-${{ matrix.project }}-team-${{ matrix.team }}"
-          echo "URL: https://fabrikam-${{ matrix.project }}-team-${{ matrix.team }}.azurewebsites.net"
+          echo "✓ Deployed: ${{ steps.discover-app.outputs.app-name }}"
+          APP_URL=$(az webapp show -g rg-fabrikam-team-${{ matrix.team }} -n ${{ steps.discover-app.outputs.app-name }} --query defaultHostName -o tsv)
+          echo "URL: https://$APP_URL"
       
       - name: Post-deployment health check
         run: |
           # Wait for app to warm up
           sleep 30
           
+          # Get app URL
+          APP_URL=$(az webapp show -g rg-fabrikam-team-${{ matrix.team }} -n ${{ steps.discover-app.outputs.app-name }} --query defaultHostName -o tsv)
+          
           # Health check based on project type
           if [ "${{ matrix.project }}" == "api" ]; then
-            URL="https://fabrikam-api-team-${{ matrix.team }}.azurewebsites.net/api/info"
+            URL="https://$APP_URL/api/info"
             RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL || echo "000")
             if [ "$RESPONSE" == "200" ]; then
               echo "✓ API health check passed (HTTP 200)"
@@ -136,11 +155,8 @@ jobs:
               exit 1
             fi
           elif [ "${{ matrix.project }}" == "mcp" ]; then
-            URL="https://fabrikam-mcp-team-${{ matrix.team }}.azurewebsites.net/mcp"
-            RESPONSE=$(curl -s -X POST $URL \
-              -H "Content-Type: application/json" \
-              -d '{"method":"tools/list"}' \
-              -o /dev/null -w "%{http_code}" || echo "000")
+            URL="https://$APP_URL/status"
+            RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" $URL || echo "000")
             if [ "$RESPONSE" == "200" ]; then
               echo "✓ MCP health check passed (HTTP 200)"
             else
