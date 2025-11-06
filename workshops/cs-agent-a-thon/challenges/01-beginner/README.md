@@ -279,6 +279,7 @@ Check the [hints](./hints.md) for examples of each without spoiling the full sol
 - `create_support_ticket` ✅
 
 💡 **New to MCP?** Learn more about the Model Context Protocol and why it matters: [MCP Primer](../../../ws-coe-aug27/README.md#-understanding-mcp-model-context-protocol)
+When you have finished creating your agent and connecting the MCP, you need to click on publish (HINT, it's in the upper right)
 
 ### **Step 3: Test & Iterate (This is where the magic happens!)**
 
