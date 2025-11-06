@@ -11,11 +11,11 @@ This partial solution shows you **HOW to think about the problem** without givin
 - ✅ Overall architecture and component structure
 - ✅ Key patterns and decision points
 - ✅ When to use which MCP tools
-- ✅ How to structure your system prompt
+- ✅ How to structure your instructions
 - ✅ Critical logic for delay detection
 
 **What this does NOT include:**
-- ❌ Complete system prompt text
+- ❌ Complete instructions text
 - ❌ Exact conversation flows
 - ❌ Word-for-word instructions
 
@@ -50,9 +50,9 @@ Your agent needs three distinct layers working together:
 
 ---
 
-## 📋 System Prompt Structure
+## 📋 instructions Structure
 
-Your system prompt should have these distinct sections:
+Your instructions should have these distinct sections:
 
 ### **1. Role Definition** (~3-4 sentences)
 - Who you are (customer service agent for Fabrikam)
@@ -532,7 +532,7 @@ If still no results:
 
 ## 🧩 Putting It All Together
 
-### **The System Prompt Formula**
+### **The instructions Formula**
 
 ```
 [ROLE] (3-4 sentences defining who you are)
@@ -745,7 +745,7 @@ Show empathy when needed:
 ### **If You're Ready to See the Full Solution:**
 
 The [full-solution.md](./full-solution.md) contains:
-- ✅ Complete system prompt (word-for-word)
+- ✅ Complete instructions (word-for-word)
 - ✅ All 4 conversation examples with annotations
 - ✅ Exact MCP tool configuration
 - ✅ Troubleshooting for common issues
