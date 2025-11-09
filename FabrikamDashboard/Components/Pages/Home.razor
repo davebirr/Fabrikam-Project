@@ -1,8 +1,10 @@
 ﻿@page "/"
 @using Microsoft.AspNetCore.SignalR.Client
+@using FabrikamDashboard.Services
 @inject NavigationManager Navigation
 @inject SimulatorClient SimulatorClient
 @inject ILogger<Home> Logger
+@inject DashboardStateService StateService
 @implements IAsyncDisposable
 
 <PageTitle>Fabrikam Dashboard</PageTitle>
@@ -183,105 +185,59 @@
     {
         _loadingStartTime = DateTime.UtcNow;
 
-        // Create SignalR connection
-        _hubConnection = new HubConnectionBuilder()
-            .WithUrl(Navigation.ToAbsoluteUri("/dashboardHub"))
-            .WithAutomaticReconnect()
-            .Build();
-
-        // Subscribe to dashboard updates
-        _hubConnection.On<DashboardDataDto>("DashboardUpdate", data =>
+        // Subscribe to state service changes
+        StateService.OnDataChanged += HandleDataChanged;
+        
+        // Get initial data if available
+        var initialData = StateService.CurrentData;
+        if (initialData != null && (initialData.TotalOrders > 0 || initialData.OpenTickets > 0 || initialData.TotalRevenue > 0))
         {
-            Console.WriteLine($"🔔 SignalR message received - Orders: {data?.TotalOrders}, Tickets: {data?.OpenTickets}, Revenue: {data?.TotalRevenue}");
-            
-            // Check if data is valid (not all zeros)
-            if (data != null && (data.TotalOrders > 0 || data.OpenTickets > 0 || data.TotalRevenue > 0))
-            {
-                _dashboardData = data;
-                _lastUpdate = DateTime.UtcNow;
-                _hasData = true;
-                _hasError = false;
-                _isLoading = false;
-                _consecutiveErrors = 0;
-                
-                Console.WriteLine($"✅ Dashboard data updated successfully");
-                Logger.LogInformation("✅ Received valid dashboard update: {Orders} orders, {Tickets} tickets, ${Revenue} revenue", 
-                    data.TotalOrders, data.OpenTickets, data.TotalRevenue);
-            }
-            else if (data != null)
-            {
-                // Received empty data - might be initial state or error
-                _consecutiveErrors++;
-                Console.WriteLine($"⚠️ Received empty data (attempt {_consecutiveErrors}/{MaxConsecutiveErrors})");
-                if (_consecutiveErrors >= MaxConsecutiveErrors && !_hasData)
-                {
-                    _hasError = true;
-                    _isLoading = false;
-                    Logger.LogWarning("❌ Received {Count} consecutive empty data updates", _consecutiveErrors);
-                }
-                else if (!_hasData)
-                {
-                    Logger.LogInformation("⏳ Received empty data update (attempt {Count}/{Max})", 
-                        _consecutiveErrors, MaxConsecutiveErrors);
-                }
-                // Keep existing data if we already have some
-            }
-            else
-            {
-                Console.WriteLine("❌ Received null data from SignalR");
-                Logger.LogWarning("Received null dashboard data");
-            }
-            
-            InvokeAsync(StateHasChanged);
-        });
-
-        // Handle reconnection
-        _hubConnection.Reconnected += async connectionId =>
-        {
-            _isConnected = true;
-            _isReconnecting = false;
-            Console.WriteLine($"🔄 Reconnected to dashboard hub - Connection ID: {connectionId}");
-            Logger.LogInformation("Reconnected to dashboard hub - Connection ID: {ConnectionId}", connectionId);
-            await InvokeAsync(StateHasChanged);
-        };
-
-        _hubConnection.Reconnecting += async error =>
-        {
-            _isConnected = false;
-            _isReconnecting = true;
-            Console.WriteLine($"⚠️ Reconnecting to dashboard hub... Error: {error?.Message}");
-            Logger.LogWarning("Reconnecting to dashboard hub... Error: {Error}", error?.Message);
-            await InvokeAsync(StateHasChanged);
-        };
-
-        _hubConnection.Closed += async error =>
-        {
-            _isConnected = false;
-            _isReconnecting = false;
-            Console.WriteLine($"❌ Dashboard hub connection closed - Error: {error?.Message}");
-            Logger.LogError("Dashboard hub connection closed - Error: {Error}", error?.Message);
-            await InvokeAsync(StateHasChanged);
-        };
-
-        // Start connection
-        try
-        {
-            Console.WriteLine("🔌 Connecting to SignalR dashboard hub...");
-            Logger.LogInformation("Attempting to connect to dashboard hub at /dashboardHub");
-            
-            await _hubConnection.StartAsync();
-            _isConnected = true;
-            
-            Console.WriteLine($"✅ Connected to dashboard hub - State: {_hubConnection.State}");
-            Logger.LogInformation("✅ Successfully connected to dashboard hub - Connection State: {State}", _hubConnection.State);
-        }
-        catch (Exception ex)
-        {
-            Console.WriteLine($"❌ Failed to connect to dashboard hub: {ex.Message}");
-            Logger.LogError(ex, "❌ Error connecting to dashboard hub");
-            _isConnected = false;
-            _hasError = true;
+            _dashboardData = initialData;
+            _hasData = true;
             _isLoading = false;
+            _isConnected = true;
+            _lastUpdate = initialData.Timestamp;
+            Logger.LogInformation("✅ Loaded initial dashboard data: {Orders} orders, {Tickets} tickets, ${Revenue} revenue",
+                initialData.TotalOrders, initialData.OpenTickets, initialData.TotalRevenue);
+        }
+        else
+        {
+            Logger.LogInformation("⏳ Waiting for dashboard data from background service...");
+            _isConnected = true; // We're always "connected" to the state service
+        }
+
+        await Task.CompletedTask;
+    }
+
+    private void HandleDataChanged()
+    {
+        var data = StateService.CurrentData;
+        
+        if (data != null && (data.TotalOrders > 0 || data.OpenTickets > 0 || data.TotalRevenue > 0))
+        {
+            _dashboardData = data;
+            _lastUpdate = data.Timestamp;
+            _hasData = true;
+            _hasError = false;
+            _isLoading = false;
+            _consecutiveErrors = 0;
+
+            Logger.LogInformation("✅ Received dashboard update: {Orders} orders, {Tickets} tickets, ${Revenue} revenue",
+                data.TotalOrders, data.OpenTickets, data.TotalRevenue);
+
+            // Trigger UI update on Blazor's synchronization context
+            InvokeAsync(StateHasChanged);
+        }
+        else if (data != null)
+        {
+            _consecutiveErrors++;
+            if (_consecutiveErrors >= MaxConsecutiveErrors && !_hasData)
+            {
+                _hasError = true;
+                _isLoading = false;
+                Logger.LogWarning("❌ Received {Count} consecutive empty data updates", _consecutiveErrors);
+                InvokeAsync(StateHasChanged);
+            }
         }
     }
 
@@ -350,6 +306,9 @@
 
     public async ValueTask DisposeAsync()
     {
+        // Unsubscribe from state service
+        StateService.OnDataChanged -= HandleDataChanged;
+        
         if (_hubConnection is not null)
         {
             await _hubConnection.DisposeAsync();
