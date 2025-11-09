@@ -284,8 +284,12 @@
               "value": "60"
             },
             {
+              "name": "Authentication__Mode",
+              "value": "[parameters('authenticationMode')]"
+            },
+            {
               "name": "Dashboard__ServiceGuid",
-              "value": "dashboard-00000000-0000-0000-0000-000000000001"
+              "value": "00000000-0000-0000-0000-000000000001"
             },
             {
               "name": "WEBSITE_RUN_FROM_PACKAGE",

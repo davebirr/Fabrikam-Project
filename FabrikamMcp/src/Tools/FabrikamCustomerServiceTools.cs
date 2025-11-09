@@ -157,15 +157,15 @@ public class FabrikamCustomerServiceTools : AuthenticatedMcpToolBase
         }
     }
 
-    [McpServerTool, Description("Create a new support ticket for customer service escalation. IMPORTANT: You must provide customerId - get it from the order data by calling get_orders first. Use orderId if the ticket is related to a specific order.")]
+    [McpServerTool, Description("Create a new support ticket for customer service escalation. IMPORTANT - You must provide customerId - get it from the order data by calling get_orders first. Use orderId if the ticket is related to a specific order.")]
     public async Task<object> CreateSupportTicket(
         string? userGuid = null,
-        [Description("REQUIRED: Customer ID from the order data (use get_orders to retrieve it first)")] int customerId = 0,
-        [Description("Optional: Order ID if this ticket is related to a specific order")] int? orderId = null,
+        [Description("REQUIRED - Customer ID from the order data (use get_orders to retrieve it first)")] int customerId = 0,
+        [Description("Optional - Order ID if this ticket is related to a specific order")] int? orderId = null,
         [Description("Brief summary of the issue (e.g., 'Production Delay - Order FAB-2025-047')")] string subject = "",
         [Description("Detailed description of the issue including timeline and customer impact")] string description = "",
-        [Description("Priority level: Low, Medium, High, or Critical (use High for delays, Critical for damage)")] string priority = "Medium",
-        [Description("Category: OrderInquiry, DeliveryIssue, ProductDefect, Installation, Billing, Technical, General, or Complaint")] string category = "General")
+        [Description("Priority level - Low, Medium, High, or Critical (use High for delays, Critical for damage)")] string priority = "Medium",
+        [Description("Category - OrderInquiry, DeliveryIssue, ProductDefect, Installation, Billing, Technical, General, or Complaint")] string category = "General")
     {
         // Validate GUID requirement based on authentication mode
         if (!ValidateGuidRequirement(userGuid, nameof(CreateSupportTicket)))

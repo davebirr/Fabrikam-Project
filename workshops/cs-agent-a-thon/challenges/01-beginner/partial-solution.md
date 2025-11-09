@@ -11,11 +11,11 @@ This partial solution shows you **HOW to think about the problem** without givin
 - ✅ Overall architecture and component structure
 - ✅ Key patterns and decision points
 - ✅ When to use which MCP tools
-- ✅ How to structure your system prompt
+- ✅ How to structure your instructions
 - ✅ Critical logic for delay detection
 
 **What this does NOT include:**
-- ❌ Complete system prompt text
+- ❌ Complete instructions text
 - ❌ Exact conversation flows
 - ❌ Word-for-word instructions
 
@@ -50,9 +50,9 @@ Your agent needs three distinct layers working together:
 
 ---
 
-## 📋 System Prompt Structure
+## 📋 instructions Structure
 
-Your system prompt should have these distinct sections:
+Your instructions should have these distinct sections:
 
 ### **1. Role Definition** (~3-4 sentences)
 - Who you are (customer service agent for Fabrikam)
@@ -239,11 +239,11 @@ ACTION: Create ticket immediately with category "OrderInquiry",
 **What to do with results:**
 ```json
 {
-  "id": 15,
-  "orderNumber": "FAB-2025-015",
-  "orderDate": "2024-11-12T00:00:00",
+  "id": 37,
+  "orderNumber": "FAB-2025-037",
+  "orderDate": "2025-06-28T14:15:00",
   "status": "InProduction",
-  "productName": "Starter Studio 400"
+  "productName": "Retail Flex 1500"
 }
 ```
 
@@ -285,6 +285,33 @@ Multiple products returned - you need to:
 
 ### **create_support_ticket**
 
+**⚠️ CRITICAL: Customer ID vs Order ID**
+
+When you call `get_orders`, the response contains TWO different IDs:
+```json
+{
+  "orderData": {
+    "id": 42,              // This is the ORDER ID (use for orderId parameter)
+    "customer": {
+      "id": 3,             // This is the CUSTOMER ID (use for customerId parameter)
+      "name": "Johanna Lorenz"
+    }
+  }
+}
+```
+
+**Step-by-step extraction**:
+1. Get the ORDER ID: Look at `orderData.id` (example: 42)
+2. Get the CUSTOMER ID: Navigate to `orderData.customer.id` (example: 3)
+3. When calling create_support_ticket:
+   - customerId: 3 (from orderData.customer.id)
+   - orderId: 42 (from orderData.id)
+
+**WRONG**: `customerId: 42` (that's the order ID!)  
+**CORRECT**: `customerId: 3` (that's from orderData.customer.id)
+
+---
+
 **When to call:**
 - ✅ Delayed order detected (AUTOMATIC)
 - ✅ Customer reports damage or defect
@@ -300,7 +327,8 @@ Multiple products returned - you need to:
 **Required parameters:**
 ```javascript
 {
-  customerId: number,        // From get_customers or get_orders
+  customerId: number,        // From orderData.customer.id (NOT orderData.id!)
+  orderId: number,           // From orderData.id (if ticket relates to an order)
   subject: string,           // Clear, specific (not "Help")
   description: string,       // Detailed context
   category: string,          // EXACT category from approved list
@@ -311,7 +339,7 @@ Multiple products returned - you need to:
 **Best practice structure:**
 ```
 Subject: "[Category] - [Specific Issue]"
-Example: "Order Delay - FAB-2025-015 exceeded 30-day production timeline"
+Example: "Order Delay - FAB-2025-037 exceeded 30-day production timeline"
 
 Description: 
 - Customer: [Name]
@@ -532,7 +560,7 @@ If still no results:
 
 ## 🧩 Putting It All Together
 
-### **The System Prompt Formula**
+### **The instructions Formula**
 
 ```
 [ROLE] (3-4 sentences defining who you are)
@@ -656,13 +684,13 @@ Create support tickets when:
 
 **Symptom:**
 ```
-Agent: "Order FAB-2025-015 status: InProduction. Timeline: 49 days."
+Agent: "Order FAB-2025-037 status: InProduction. Timeline: 49 days."
 ```
 
 **Fix:** Add personality guidance:
 ```
 Use natural language:
-  ❌ "Order FAB-2025-015 status: InProduction"
+  ❌ "Order FAB-2025-037 status: InProduction"
   ✅ "I can see your Starter Studio 400 is currently in production"
   
 Show empathy when needed:
@@ -745,7 +773,7 @@ Show empathy when needed:
 ### **If You're Ready to See the Full Solution:**
 
 The [full-solution.md](./full-solution.md) contains:
-- ✅ Complete system prompt (word-for-word)
+- ✅ Complete instructions (word-for-word)
 - ✅ All 4 conversation examples with annotations
 - ✅ Exact MCP tool configuration
 - ✅ Troubleshooting for common issues

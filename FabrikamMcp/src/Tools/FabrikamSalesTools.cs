@@ -56,7 +56,8 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
             if (!string.IsNullOrEmpty(orderNumber))
             {
                 // Get all orders and find by order number (API doesn't have direct orderNumber endpoint)
-                var searchResponse = await SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=100");
+                // Use a very large pageSize to ensure we search ALL orders, not just recent ones
+                var searchResponse = await SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=1000");
                 
                 if (searchResponse.IsSuccessStatusCode)
                 {
@@ -178,9 +179,17 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
                             type = "object",
                             properties = new
                             {
-                                id = new { type = "integer", description = "Order ID" },
+                                id = new { type = "integer", description = "Order ID - use for orderId parameter when creating tickets" },
                                 orderNumber = new { type = "string", description = "Order number" },
-                                customer = new { type = "object", description = "Customer information" },
+                                customer = new { 
+                                    type = "object", 
+                                    description = "Customer information",
+                                    properties = new {
+                                        id = new { type = "integer", description = "Customer ID - use for customerId parameter (NOT the order ID)" },
+                                        name = new { type = "string", description = "Customer name" },
+                                        email = new { type = "string", description = "Customer email" }
+                                    }
+                                },
                                 status = new { type = "string", description = "Current order status" },
                                 total = new { type = "number", description = "Order total amount" },
                                 items = new { type = "array", description = "Order items and products" }

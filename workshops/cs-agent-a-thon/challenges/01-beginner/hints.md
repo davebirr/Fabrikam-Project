@@ -45,9 +45,9 @@ After EVERY change:
 
 ---
 
-## 📝 System Prompt (Instructions) Tips
+## 📝 instructions (Instructions) Tips
 
-### **What Makes a Good System Prompt?**
+### **What Makes a Good instructions?**
 
 Think of it as **training instructions for a new employee**:
 
@@ -217,7 +217,7 @@ DO NOT just say you're creating a ticket - ACTUALLY CALL THE TOOL!
 - `General` - General questions
 - `Complaint` - Customer complaints
 
-**Hint**: Include this list in your system prompt so the agent knows the exact values!
+**Hint**: Include this list in your instructions so the agent knows the exact values!
 
 ---
 
@@ -234,9 +234,10 @@ Agent: "I can help! What's your order number?"  ❌
 **Why this happens**: Topics or conversation flows are forcing unnecessary questions.
 
 **The Fix**:
-- Keep Topics simple or don't use them at all!
-- Let the agent extract information naturally from the conversation
-- Trust the system prompt to guide the agent
+- **Note**: Copilot Studio includes built-in topics (Goodbye, Greeting, Start Over, Thank you) - these are fine to keep!
+- Don't add complex custom topics - let your Instructions handle the conversation flow
+- For this challenge, focus on writing great Instructions rather than creating topics
+- Trust the instructions to guide the agent's behavior naturally
 
 ### **Problem**: "Agent responses feel robotic"
 
@@ -302,7 +303,7 @@ For the delayed order test:
 
 ## 🎓 Common Beginner Mistakes
 
-### **Mistake 1: System Prompt Too Short**
+### **Mistake 1: instructions Too Short**
 
 **Problem**: "You are a customer service agent. Help customers."
 
@@ -312,7 +313,7 @@ For the delayed order test:
 
 ### **Mistake 2: Not Testing Incrementally**
 
-**Problem**: Writing entire system prompt, then testing once
+**Problem**: Writing entire instructions, then testing once
 
 **Why it fails**: Too many variables to debug!
 
@@ -400,7 +401,7 @@ Before asking for help, ask yourself:
 
 - [ ] Did I test with the simple scenarios first?
 - [ ] Are my MCP tools actually enabled?
-- [ ] Does my system prompt mention tools by name?
+- [ ] Does my instructions mention tools by name?
 - [ ] Am I using EXACT category/priority values for tickets?
 - [ ] Have I explicitly told the agent to ANALYZE timelines?
 - [ ] Did I look at the conversation logs to see what's happening?

@@ -109,16 +109,20 @@ if ($WhatIf) {
     exit 0
 }
 
-# Confirmation
-Write-Host "⚠️  This will create Azure resources with estimated cost:" -ForegroundColor Yellow
-Write-Host "   - B2 App Service Plan: ~`$26/month" -ForegroundColor Yellow
-Write-Host "   - Key Vault: ~`$0.03/month (minimal usage)" -ForegroundColor Yellow
-Write-Host "   - Total: ~`$26/month for workshop duration`n" -ForegroundColor Yellow
+# Confirmation (skip if running in batch mode)
+if (-not $env:CONFIRM_DEPLOY) {
+    Write-Host "⚠️  This will create Azure resources with estimated cost:" -ForegroundColor Yellow
+    Write-Host "   - B2 App Service Plan: ~`$26/month" -ForegroundColor Yellow
+    Write-Host "   - Key Vault: ~`$0.03/month (minimal usage)" -ForegroundColor Yellow
+    Write-Host "   - Total: ~`$26/month for workshop duration`n" -ForegroundColor Yellow
 
-$confirm = Read-Host "Continue with deployment? (yes/no)"
-if ($confirm -ne "yes") {
-    Write-Host "Deployment cancelled" -ForegroundColor Yellow
-    exit 0
+    $confirm = Read-Host "Continue with deployment? (yes/no)"
+    if ($confirm -ne "yes") {
+        Write-Host "Deployment cancelled" -ForegroundColor Yellow
+        exit 0
+    }
+} else {
+    Write-Host "  ℹ️  Batch mode - skipping confirmation (CONFIRM_DEPLOY=$env:CONFIRM_DEPLOY)" -ForegroundColor Gray
 }
 
 Write-Host "`n[1/3] Creating resource group..." -ForegroundColor Cyan
@@ -194,13 +198,17 @@ try {
     # Deploy using ARM template
     $deploymentName = "deploy-team-$TeamId-$(Get-Date -Format 'yyyyMMdd-HHmmss')"
     
+    # Get repository root (script is in scripts/ folder)
+    $repoRoot = Split-Path $PSScriptRoot -Parent
+    $templateFile = Join-Path $repoRoot "deployment\AzureDeploymentTemplate.modular.json"
+    
     # Run deployment and capture output
     Write-Host "  Deployment name: $deploymentName" -ForegroundColor Gray
     
     $deployResult = az deployment group create `
         --name $deploymentName `
         --resource-group $resourceGroupName `
-        --template-file "deployment/AzureDeploymentTemplate.modular.json" `
+        --template-file $templateFile `
         --parameters "@$tempParamFile" `
         --output json 2>&1
     
