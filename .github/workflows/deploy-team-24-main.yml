@@ -121,6 +121,26 @@ jobs:
           app-name: ${{ steps.discover-app.outputs.app-name }}
           package: ./publish
       
+      - name: Configure dashboard app settings
+        if: matrix.project == 'dash'
+        run: |
+          # Get API and Simulator URLs
+          API_APP=$(az webapp list -g ${{ env.RESOURCE_GROUP }} --query "[?contains(name, 'api')].defaultHostName" -o tsv | head -n1)
+          SIM_APP=$(az webapp list -g ${{ env.RESOURCE_GROUP }} --query "[?contains(name, 'sim')].defaultHostName" -o tsv | head -n1)
+          
+          # Configure app settings
+          az webapp config appsettings set \
+            -n ${{ steps.discover-app.outputs.app-name }} \
+            -g ${{ env.RESOURCE_GROUP }} \
+            --settings \
+              "FabrikamApi__BaseUrl=https://$API_APP" \
+              "FabrikamSimulator__BaseUrl=https://$SIM_APP" \
+              "Authentication__Mode=Disabled" \
+              "Dashboard__ServiceGuid=00000000-0000-0000-0000-000000000001"
+          
+          echo "✓ Dashboard configured with API: https://$API_APP"
+          echo "✓ Dashboard configured with Simulator: https://$SIM_APP"
+      
       - name: Verify deployment
         run: |
           echo "✓ Deployed: ${{ steps.discover-app.outputs.app-name }}"
