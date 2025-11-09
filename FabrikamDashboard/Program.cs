@@ -9,6 +9,9 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 
+// Add dashboard state management
+builder.Services.AddSingleton<DashboardStateService>();
+
 // Add SignalR for real-time updates
 builder.Services.AddSignalR(options =>
 {
