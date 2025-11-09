@@ -57,7 +57,8 @@
             <MetricCard Title="Active Orders" 
                         Value="@_dashboardData.TotalOrders.ToString()" 
                         Icon="📦" 
-                        Color="blue" />
+                        Color="blue"
+                        OnClick="NavigateToOrders" />
             <MetricCard Title="Open Tickets" 
                         Value="@_dashboardData.OpenTickets.ToString()" 
                         Icon="🎫" 
@@ -316,6 +317,11 @@
             "West" => "🏖️",
             _ => "📍"
         };
+    }
+
+    private void NavigateToOrders()
+    {
+        Navigation.NavigateTo("/orders");
     }
 
     private void NavigateToSupportTickets()
