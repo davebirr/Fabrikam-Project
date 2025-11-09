@@ -192,6 +192,8 @@
         // Subscribe to dashboard updates
         _hubConnection.On<DashboardDataDto>("DashboardUpdate", data =>
         {
+            Console.WriteLine($"🔔 SignalR message received - Orders: {data?.TotalOrders}, Tickets: {data?.OpenTickets}, Revenue: {data?.TotalRevenue}");
+            
             // Check if data is valid (not all zeros)
             if (data != null && (data.TotalOrders > 0 || data.OpenTickets > 0 || data.TotalRevenue > 0))
             {
@@ -202,25 +204,32 @@
                 _isLoading = false;
                 _consecutiveErrors = 0;
                 
-                Logger.LogInformation("Received valid dashboard update: {Orders} orders, {Tickets} tickets", 
-                    data.TotalOrders, data.OpenTickets);
+                Console.WriteLine($"✅ Dashboard data updated successfully");
+                Logger.LogInformation("✅ Received valid dashboard update: {Orders} orders, {Tickets} tickets, ${Revenue} revenue", 
+                    data.TotalOrders, data.OpenTickets, data.TotalRevenue);
             }
             else if (data != null)
             {
                 // Received empty data - might be initial state or error
                 _consecutiveErrors++;
+                Console.WriteLine($"⚠️ Received empty data (attempt {_consecutiveErrors}/{MaxConsecutiveErrors})");
                 if (_consecutiveErrors >= MaxConsecutiveErrors && !_hasData)
                 {
                     _hasError = true;
                     _isLoading = false;
-                    Logger.LogWarning("Received {Count} consecutive empty data updates", _consecutiveErrors);
+                    Logger.LogWarning("❌ Received {Count} consecutive empty data updates", _consecutiveErrors);
                 }
                 else if (!_hasData)
                 {
-                    Logger.LogDebug("Received empty data update (attempt {Count}/{Max})", 
+                    Logger.LogInformation("⏳ Received empty data update (attempt {Count}/{Max})", 
                         _consecutiveErrors, MaxConsecutiveErrors);
                 }
                 // Keep existing data if we already have some
+            }
+            else
+            {
+                Console.WriteLine("❌ Received null data from SignalR");
+                Logger.LogWarning("Received null dashboard data");
             }
             
             InvokeAsync(StateHasChanged);
@@ -231,7 +240,8 @@
         {
             _isConnected = true;
             _isReconnecting = false;
-            Logger.LogInformation("Reconnected to dashboard hub");
+            Console.WriteLine($"🔄 Reconnected to dashboard hub - Connection ID: {connectionId}");
+            Logger.LogInformation("Reconnected to dashboard hub - Connection ID: {ConnectionId}", connectionId);
             await InvokeAsync(StateHasChanged);
         };
 
@@ -239,7 +249,8 @@
         {
             _isConnected = false;
             _isReconnecting = true;
-            Logger.LogWarning("Reconnecting to dashboard hub...");
+            Console.WriteLine($"⚠️ Reconnecting to dashboard hub... Error: {error?.Message}");
+            Logger.LogWarning("Reconnecting to dashboard hub... Error: {Error}", error?.Message);
             await InvokeAsync(StateHasChanged);
         };
 
@@ -247,20 +258,27 @@
         {
             _isConnected = false;
             _isReconnecting = false;
-            Logger.LogError("Dashboard hub connection closed");
+            Console.WriteLine($"❌ Dashboard hub connection closed - Error: {error?.Message}");
+            Logger.LogError("Dashboard hub connection closed - Error: {Error}", error?.Message);
             await InvokeAsync(StateHasChanged);
         };
 
         // Start connection
         try
         {
+            Console.WriteLine("🔌 Connecting to SignalR dashboard hub...");
+            Logger.LogInformation("Attempting to connect to dashboard hub at /dashboardHub");
+            
             await _hubConnection.StartAsync();
             _isConnected = true;
-            Logger.LogInformation("Connected to dashboard hub");
+            
+            Console.WriteLine($"✅ Connected to dashboard hub - State: {_hubConnection.State}");
+            Logger.LogInformation("✅ Successfully connected to dashboard hub - Connection State: {State}", _hubConnection.State);
         }
         catch (Exception ex)
         {
-            Logger.LogError(ex, "Error connecting to dashboard hub");
+            Console.WriteLine($"❌ Failed to connect to dashboard hub: {ex.Message}");
+            Logger.LogError(ex, "❌ Error connecting to dashboard hub");
             _isConnected = false;
             _hasError = true;
             _isLoading = false;

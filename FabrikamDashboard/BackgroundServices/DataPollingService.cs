@@ -131,8 +131,8 @@ public class DataPollingService : BackgroundService
         // Broadcast to all connected clients
         await _hubContext.Clients.All.SendAsync("DashboardUpdate", dashboardData, cancellationToken);
 
-        _logger.LogDebug("Broadcasted dashboard update: {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue",
-            dashboardData.TotalOrders, dashboardData.OpenTickets, dashboardData.TotalRevenue);
+        _logger.LogInformation("📡 Broadcasted dashboard update: {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue to {ClientCount} clients",
+            dashboardData.TotalOrders, dashboardData.OpenTickets, dashboardData.TotalRevenue, _hubContext.Clients.All);
     }
 
     private DashboardDataDto CalculateDashboardMetrics(
