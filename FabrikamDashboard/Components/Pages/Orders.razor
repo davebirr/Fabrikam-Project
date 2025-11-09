@@ -1,0 +1,220 @@
+@page "/orders"
+@using FabrikamContracts.DTOs.Orders
+@using FabrikamDashboard.Services
+@inject FabrikamApiClient ApiClient
+@inject ILogger<Orders> Logger
+
+<PageTitle>Orders - Fabrikam Dashboard</PageTitle>
+
+<div class="orders-container">
+    <div class="orders-header">
+        <h1 class="orders-title">📦 Orders</h1>
+        <div class="orders-filters">
+            <select class="filter-select" @onchange="FilterByStatus">
+                <option value="">All Statuses</option>
+                <option value="Ordered">Ordered</option>
+                <option value="InProduction">In Production</option>
+                <option value="Shipped">Shipped</option>
+                <option value="Delivered">Delivered</option>
+                <option value="Cancelled">Cancelled</option>
+            </select>
+            <select class="filter-select" @onchange="FilterByRegion">
+                <option value="">All Regions</option>
+                <option value="Northeast">Northeast</option>
+                <option value="Southeast">Southeast</option>
+                <option value="Midwest">Midwest</option>
+                <option value="Southwest">Southwest</option>
+                <option value="West">West</option>
+            </select>
+            <button class="refresh-button" @onclick="LoadOrders">🔄 Refresh</button>
+        </div>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner">⏳</div>
+            <p>Loading orders...</p>
+        </div>
+    }
+    else if (_hasError)
+    {
+        <div class="error-container">
+            <div class="error-icon">⚠️</div>
+            <h3>Unable to Load Orders</h3>
+            <p>@_errorMessage</p>
+            <button class="retry-button" @onclick="LoadOrders">Try Again</button>
+        </div>
+    }
+    else if (_filteredOrders.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">📦</div>
+            <h3>No Orders Found</h3>
+            <p>No orders match your current filters.</p>
+        </div>
+    }
+    else
+    {
+        <!-- Stats Cards -->
+        <div class="orders-stats">
+            <div class="stat-card stat-ordered">
+                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "Ordered")</div>
+                <div class="stat-label">Ordered</div>
+            </div>
+            <div class="stat-card stat-production">
+                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "InProduction")</div>
+                <div class="stat-label">In Production</div>
+            </div>
+            <div class="stat-card stat-shipped">
+                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "Shipped")</div>
+                <div class="stat-label">Shipped</div>
+            </div>
+            <div class="stat-card stat-delivered">
+                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "Delivered")</div>
+                <div class="stat-label">Delivered</div>
+            </div>
+        </div>
+
+        <!-- Orders Table -->
+        <div class="orders-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Order #</th>
+                        <th>Customer</th>
+                        <th>Order Date</th>
+                        <th>Status</th>
+                        <th>Region</th>
+                        <th>Total</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var order in _filteredOrders.OrderByDescending(o => o.OrderDate))
+                    {
+                        <tr class="order-row">
+                            <td class="order-id">
+                                <span class="order-number">@order.OrderNumber</span>
+                            </td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-name">@order.Customer.Name</div>
+                                    <div class="customer-email">@order.Customer.Email</div>
+                                </div>
+                            </td>
+                            <td class="order-date">
+                                @order.OrderDate.ToString("MMM d, yyyy")
+                            </td>
+                            <td>
+                                <span class="status-badge status-@order.Status.ToLower()">
+                                    @GetStatusDisplay(order.Status)
+                                </span>
+                            </td>
+                            <td>
+                                <span class="region-badge">@GetRegionIcon(order.Customer.Region) @order.Customer.Region</span>
+                            </td>
+                            <td class="order-total">
+                                $@order.Total.ToString("N0")
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="orders-summary">
+            Showing @_filteredOrders.Count of @_orders.Count orders
+            @if (_filteredOrders.Count > 0)
+            {
+                <span> • Total Value: $@_filteredOrders.Sum(o => o.Total).ToString("N0")</span>
+            }
+        </div>
+    }
+</div>
+
+@code {
+    private List<OrderDto> _orders = new();
+    private List<OrderDto> _filteredOrders = new();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private string _errorMessage = string.Empty;
+    private string _selectedStatus = string.Empty;
+    private string _selectedRegion = string.Empty;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadOrders();
+    }
+
+    private async Task LoadOrders()
+    {
+        _isLoading = true;
+        _hasError = false;
+        _errorMessage = string.Empty;
+
+        try
+        {
+            _orders = await ApiClient.GetOrdersAsync();
+            ApplyFilters();
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _errorMessage = ex.Message;
+            Logger.LogError(ex, "Error loading orders");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void FilterByStatus(ChangeEventArgs e)
+    {
+        _selectedStatus = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void FilterByRegion(ChangeEventArgs e)
+    {
+        _selectedRegion = e.Value?.ToString() ?? string.Empty;
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        _filteredOrders = _orders;
+
+        if (!string.IsNullOrEmpty(_selectedStatus))
+        {
+            _filteredOrders = _filteredOrders.Where(o => o.Status == _selectedStatus).ToList();
+        }
+
+        if (!string.IsNullOrEmpty(_selectedRegion))
+        {
+            _filteredOrders = _filteredOrders.Where(o => o.Customer.Region == _selectedRegion).ToList();
+        }
+    }
+
+    private string GetStatusDisplay(string status)
+    {
+        return status switch
+        {
+            "InProduction" => "In Production",
+            _ => status
+        };
+    }
+
+    private string GetRegionIcon(string region)
+    {
+        return region switch
+        {
+            "Northeast" => "🏔️",
+            "Southeast" => "🌴",
+            "Midwest" => "🌾",
+            "Southwest" => "🌵",
+            "West" => "🏖️",
+            _ => "📍"
+        };
+    }
+}
