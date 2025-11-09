@@ -280,6 +280,18 @@
             if (success)
             {
                 Logger.LogInformation("Toggled {Endpoint} to {State}", endpoint, enable ? "ON" : "OFF");
+                
+                // Wait a moment for the simulator to update its state
+                await Task.Delay(1000);
+                
+                // Fetch fresh simulator status immediately to update UI
+                var newStatus = await SimulatorClient.GetStatusAsync();
+                if (newStatus != null && _dashboardData != null)
+                {
+                    // Update the dashboard data with new simulator status
+                    _dashboardData.SimulatorStatus = newStatus;
+                    await InvokeAsync(StateHasChanged);
+                }
             }
             else
             {
