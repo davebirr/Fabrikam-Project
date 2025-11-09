@@ -1,0 +1,365 @@
+/* Support Tickets Page Styles */
+
+.tickets-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.tickets-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+    padding-bottom: 1rem;
+    border-bottom: 2px solid #e0e0e0;
+}
+
+.tickets-title {
+    font-size: 2rem;
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+}
+
+.tickets-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #cbd5e0;
+    border-radius: 6px;
+    background: white;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filter-select:hover {
+    border-color: #4a90e2;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #4a90e2;
+    box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.1);
+}
+
+.tickets-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    text-align: center;
+    border-left: 4px solid #cbd5e0;
+}
+
+.stat-card.stat-open {
+    border-left-color: #f59e0b;
+}
+
+.stat-card.stat-inprogress {
+    border-left-color: #3b82f6;
+}
+
+.stat-card.stat-resolved {
+    border-left-color: #10b981;
+}
+
+.stat-card.stat-closed {
+    border-left-color: #6b7280;
+}
+
+.stat-value {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.9rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.tickets-table {
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+    overflow-x: auto;
+    margin-bottom: 1rem;
+}
+
+.tickets-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.tickets-table thead {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.tickets-table th {
+    padding: 1rem;
+    text-align: left;
+    font-weight: 600;
+    color: #475569;
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+}
+
+.ticket-row {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s;
+}
+
+.ticket-row:hover {
+    background: #f8fafc;
+}
+
+.ticket-row.priority-critical-row {
+    background: #fef2f2;
+}
+
+.ticket-row.priority-high-row {
+    background: #fef9f3;
+}
+
+.tickets-table td {
+    padding: 1rem;
+    vertical-align: top;
+}
+
+.ticket-id {
+    font-weight: 600;
+}
+
+.ticket-number {
+    font-family: 'Courier New', monospace;
+    color: #4a90e2;
+}
+
+.customer-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.customer-name {
+    font-weight: 500;
+    color: #2c3e50;
+}
+
+.order-reference {
+    font-size: 0.85rem;
+    color: #64748b;
+}
+
+.category-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.category-orderinquiry {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.category-deliveryissue {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.category-productdefect {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.category-installation {
+    background: #e0e7ff;
+    color: #3730a3;
+}
+
+.category-billing {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.category-technical {
+    background: #f3e8ff;
+    color: #6b21a8;
+}
+
+.category-complaint {
+    background: #ffe4e6;
+    color: #9f1239;
+}
+
+.category-general {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.ticket-subject {
+    max-width: 300px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.priority-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 600;
+    text-transform: uppercase;
+}
+
+.priority-critical {
+    background: #dc2626;
+    color: white;
+}
+
+.priority-high {
+    background: #f59e0b;
+    color: white;
+}
+
+.priority-medium {
+    background: #3b82f6;
+    color: white;
+}
+
+.priority-low {
+    background: #6b7280;
+    color: white;
+}
+
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    font-size: 0.85rem;
+    font-weight: 500;
+}
+
+.status-open {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-inprogress {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-resolved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-closed {
+    background: #f1f5f9;
+    color: #475569;
+}
+
+.ticket-date {
+    color: #64748b;
+    font-size: 0.9rem;
+    white-space: nowrap;
+}
+
+.tickets-summary {
+    text-align: center;
+    padding: 1rem;
+    color: #64748b;
+    font-size: 0.9rem;
+}
+
+.empty-state,
+.error-container {
+    text-align: center;
+    padding: 4rem 2rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.empty-icon,
+.error-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.empty-state h3,
+.error-container h3 {
+    color: #2c3e50;
+    margin-bottom: 0.5rem;
+}
+
+.empty-state p,
+.error-container p {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.retry-button {
+    padding: 0.75rem 1.5rem;
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 6px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background 0.2s;
+}
+
+.retry-button:hover {
+    background: #357abd;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .tickets-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .tickets-filters {
+        width: 100%;
+        flex-wrap: wrap;
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 150px;
+    }
+
+    .tickets-table {
+        overflow-x: scroll;
+    }
+
+    .ticket-subject {
+        max-width: 200px;
+    }
+}

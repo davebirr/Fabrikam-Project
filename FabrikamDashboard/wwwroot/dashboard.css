@@ -134,6 +134,39 @@
     box-shadow: 0 4px 12px rgba(0,0,0,0.12);
 }
 
+/* Clickable metric cards */
+.metric-clickable {
+    cursor: pointer;
+    position: relative;
+}
+
+.metric-clickable::after {
+    content: "→";
+    position: absolute;
+    right: 1.5rem;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 1.5rem;
+    color: #95a5a6;
+    opacity: 0;
+    transition: opacity 0.2s, right 0.2s;
+}
+
+.metric-clickable:hover::after {
+    opacity: 1;
+    right: 1rem;
+}
+
+.metric-clickable:hover {
+    transform: translateY(-4px);
+    box-shadow: 0 6px 16px rgba(0,0,0,0.15);
+}
+
+.metric-clickable:active {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 12px rgba(0,0,0,0.12);
+}
+
 .metric-icon {
     font-size: 3rem;
     line-height: 1;

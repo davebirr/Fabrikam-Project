@@ -60,7 +60,8 @@
             <MetricCard Title="Open Tickets" 
                         Value="@_dashboardData.OpenTickets.ToString()" 
                         Icon="🎫" 
-                        Color="orange" />
+                        Color="orange"
+                        OnClick="NavigateToSupportTickets" />
             <MetricCard Title="Total Revenue" 
                         Value="@($"${_dashboardData.TotalRevenue:N0}")" 
                         Icon="💰" 
@@ -302,6 +303,11 @@
             "West" => "🏖️",
             _ => "📍"
         };
+    }
+
+    private void NavigateToSupportTickets()
+    {
+        Navigation.NavigateTo("/support-tickets");
     }
 
     public async ValueTask DisposeAsync()

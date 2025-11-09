@@ -1,6 +1,7 @@
 @* Reusable component for displaying a metric card with icon, value, and title *@
 
-<div class="metric-card metric-@Color">
+<div class="metric-card metric-@Color @(OnClick.HasDelegate ? "metric-clickable" : "")" 
+     @onclick="HandleClick">
     <div class="metric-icon">@Icon</div>
     <div class="metric-content">
         <div class="metric-value">@Value</div>
@@ -32,4 +33,19 @@
     /// </summary>
     [Parameter]
     public string Color { get; set; } = "blue";
+
+    /// <summary>
+    /// Optional click handler to make the metric card interactive
+    /// </summary>
+    [Parameter]
+    public EventCallback OnClick { get; set; }
+
+    private Task HandleClick()
+    {
+        if (OnClick.HasDelegate)
+        {
+            return OnClick.InvokeAsync();
+        }
+        return Task.CompletedTask;
+    }
 }
