@@ -1,5 +1,6 @@
 using FabrikamSimulator.Models;
 using FabrikamSimulator.Services;
+using FabrikamContracts.Enums;
 using System.Text.Json;
 
 namespace FabrikamSimulator.Workers;
@@ -15,36 +16,38 @@ public class TicketGeneratorWorker : BackgroundService
     private const string WorkerName = "TicketGenerator";
 
     // AI-solvable tickets (most common - 85% of tickets)
+    // Using TicketCategory and TicketPriority enum names from FabrikamContracts for consistency
     private readonly TicketScenario[] _aiSolvableScenarios = new[]
     {
-        new TicketScenario("Order status inquiry", "I would like to check on my order status", "Medium", "General"),
-        new TicketScenario("Delivery date question", "When will my order be delivered?", "Medium", "Shipping"),
-        new TicketScenario("Customization request", "Can I change the floor plan on my order?", "Low", "General"),
-        new TicketScenario("Payment question", "I have a question about my payment", "Medium", "Billing"),
-        new TicketScenario("Installation support", "Need help scheduling installation", "Medium", "Installation"),
-        new TicketScenario("Warranty information", "What is covered under warranty?", "Low", "General"),
-        new TicketScenario("Address change request", "Need to update my delivery address", "High", "Shipping"),
-        new TicketScenario("General inquiry", "I have a question about modular homes", "Low", "General"),
-        new TicketScenario("Product specifications", "What are the dimensions of the Alpine model?", "Low", "General"),
-        new TicketScenario("Financing options", "What financing plans do you offer?", "Medium", "Billing"),
-        new TicketScenario("Delivery tracking", "Can I track my delivery in real-time?", "Low", "Shipping"),
-        new TicketScenario("Cancellation inquiry", "How do I cancel my order?", "High", "General"),
-        new TicketScenario("Color options", "What color choices are available?", "Low", "General"),
-        new TicketScenario("Delivery rescheduling", "I need to reschedule my delivery date", "Medium", "Shipping"),
-        new TicketScenario("Invoice request", "Can I get a copy of my invoice?", "Low", "Billing"),
-        new TicketScenario("Assembly instructions", "Where can I find assembly documentation?", "Medium", "Installation"),
-        new TicketScenario("Upgrade options", "Can I upgrade to a larger model?", "Medium", "General")
+        new TicketScenario("Order status inquiry", "I would like to check on my order status", nameof(TicketPriority.Medium), nameof(TicketCategory.OrderInquiry)),
+        new TicketScenario("Delivery date question", "When will my order be delivered?", nameof(TicketPriority.Medium), nameof(TicketCategory.DeliveryIssue)),
+        new TicketScenario("Customization request", "Can I change the floor plan on my order?", nameof(TicketPriority.Low), nameof(TicketCategory.General)),
+        new TicketScenario("Payment question", "I have a question about my payment", nameof(TicketPriority.Medium), nameof(TicketCategory.Billing)),
+        new TicketScenario("Installation support", "Need help scheduling installation", nameof(TicketPriority.Medium), nameof(TicketCategory.Installation)),
+        new TicketScenario("Warranty information", "What is covered under warranty?", nameof(TicketPriority.Low), nameof(TicketCategory.General)),
+        new TicketScenario("Address change request", "Need to update my delivery address", nameof(TicketPriority.High), nameof(TicketCategory.DeliveryIssue)),
+        new TicketScenario("General inquiry", "I have a question about modular homes", nameof(TicketPriority.Low), nameof(TicketCategory.General)),
+        new TicketScenario("Product specifications", "What are the dimensions of the Alpine model?", nameof(TicketPriority.Low), nameof(TicketCategory.General)),
+        new TicketScenario("Financing options", "What financing plans do you offer?", nameof(TicketPriority.Medium), nameof(TicketCategory.Billing)),
+        new TicketScenario("Delivery tracking", "Can I track my delivery in real-time?", nameof(TicketPriority.Low), nameof(TicketCategory.DeliveryIssue)),
+        new TicketScenario("Cancellation inquiry", "How do I cancel my order?", nameof(TicketPriority.High), nameof(TicketCategory.OrderInquiry)),
+        new TicketScenario("Color options", "What color choices are available?", nameof(TicketPriority.Low), nameof(TicketCategory.General)),
+        new TicketScenario("Delivery rescheduling", "I need to reschedule my delivery date", nameof(TicketPriority.Medium), nameof(TicketCategory.DeliveryIssue)),
+        new TicketScenario("Invoice request", "Can I get a copy of my invoice?", nameof(TicketPriority.Low), nameof(TicketCategory.Billing)),
+        new TicketScenario("Assembly instructions", "Where can I find assembly documentation?", nameof(TicketPriority.Medium), nameof(TicketCategory.Installation)),
+        new TicketScenario("Upgrade options", "Can I upgrade to a larger model?", nameof(TicketPriority.Medium), nameof(TicketCategory.OrderInquiry))
     };
 
     // Escalation-required tickets (rare - 15% of tickets, realistic for high-quality Fabrikam homes)
+    // Using TicketCategory and TicketPriority enum names from FabrikamContracts for consistency
     private readonly TicketScenario[] _escalationScenarios = new[]
     {
-        new TicketScenario("Water damage discovered", "I discovered water damage in the bathroom area during installation. There appears to be a leak in the plumbing connections that has affected the subfloor.", "Critical", "Technical"),
-        new TicketScenario("Structural integrity concern", "Some of the wall panels don't seem to be aligning properly during assembly. I'm concerned about structural stability.", "High", "Technical"),
-        new TicketScenario("Electrical safety issue", "The electrical panel is showing inconsistent readings and some outlets aren't working. This needs immediate professional attention.", "Critical", "Technical"),
-        new TicketScenario("Product damage report", "My delivered home has visible damage to exterior panels", "High", "Technical"),
-        new TicketScenario("Missing critical components", "Essential structural components are missing from my delivery, preventing installation", "Critical", "Technical"),
-        new TicketScenario("Foundation incompatibility", "The home doesn't fit the foundation specifications that were provided", "High", "Technical")
+        new TicketScenario("Water damage discovered", "I discovered water damage in the bathroom area during installation. There appears to be a leak in the plumbing connections that has affected the subfloor.", nameof(TicketPriority.Critical), nameof(TicketCategory.ProductDefect)),
+        new TicketScenario("Structural integrity concern", "Some of the wall panels don't seem to be aligning properly during assembly. I'm concerned about structural stability.", nameof(TicketPriority.High), nameof(TicketCategory.ProductDefect)),
+        new TicketScenario("Electrical safety issue", "The electrical panel is showing inconsistent readings and some outlets aren't working. This needs immediate professional attention.", nameof(TicketPriority.Critical), nameof(TicketCategory.Technical)),
+        new TicketScenario("Product damage report", "My delivered home has visible damage to exterior panels", nameof(TicketPriority.High), nameof(TicketCategory.ProductDefect)),
+        new TicketScenario("Missing critical components", "Essential structural components are missing from my delivery, preventing installation", nameof(TicketPriority.Critical), nameof(TicketCategory.DeliveryIssue)),
+        new TicketScenario("Foundation incompatibility", "The home doesn't fit the foundation specifications that were provided", nameof(TicketPriority.High), nameof(TicketCategory.Technical))
     };
 
     public TicketGeneratorWorker(
