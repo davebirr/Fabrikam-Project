@@ -1,5 +1,6 @@
 using FabrikamApi.Data;
 using FabrikamApi.Models;
+using FabrikamContracts.Enums;
 using Microsoft.EntityFrameworkCore;
 using System.Text.Json;
 

@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using FabrikamApi.Data;
 using FabrikamApi.Models;
 using FabrikamContracts.DTOs.Invoices;
+using FabrikamContracts.Enums;
 using System.Text.RegularExpressions;
 
 namespace FabrikamApi.Controllers;

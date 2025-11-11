@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FabrikamContracts.Enums;
 
 namespace FabrikamApi.Models;
 
@@ -148,35 +149,4 @@ public class InvoiceLineItem
     
     // Navigation property
     public virtual Invoice Invoice { get; set; } = null!;
-}
-
-/// <summary>
-/// Invoice processing status
-/// </summary>
-public enum InvoiceStatus
-{
-    /// <summary>
-    /// Newly submitted, awaiting review
-    /// </summary>
-    Pending,
-    
-    /// <summary>
-    /// Validated and approved for payment
-    /// </summary>
-    Approved,
-    
-    /// <summary>
-    /// Duplicate invoice detected
-    /// </summary>
-    Duplicate,
-    
-    /// <summary>
-    /// Rejected due to validation errors
-    /// </summary>
-    Rejected,
-    
-    /// <summary>
-    /// Payment has been processed
-    /// </summary>
-    Paid
 }

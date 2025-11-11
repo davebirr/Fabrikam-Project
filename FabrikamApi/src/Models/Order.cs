@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FabrikamContracts.Enums;
 
 namespace FabrikamApi.Models;
 
@@ -87,16 +88,4 @@ public class OrderItem
     // Navigation properties
     public virtual Order Order { get; set; } = null!;
     public virtual Product Product { get; set; } = null!;
-}
-
-public enum OrderStatus
-{
-    Pending = 1,
-    Confirmed = 2,
-    InProduction = 3,
-    ReadyToShip = 4,
-    Shipped = 5,
-    Delivered = 6,
-    Cancelled = 7,
-    OnHold = 8
 }
