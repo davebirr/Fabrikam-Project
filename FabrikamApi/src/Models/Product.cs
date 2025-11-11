@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FabrikamContracts.Enums;
 
 namespace FabrikamApi.Models;
 
@@ -51,14 +52,4 @@ public class Product
     
     // Navigation properties
     public virtual ICollection<OrderItem> OrderItems { get; set; } = new List<OrderItem>();
-}
-
-public enum ProductCategory
-{
-    SingleFamily = 1,
-    Duplex = 2,
-    Triplex = 3,
-    Accessory = 4,
-    Commercial = 5,
-    Components = 6
 }

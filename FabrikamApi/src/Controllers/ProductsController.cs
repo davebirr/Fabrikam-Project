@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using FabrikamApi.Data;
 using FabrikamApi.Models;
 using FabrikamContracts.DTOs.Products;
+using FabrikamContracts.Enums;
 using Microsoft.AspNetCore.Authorization;
 
 namespace FabrikamApi.Controllers;

@@ -1,4 +1,5 @@
 using System.ComponentModel.DataAnnotations;
+using FabrikamContracts.Enums;
 
 namespace FabrikamApi.Models;
 
@@ -69,34 +70,4 @@ public class TicketNote
     
     // Navigation properties
     public virtual SupportTicket Ticket { get; set; } = null!;
-}
-
-public enum TicketStatus
-{
-    Open = 1,
-    InProgress = 2,
-    PendingCustomer = 3,
-    Resolved = 4,
-    Closed = 5,
-    Cancelled = 6
-}
-
-public enum TicketPriority
-{
-    Low = 1,
-    Medium = 2,
-    High = 3,
-    Critical = 4
-}
-
-public enum TicketCategory
-{
-    OrderInquiry = 1,
-    DeliveryIssue = 2,
-    ProductDefect = 3,
-    Installation = 4,
-    Billing = 5,
-    Technical = 6,
-    General = 7,
-    Complaint = 8
 }
