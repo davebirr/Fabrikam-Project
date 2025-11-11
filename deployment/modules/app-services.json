@@ -249,11 +249,13 @@
       "properties": {
         "serverFarmId": "[resourceId('Microsoft.Web/serverfarms', parameters('appServicePlanName'))]",
         "httpsOnly": true,
+        "clientAffinityEnabled": true,
         "siteConfig": {
           "linuxFxVersion": "DOTNETCORE|9.0",
           "alwaysOn": "[if(equals(parameters('skuName'), 'F1'), false(), true())]",
           "ftpsState": "Disabled",
           "minTlsVersion": "1.2",
+          "webSocketsEnabled": true,
           "appSettings": [
             {
               "name": "ASPNETCORE_ENVIRONMENT",

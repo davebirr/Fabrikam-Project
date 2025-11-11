@@ -8,12 +8,13 @@ namespace FabrikamDashboard.BackgroundServices;
 
 /// <summary>
 /// Background service that polls FabrikamApi and FabrikamSimulator every few seconds
-/// and broadcasts updates to all connected clients via SignalR
+/// and updates the dashboard state for all connected clients
 /// </summary>
 public class DataPollingService : BackgroundService
 {
     private readonly IServiceProvider _serviceProvider;
     private readonly IHubContext<DashboardHub> _hubContext;
+    private readonly DashboardStateService _stateService;
     private readonly ILogger<DataPollingService> _logger;
     private readonly TimeSpan _pollingInterval = TimeSpan.FromSeconds(5);
     private readonly SemaphoreSlim _refreshTrigger = new(0);
@@ -22,10 +23,12 @@ public class DataPollingService : BackgroundService
     public DataPollingService(
         IServiceProvider serviceProvider,
         IHubContext<DashboardHub> hubContext,
+        DashboardStateService stateService,
         ILogger<DataPollingService> logger)
     {
         _serviceProvider = serviceProvider;
         _hubContext = hubContext;
+        _stateService = stateService;
         _logger = logger;
     }
 
@@ -128,10 +131,13 @@ public class DataPollingService : BackgroundService
         // Calculate dashboard metrics
         var dashboardData = CalculateDashboardMetrics(orders, tickets, analytics, simulatorStatus);
 
-        // Broadcast to all connected clients
+        // Update state service (triggers component updates)
+        _stateService.UpdateData(dashboardData);
+
+        // Also broadcast via SignalR for any external clients
         await _hubContext.Clients.All.SendAsync("DashboardUpdate", dashboardData, cancellationToken);
 
-        _logger.LogDebug("Broadcasted dashboard update: {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue",
+        _logger.LogInformation("📡 Updated dashboard state: {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue",
             dashboardData.TotalOrders, dashboardData.OpenTickets, dashboardData.TotalRevenue);
     }
 

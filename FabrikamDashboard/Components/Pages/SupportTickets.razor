@@ -1,0 +1,216 @@
+@page "/support-tickets"
+@rendermode InteractiveServer
+@using FabrikamContracts.DTOs.Support
+@using FabrikamDashboard.Services
+@inject FabrikamApiClient ApiClient
+@inject ILogger<SupportTickets> Logger
+
+<PageTitle>Support Tickets - Fabrikam Dashboard</PageTitle>
+
+<div class="tickets-container">
+    <div class="tickets-header">
+        <h1 class="tickets-title">🎫 Support Tickets</h1>
+        <div class="tickets-filters">
+            <select class="filter-select" @onchange="FilterByStatus">
+                <option value="">All Statuses</option>
+                <option value="Open">Open</option>
+                <option value="InProgress">In Progress</option>
+                <option value="Resolved">Resolved</option>
+                <option value="Closed">Closed</option>
+            </select>
+            <select class="filter-select" @onchange="FilterByPriority">
+                <option value="">All Priorities</option>
+                <option value="Critical">Critical</option>
+                <option value="High">High</option>
+                <option value="Medium">Medium</option>
+                <option value="Low">Low</option>
+            </select>
+            <button class="refresh-button" @onclick="LoadTickets">🔄 Refresh</button>
+        </div>
+    </div>
+
+    @if (_isLoading)
+    {
+        <div class="loading-container">
+            <div class="loading-spinner">⏳</div>
+            <p>Loading support tickets...</p>
+        </div>
+    }
+    else if (_hasError)
+    {
+        <div class="error-container">
+            <div class="error-icon">⚠️</div>
+            <h3>Unable to Load Tickets</h3>
+            <p>@_errorMessage</p>
+            <button class="retry-button" @onclick="LoadTickets">Try Again</button>
+        </div>
+    }
+    else if (_filteredTickets.Count == 0)
+    {
+        <div class="empty-state">
+            <div class="empty-icon">✅</div>
+            <h3>No Tickets Found</h3>
+            <p>@(_selectedStatus != "" || _selectedPriority != "" ? "Try adjusting your filters" : "All caught up! No support tickets at the moment.")</p>
+        </div>
+    }
+    else
+    {
+        <div class="tickets-stats">
+            <div class="stat-card stat-open">
+                <div class="stat-value">@_tickets.Count(t => t.Status == "Open")</div>
+                <div class="stat-label">Open</div>
+            </div>
+            <div class="stat-card stat-inprogress">
+                <div class="stat-value">@_tickets.Count(t => t.Status == "InProgress")</div>
+                <div class="stat-label">In Progress</div>
+            </div>
+            <div class="stat-card stat-resolved">
+                <div class="stat-value">@_tickets.Count(t => t.Status == "Resolved")</div>
+                <div class="stat-label">Resolved</div>
+            </div>
+            <div class="stat-card stat-closed">
+                <div class="stat-value">@_tickets.Count(t => t.Status == "Closed")</div>
+                <div class="stat-label">Closed</div>
+            </div>
+        </div>
+
+        <div class="tickets-table">
+            <table>
+                <thead>
+                    <tr>
+                        <th>Ticket #</th>
+                        <th>Customer</th>
+                        <th>Category</th>
+                        <th>Subject</th>
+                        <th>Priority</th>
+                        <th>Status</th>
+                        <th>Created</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var ticket in _filteredTickets.OrderByDescending(t => t.CreatedDate))
+                    {
+                        <tr class="ticket-row @GetPriorityClass(ticket.Priority)">
+                            <td class="ticket-id">
+                                <span class="ticket-number">TKT-@ticket.Id.ToString("D4")</span>
+                            </td>
+                            <td>
+                                <div class="customer-info">
+                                    <div class="customer-name">@ticket.Customer.Name</div>
+                                    @if (!string.IsNullOrEmpty(ticket.Customer.Region))
+                                    {
+                                        <div class="order-reference">Region: @ticket.Customer.Region</div>
+                                    }
+                                </div>
+                            </td>
+                            <td>
+                                <span class="category-badge category-@ticket.Category.ToLower()">
+                                    @GetCategoryIcon(ticket.Category) @ticket.Category
+                                </span>
+                            </td>
+                            <td class="ticket-subject">@ticket.Subject</td>
+                            <td>
+                                <span class="priority-badge priority-@ticket.Priority.ToLower()">
+                                    @ticket.Priority
+                                </span>
+                            </td>
+                            <td>
+                                <span class="status-badge status-@ticket.Status.ToLower()">
+                                    @ticket.Status
+                                </span>
+                            </td>
+                            <td class="ticket-date">@ticket.CreatedDate.ToString("MMM d, yyyy")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="tickets-summary">
+            Showing @_filteredTickets.Count of @_tickets.Count tickets
+        </div>
+    }
+</div>
+
+@code {
+    private List<SupportTicketListItemDto> _tickets = new();
+    private List<SupportTicketListItemDto> _filteredTickets = new();
+    private bool _isLoading = true;
+    private bool _hasError = false;
+    private string _errorMessage = "";
+    private string _selectedStatus = "";
+    private string _selectedPriority = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadTickets();
+    }
+
+    private async Task LoadTickets()
+    {
+        _isLoading = true;
+        _hasError = false;
+        
+        try
+        {
+            _tickets = await ApiClient.GetSupportTicketsAsync();
+            ApplyFilters();
+            Logger.LogInformation("Loaded {Count} support tickets", _tickets.Count);
+        }
+        catch (Exception ex)
+        {
+            _hasError = true;
+            _errorMessage = "Failed to load support tickets. Please try again.";
+            Logger.LogError(ex, "Error loading support tickets");
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private void FilterByStatus(ChangeEventArgs e)
+    {
+        _selectedStatus = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void FilterByPriority(ChangeEventArgs e)
+    {
+        _selectedPriority = e.Value?.ToString() ?? "";
+        ApplyFilters();
+    }
+
+    private void ApplyFilters()
+    {
+        _filteredTickets = _tickets
+            .Where(t => string.IsNullOrEmpty(_selectedStatus) || t.Status == _selectedStatus)
+            .Where(t => string.IsNullOrEmpty(_selectedPriority) || t.Priority == _selectedPriority)
+            .ToList();
+    }
+
+    private string GetPriorityClass(string priority)
+    {
+        return priority.ToLower() switch
+        {
+            "critical" => "priority-critical-row",
+            "high" => "priority-high-row",
+            _ => ""
+        };
+    }
+
+    private string GetCategoryIcon(string category)
+    {
+        return category switch
+        {
+            "OrderInquiry" => "📦",
+            "DeliveryIssue" => "🚚",
+            "ProductDefect" => "⚠️",
+            "Installation" => "🔧",
+            "Billing" => "💰",
+            "Technical" => "🔌",
+            "Complaint" => "😠",
+            _ => "📋"
+        };
+    }
+}
