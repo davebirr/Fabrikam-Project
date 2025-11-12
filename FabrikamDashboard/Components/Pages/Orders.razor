@@ -3,6 +3,7 @@
 @using FabrikamContracts.DTOs.Orders
 @using FabrikamDashboard.Services
 @inject FabrikamApiClient ApiClient
+@inject DashboardStateService StateService
 @inject ILogger<Orders> Logger
 
 <PageTitle>Orders - Fabrikam Dashboard</PageTitle>
@@ -11,6 +12,16 @@
     <div class="orders-header">
         <h1 class="orders-title">📦 Orders</h1>
         <div class="orders-filters">
+            <div class="timeframe-selector">
+                <label for="timeframe">📅 Timeframe:</label>
+                <select id="timeframe" class="filter-select" @bind="_selectedTimeframe" @bind:after="OnTimeframeChanged">
+                    <option value="7days">Last 7 Days</option>
+                    <option value="30days">Last 30 Days</option>
+                    <option value="90days">Last 90 Days</option>
+                    <option value="365days">Last Year</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
             <select class="filter-select" @onchange="FilterByStatus">
                 <option value="">All Statuses</option>
                 <option value="Pending">Pending</option>
@@ -148,9 +159,12 @@
     private string _errorMessage = string.Empty;
     private string _selectedStatus = string.Empty;
     private string _selectedRegion = string.Empty;
+    private string _selectedTimeframe = "365days"; // Default
 
     protected override async Task OnInitializedAsync()
     {
+        // Use the timeframe from state service (persists across pages)
+        _selectedTimeframe = StateService.CurrentTimeframe;
         await LoadOrders();
     }
 
@@ -162,7 +176,8 @@
 
         try
         {
-            _orders = await ApiClient.GetOrdersAsync();
+            var (fromDate, toDate) = GetDateRange(_selectedTimeframe);
+            _orders = await ApiClient.GetOrdersAsync(fromDate, toDate);
             ApplyFilters();
         }
         catch (Exception ex)
@@ -225,4 +240,34 @@
             _ => "📍"
         };
     }
+
+    private async Task OnTimeframeChanged()
+    {
+        // Update the state service (persists across pages)
+        StateService.UpdateTimeframe(_selectedTimeframe);
+        
+        // Reload orders with new timeframe
+        await LoadOrders();
+    }
+
+    private static (DateTime? fromDate, DateTime? toDate) GetDateRange(string? timeframe)
+    {
+        if (string.IsNullOrEmpty(timeframe) || timeframe == "all")
+        {
+            return (null, null); // No filtering
+        }
+
+        var toDate = DateTime.UtcNow;
+        var fromDate = timeframe.ToLower() switch
+        {
+            "7days" or "week" => toDate.AddDays(-7),
+            "30days" or "month" => toDate.AddDays(-30),
+            "90days" or "quarter" => toDate.AddDays(-90),
+            "365days" or "year" => toDate.AddDays(-365),
+            _ => toDate.AddDays(-365) // Default to year
+        };
+
+        return (fromDate, toDate);
+    }
 }
+
