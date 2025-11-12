@@ -13,11 +13,14 @@
         <div class="orders-filters">
             <select class="filter-select" @onchange="FilterByStatus">
                 <option value="">All Statuses</option>
-                <option value="Ordered">Ordered</option>
+                <option value="Pending">Pending</option>
+                <option value="Confirmed">Confirmed</option>
                 <option value="InProduction">In Production</option>
+                <option value="ReadyToShip">Ready to Ship</option>
                 <option value="Shipped">Shipped</option>
                 <option value="Delivered">Delivered</option>
                 <option value="Cancelled">Cancelled</option>
+                <option value="OnHold">On Hold</option>
             </select>
             <select class="filter-select" @onchange="FilterByRegion">
                 <option value="">All Regions</option>
@@ -59,9 +62,13 @@
     {
         <!-- Stats Cards -->
         <div class="orders-stats">
-            <div class="stat-card stat-ordered">
-                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "Ordered")</div>
-                <div class="stat-label">Ordered</div>
+            <div class="stat-card stat-pending">
+                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "Pending")</div>
+                <div class="stat-label">Pending</div>
+            </div>
+            <div class="stat-card stat-confirmed">
+                <div class="stat-value">@_filteredOrders.Count(o => o.Status == "Confirmed")</div>
+                <div class="stat-label">Confirmed</div>
             </div>
             <div class="stat-card stat-production">
                 <div class="stat-value">@_filteredOrders.Count(o => o.Status == "InProduction")</div>

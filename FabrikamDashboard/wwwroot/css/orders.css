@@ -35,8 +35,12 @@
     margin-bottom: 2rem;
 }
 
-.stat-card.stat-ordered {
+.stat-card.stat-pending {
     border-left-color: #3b82f6;
+}
+
+.stat-card.stat-confirmed {
+    border-left-color: #06b6d4;
 }
 
 .stat-card.stat-production {
