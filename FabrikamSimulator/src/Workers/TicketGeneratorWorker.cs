@@ -82,6 +82,7 @@ public class TicketGeneratorWorker : BackgroundService
             
             if (stressTestMode)
             {
+                // Stress test mode uses separate config
                 var stressConfig = _configuration.GetSection("SimulatorSettings:StressTest").Get<StressTestConfig>() ?? new StressTestConfig();
                 intervalMinutes = stressConfig.TicketIntervalMinutes;
                 minTickets = stressConfig.MinTicketsPerInterval;
@@ -89,10 +90,11 @@ public class TicketGeneratorWorker : BackgroundService
             }
             else
             {
-                var normalConfig = _configuration.GetSection("SimulatorSettings:TicketGenerator").Get<TicketGeneratorConfig>() ?? new TicketGeneratorConfig();
-                intervalMinutes = normalConfig.IntervalMinutes;
-                minTickets = normalConfig.MinTicketsPerInterval;
-                maxTickets = normalConfig.MaxTicketsPerInterval;
+                // Normal mode uses runtime config service (which may have overrides)
+                var effectiveConfig = _runtimeConfig.GetTicketGeneratorConfig(_configuration);
+                intervalMinutes = effectiveConfig.intervalMinutes;
+                minTickets = effectiveConfig.minTickets;
+                maxTickets = effectiveConfig.maxTickets;
             }
             
             var status = _stateService.GetStatus(WorkerName);

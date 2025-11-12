@@ -163,6 +163,99 @@
                                      NextRun="@_dashboardData.SimulatorStatus.TicketGenerator.NextRun"
                                      OnToggle="@(() => ToggleSimulator("tickets", !_dashboardData.SimulatorStatus.TicketGenerator.Enabled))" />
                 </div>
+
+                <!-- Simulator Configuration -->
+                <div class="simulator-config-section">
+                    <h3>🎛️ Simulator Configuration</h3>
+                    <p class="config-description">
+                        Adjust generation rates to test different load scenarios. Changes are runtime-only and reset on simulator restart.
+                    </p>
+
+                    <!-- Preset Buttons -->
+                    <div class="config-presets">
+                        <button class="preset-button" @onclick="ApplyLowPreset">
+                            🐌 Low (~12-24/day)
+                        </button>
+                        <button class="preset-button" @onclick="ApplyNormalPreset">
+                            ⚡ Normal (~24-72/day)
+                        </button>
+                        <button class="preset-button" @onclick="ApplyHighPreset">
+                            🚀 High (~144-336/day)
+                        </button>
+                        <button class="preset-button ai-challenge" @onclick="ApplyAiChallengePreset">
+                            🤖 AI Challenge (~720-2160/day)
+                        </button>
+                        <button class="preset-button reset-button" @onclick="ResetConfiguration">
+                            ↩️ Reset to Defaults
+                        </button>
+                    </div>
+
+                    <!-- Order Configuration -->
+                    <div class="config-group">
+                        <h4>📦 Order Generator</h4>
+                        <div class="config-controls">
+                            <div class="config-slider">
+                                <label>Interval: <strong>@_orderInterval min</strong></label>
+                                <input type="range" min="1" max="120" step="1" @bind="_orderInterval" @bind:event="oninput" />
+                                <span class="slider-hint">1 min - 2 hours</span>
+                            </div>
+                            <div class="config-slider">
+                                <label>Min per Interval: <strong>@_orderMin</strong></label>
+                                <input type="range" min="0" max="50" step="1" @bind="_orderMin" @bind:event="oninput" />
+                            </div>
+                            <div class="config-slider">
+                                <label>Max per Interval: <strong>@_orderMax</strong></label>
+                                <input type="range" min="1" max="50" step="1" @bind="_orderMax" @bind:event="oninput" />
+                            </div>
+                            <div class="config-estimate">
+                                📊 Estimated: <strong>~@EstimateOrdersPerDay() orders/day</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Ticket Configuration -->
+                    <div class="config-group">
+                        <h4>🎫 Ticket Generator</h4>
+                        <div class="config-controls">
+                            <div class="config-slider">
+                                <label>Interval: <strong>@_ticketInterval min</strong></label>
+                                <input type="range" min="1" max="120" step="1" @bind="_ticketInterval" @bind:event="oninput" />
+                                <span class="slider-hint">1 min - 2 hours</span>
+                            </div>
+                            <div class="config-slider">
+                                <label>Min per Interval: <strong>@_ticketMin</strong></label>
+                                <input type="range" min="0" max="50" step="1" @bind="_ticketMin" @bind:event="oninput" />
+                            </div>
+                            <div class="config-slider">
+                                <label>Max per Interval: <strong>@_ticketMax</strong></label>
+                                <input type="range" min="1" max="50" step="1" @bind="_ticketMax" @bind:event="oninput" />
+                            </div>
+                            <div class="config-estimate">
+                                📊 Estimated: <strong>~@EstimateTicketsPerDay() tickets/day</strong>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Apply Button -->
+                    <div class="config-actions">
+                        <button class="apply-button" @onclick="ApplyConfiguration" disabled="@_applyingConfig">
+                            @if (_applyingConfig)
+                            {
+                                <span>⏳ Applying...</span>
+                            }
+                            else
+                            {
+                                <span>✅ Apply Configuration</span>
+                            }
+                        </button>
+                        @if (!string.IsNullOrEmpty(_configMessage))
+                        {
+                            <div class="config-message @(_configMessageType)">
+                                @_configMessage
+                            </div>
+                        }
+                    </div>
+                </div>
             </div>
         }
         else
@@ -197,6 +290,17 @@
     private const int MaxConsecutiveErrors = 3;
     private DateTime _loadingStartTime = DateTime.UtcNow;
     private string _selectedTimeframe = "365days"; // Default to year to match MCP tool
+
+    // Simulator configuration fields
+    private int _orderInterval = 60;
+    private int _orderMin = 1;
+    private int _orderMax = 3;
+    private int _ticketInterval = 60;
+    private int _ticketMin = 1;
+    private int _ticketMax = 2;
+    private bool _applyingConfig = false;
+    private string _configMessage = "";
+    private string _configMessageType = "";
 
     protected override async Task OnInitializedAsync()
     {
@@ -361,6 +465,184 @@
     private void NavigateToSupportTickets()
     {
         Navigation.NavigateTo("/support-tickets");
+    }
+
+    // Simulator Configuration Methods
+    private void ApplyLowPreset()
+    {
+        _orderInterval = 120;
+        _orderMin = 1;
+        _orderMax = 2;
+        _ticketInterval = 120;
+        _ticketMin = 1;
+        _ticketMax = 1;
+        StateHasChanged();
+    }
+
+    private void ApplyNormalPreset()
+    {
+        _orderInterval = 60;
+        _orderMin = 1;
+        _orderMax = 3;
+        _ticketInterval = 60;
+        _ticketMin = 1;
+        _ticketMax = 2;
+        StateHasChanged();
+    }
+
+    private void ApplyHighPreset()
+    {
+        _orderInterval = 30;
+        _orderMin = 3;
+        _orderMax = 7;
+        _ticketInterval = 30;
+        _ticketMin = 2;
+        _ticketMax = 5;
+        StateHasChanged();
+    }
+
+    private void ApplyAiChallengePreset()
+    {
+        _orderInterval = 10;
+        _orderMin = 5;
+        _orderMax = 15;
+        _ticketInterval = 10;
+        _ticketMin = 5;
+        _ticketMax = 15;
+        StateHasChanged();
+    }
+
+    private async Task ApplyConfiguration()
+    {
+        _applyingConfig = true;
+        _configMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            // Validate min/max
+            if (_orderMin > _orderMax)
+            {
+                _configMessage = "❌ Order minimum cannot exceed maximum";
+                _configMessageType = "error";
+                return;
+            }
+
+            if (_ticketMin > _ticketMax)
+            {
+                _configMessage = "❌ Ticket minimum cannot exceed maximum";
+                _configMessageType = "error";
+                return;
+            }
+
+            // Apply order configuration
+            var orderSuccess = await SimulatorClient.UpdateOrderConfigAsync(_orderInterval, _orderMin, _orderMax);
+            if (!orderSuccess)
+            {
+                _configMessage = "❌ Failed to update order configuration";
+                _configMessageType = "error";
+                return;
+            }
+
+            // Apply ticket configuration
+            var ticketSuccess = await SimulatorClient.UpdateTicketConfigAsync(_ticketInterval, _ticketMin, _ticketMax);
+            if (!ticketSuccess)
+            {
+                _configMessage = "❌ Failed to update ticket configuration";
+                _configMessageType = "error";
+                return;
+            }
+
+            _configMessage = $"✅ Configuration applied! Orders: ~{EstimateOrdersPerDay()}/day, Tickets: ~{EstimateTicketsPerDay()}/day";
+            _configMessageType = "success";
+            Logger.LogInformation("Simulator configuration updated: Orders={OrderInterval}min/{OrderMin}-{OrderMax}, Tickets={TicketInterval}min/{TicketMin}-{TicketMax}",
+                _orderInterval, _orderMin, _orderMax, _ticketInterval, _ticketMin, _ticketMax);
+        }
+        catch (Exception ex)
+        {
+            _configMessage = $"❌ Error: {ex.Message}";
+            _configMessageType = "error";
+            Logger.LogError(ex, "Error applying simulator configuration");
+        }
+        finally
+        {
+            _applyingConfig = false;
+            StateHasChanged();
+
+            // Clear message after 5 seconds
+            _ = Task.Delay(5000).ContinueWith(_ =>
+            {
+                _configMessage = "";
+                InvokeAsync(StateHasChanged);
+            });
+        }
+    }
+
+    private async Task ResetConfiguration()
+    {
+        _applyingConfig = true;
+        _configMessage = "";
+        StateHasChanged();
+
+        try
+        {
+            var orderSuccess = await SimulatorClient.ResetOrderConfigAsync();
+            var ticketSuccess = await SimulatorClient.ResetTicketConfigAsync();
+
+            if (orderSuccess && ticketSuccess)
+            {
+                // Reset UI values to defaults
+                _orderInterval = 60;
+                _orderMin = 1;
+                _orderMax = 3;
+                _ticketInterval = 60;
+                _ticketMin = 1;
+                _ticketMax = 2;
+
+                _configMessage = "✅ Configuration reset to defaults";
+                _configMessageType = "success";
+                Logger.LogInformation("Simulator configuration reset to defaults");
+            }
+            else
+            {
+                _configMessage = "❌ Failed to reset configuration";
+                _configMessageType = "error";
+            }
+        }
+        catch (Exception ex)
+        {
+            _configMessage = $"❌ Error: {ex.Message}";
+            _configMessageType = "error";
+            Logger.LogError(ex, "Error resetting simulator configuration");
+        }
+        finally
+        {
+            _applyingConfig = false;
+            StateHasChanged();
+
+            // Clear message after 5 seconds
+            _ = Task.Delay(5000).ContinueWith(_ =>
+            {
+                _configMessage = "";
+                InvokeAsync(StateHasChanged);
+            });
+        }
+    }
+
+    private int EstimateOrdersPerDay()
+    {
+        if (_orderInterval <= 0) return 0;
+        var intervalsPerDay = 1440 / _orderInterval;
+        var avgOrders = (_orderMin + _orderMax) / 2.0;
+        return (int)(intervalsPerDay * avgOrders);
+    }
+
+    private int EstimateTicketsPerDay()
+    {
+        if (_ticketInterval <= 0) return 0;
+        var intervalsPerDay = 1440 / _ticketInterval;
+        var avgTickets = (_ticketMin + _ticketMax) / 2.0;
+        return (int)(intervalsPerDay * avgTickets);
     }
 
     public async ValueTask DisposeAsync()

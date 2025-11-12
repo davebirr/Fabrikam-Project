@@ -11,6 +11,7 @@ public class OrderGeneratorWorker : BackgroundService
     private readonly IHttpClientFactory _httpClientFactory;
     private readonly WorkerStateService _stateService;
     private readonly ActivityLogService _activityLog;
+    private readonly RuntimeConfigService _runtimeConfig;
     private const string WorkerName = "OrderGenerator";
 
     private readonly string[] _regions = new[] { "Northeast", "Southeast", "Midwest", "West Coast", "Pacific Northwest" };
@@ -22,13 +23,15 @@ public class OrderGeneratorWorker : BackgroundService
         IConfiguration configuration,
         IHttpClientFactory httpClientFactory,
         WorkerStateService stateService,
-        ActivityLogService activityLog)
+        ActivityLogService activityLog,
+        RuntimeConfigService runtimeConfig)
     {
         _logger = logger;
         _configuration = configuration;
         _httpClientFactory = httpClientFactory;
         _stateService = stateService;
         _activityLog = activityLog;
+        _runtimeConfig = runtimeConfig;
     }
 
     protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -40,15 +43,20 @@ public class OrderGeneratorWorker : BackgroundService
 
         while (!stoppingToken.IsCancellationRequested)
         {
-            var config = _configuration.GetSection("SimulatorSettings:OrderGenerator").Get<OrderGeneratorConfig>() ?? new();
+            // Get effective configuration (runtime override or appsettings)
+            var effectiveConfig = _runtimeConfig.GetOrderGeneratorConfig(_configuration);
+            var intervalMinutes = effectiveConfig.intervalMinutes;
+            var minOrders = effectiveConfig.minOrders;
+            var maxOrders = effectiveConfig.maxOrders;
+
             var status = _stateService.GetStatus(WorkerName);
 
             if (status.Enabled)
             {
                 try
                 {
-                    await GenerateOrders(config);
-                    _stateService.UpdateLastRun(WorkerName, DateTime.UtcNow.AddMinutes(config.IntervalMinutes));
+                    await GenerateOrders(minOrders, maxOrders);
+                    _stateService.UpdateLastRun(WorkerName, DateTime.UtcNow.AddMinutes(intervalMinutes));
                     _logger.LogInformation("OrderGeneratorWorker completed successfully");
                 }
                 catch (Exception ex)
@@ -58,11 +66,11 @@ public class OrderGeneratorWorker : BackgroundService
                 }
             }
 
-            await Task.Delay(TimeSpan.FromMinutes(config.IntervalMinutes), stoppingToken);
+            await Task.Delay(TimeSpan.FromMinutes(intervalMinutes), stoppingToken);
         }
     }
 
-    private async Task GenerateOrders(OrderGeneratorConfig config)
+    private async Task GenerateOrders(int minOrders, int maxOrders)
     {
         var httpClient = _httpClientFactory.CreateClient("FabrikamApi");
         var random = new Random();
@@ -93,7 +101,7 @@ public class OrderGeneratorWorker : BackgroundService
             products = JsonSerializer.Deserialize<List<ProductDto>>(productsJson, new JsonSerializerOptions { PropertyNameCaseInsensitive = true });
         }
 
-        var orderCount = random.Next(config.MinOrdersPerInterval, config.MaxOrdersPerInterval + 1);
+        var orderCount = random.Next(minOrders, maxOrders + 1);
 
         for (int i = 0; i < orderCount; i++)
         {

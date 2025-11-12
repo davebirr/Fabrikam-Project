@@ -1,0 +1,214 @@
+### Test Simulator Configuration API Endpoints
+### Use VS Code REST Client extension or similar to test these endpoints
+
+@simulatorUrl = http://localhost:5000
+
+### Get current simulator status
+GET {{simulatorUrl}}/api/simulator/status
+
+### Get current simulator configuration
+GET {{simulatorUrl}}/api/simulator/config
+
+### ======================================
+### Order Generator Configuration Tests
+### ======================================
+
+### Update order configuration - Low volume
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 120,
+  "minOrdersPerInterval": 1,
+  "maxOrdersPerInterval": 2
+}
+
+### Update order configuration - Medium volume
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 60,
+  "minOrdersPerInterval": 2,
+  "maxOrdersPerInterval": 5
+}
+
+### Update order configuration - High volume (AI agent challenge)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 10,
+  "minOrdersPerInterval": 5,
+  "maxOrdersPerInterval": 15
+}
+
+### Reset order configuration to defaults
+POST {{simulatorUrl}}/api/simulator/config/orders/reset
+
+### ======================================
+### Ticket Generator Configuration Tests
+### ======================================
+
+### Update ticket configuration - Low volume
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 120,
+  "minTicketsPerInterval": 1,
+  "maxTicketsPerInterval": 1
+}
+
+### Update ticket configuration - Medium volume
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 60,
+  "minTicketsPerInterval": 2,
+  "maxTicketsPerInterval": 5
+}
+
+### Update ticket configuration - High volume (AI agent challenge)
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 10,
+  "minTicketsPerInterval": 5,
+  "maxTicketsPerInterval": 15
+}
+
+### Reset ticket configuration to defaults
+POST {{simulatorUrl}}/api/simulator/config/tickets/reset
+
+### ======================================
+### Validation Tests (should return errors)
+### ======================================
+
+### Invalid interval (too short)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 0,
+  "minOrdersPerInterval": 1,
+  "maxOrdersPerInterval": 3
+}
+
+### Invalid interval (too long)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 2000,
+  "minOrdersPerInterval": 1,
+  "maxOrdersPerInterval": 3
+}
+
+### Invalid volume (min > max)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 60,
+  "minOrdersPerInterval": 10,
+  "maxOrdersPerInterval": 5
+}
+
+### Invalid volume (exceeds max)
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 10,
+  "minTicketsPerInterval": 5,
+  "maxTicketsPerInterval": 100
+}
+
+### ======================================
+### Preset Scenarios
+### ======================================
+
+### Scenario 1: Beginner (Low volume - ~12-24 orders/day, ~12-24 tickets/day)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 120,
+  "minOrdersPerInterval": 1,
+  "maxOrdersPerInterval": 2
+}
+
+###
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 120,
+  "minTicketsPerInterval": 1,
+  "maxTicketsPerInterval": 1
+}
+
+### Scenario 2: Normal (Default volume - ~24-72 orders/day, ~24-48 tickets/day)
+POST {{simulatorUrl}}/api/simulator/config/orders/reset
+
+###
+POST {{simulatorUrl}}/api/simulator/config/tickets/reset
+
+### Scenario 3: Intermediate (Medium-high volume - ~144-336 orders/day, ~144-360 tickets/day)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 30,
+  "minOrdersPerInterval": 3,
+  "maxOrdersPerInterval": 7
+}
+
+###
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 30,
+  "minTicketsPerInterval": 2,
+  "maxTicketsPerInterval": 5
+}
+
+### Scenario 4: AI Agent Challenge (Very high volume - ~720-2160 orders/day, ~720-2160 tickets/day)
+POST {{simulatorUrl}}/api/simulator/config/orders
+Content-Type: application/json
+
+{
+  "intervalMinutes": 10,
+  "minOrdersPerInterval": 5,
+  "maxOrdersPerInterval": 15
+}
+
+###
+POST {{simulatorUrl}}/api/simulator/config/tickets
+Content-Type: application/json
+
+{
+  "intervalMinutes": 10,
+  "minTicketsPerInterval": 5,
+  "maxTicketsPerInterval": 15
+}
+
+### ======================================
+### Stress Test Mode (Still available)
+### ======================================
+
+### Enable stress test mode (high volume tickets only)
+POST {{simulatorUrl}}/api/simulator/stresstest/enable
+
+### Check stress test status
+GET {{simulatorUrl}}/api/simulator/stresstest/status
+
+### Disable stress test mode
+POST {{simulatorUrl}}/api/simulator/stresstest/disable
+
+### Reset stress test mode to config defaults
+POST {{simulatorUrl}}/api/simulator/stresstest/reset
