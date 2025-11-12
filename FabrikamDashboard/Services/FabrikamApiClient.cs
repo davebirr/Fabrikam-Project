@@ -14,6 +14,7 @@ public class FabrikamApiClient
     private readonly HttpClient _httpClient;
     private readonly ILogger<FabrikamApiClient> _logger;
     private readonly IConfiguration _configuration;
+    private const int MaxPageSize = 100; // Maximum allowed by API validation
 
     public FabrikamApiClient(HttpClient httpClient, ILogger<FabrikamApiClient> logger, IConfiguration configuration)
     {
@@ -203,8 +204,8 @@ public class FabrikamApiClient
     {
         try
         {
-            // pageSize=0 means "get all records" (API supports unlimited)
-            var queryParams = new List<string> { "pageSize=0" };
+            // Use maximum allowed page size for dashboard overview
+            var queryParams = new List<string> { $"pageSize={MaxPageSize}" };
             
             if (!string.IsNullOrEmpty(status))
             {

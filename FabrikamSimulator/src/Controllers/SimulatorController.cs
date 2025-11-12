@@ -273,4 +273,174 @@ public class SimulatorController : ControllerBase
             note = "Now using StressTestMode setting from appsettings.json"
         });
     }
+
+    /// <summary>
+    /// Update order generator configuration at runtime
+    /// </summary>
+    [HttpPost("config/orders")]
+    public IActionResult UpdateOrderConfig([FromBody] OrderConfigRequest request)
+    {
+        // Validate interval
+        if (request.IntervalMinutes < 1 || request.IntervalMinutes > 1440)
+        {
+            return BadRequest(new { error = "Interval must be between 1 and 1440 minutes (24 hours)" });
+        }
+
+        // Validate volumes
+        if (request.MinOrdersPerInterval < 0 || request.MinOrdersPerInterval > 50)
+        {
+            return BadRequest(new { error = "MinOrdersPerInterval must be between 0 and 50" });
+        }
+
+        if (request.MaxOrdersPerInterval < 1 || request.MaxOrdersPerInterval > 50)
+        {
+            return BadRequest(new { error = "MaxOrdersPerInterval must be between 1 and 50" });
+        }
+
+        if (request.MinOrdersPerInterval > request.MaxOrdersPerInterval)
+        {
+            return BadRequest(new { error = "MinOrdersPerInterval cannot exceed MaxOrdersPerInterval" });
+        }
+
+        // Apply configuration
+        _runtimeConfig.SetOrderGeneratorConfig(request.IntervalMinutes, request.MinOrdersPerInterval, request.MaxOrdersPerInterval);
+
+        // Calculate estimated throughput
+        var intervalsPerDay = 1440 / request.IntervalMinutes;
+        var avgOrdersPerInterval = (request.MinOrdersPerInterval + request.MaxOrdersPerInterval) / 2.0;
+        var estimatedPerDay = (int)(intervalsPerDay * avgOrdersPerInterval);
+
+        _logger.LogInformation("Order generator configuration updated via API: Interval={Interval}min, Min={Min}, Max={Max}, Estimated={Estimated}/day",
+            request.IntervalMinutes, request.MinOrdersPerInterval, request.MaxOrdersPerInterval, estimatedPerDay);
+
+        _activityLog.LogActivity("OrderGenerator", "ConfigUpdated",
+            $"Runtime config: {request.MinOrdersPerInterval}-{request.MaxOrdersPerInterval} orders every {request.IntervalMinutes} minutes (~{estimatedPerDay}/day)",
+            false);
+
+        return Ok(new
+        {
+            message = "Order generator configuration updated",
+            intervalMinutes = request.IntervalMinutes,
+            minOrdersPerInterval = request.MinOrdersPerInterval,
+            maxOrdersPerInterval = request.MaxOrdersPerInterval,
+            estimatedOrdersPerDay = estimatedPerDay,
+            note = "Configuration is runtime-only and will reset on service restart. To make permanent, update appsettings.json"
+        });
+    }
+
+    /// <summary>
+    /// Update ticket generator configuration at runtime
+    /// </summary>
+    [HttpPost("config/tickets")]
+    public IActionResult UpdateTicketConfig([FromBody] TicketConfigRequest request)
+    {
+        // Validate interval
+        if (request.IntervalMinutes < 1 || request.IntervalMinutes > 1440)
+        {
+            return BadRequest(new { error = "Interval must be between 1 and 1440 minutes (24 hours)" });
+        }
+
+        // Validate volumes
+        if (request.MinTicketsPerInterval < 0 || request.MinTicketsPerInterval > 50)
+        {
+            return BadRequest(new { error = "MinTicketsPerInterval must be between 0 and 50" });
+        }
+
+        if (request.MaxTicketsPerInterval < 1 || request.MaxTicketsPerInterval > 50)
+        {
+            return BadRequest(new { error = "MaxTicketsPerInterval must be between 1 and 50" });
+        }
+
+        if (request.MinTicketsPerInterval > request.MaxTicketsPerInterval)
+        {
+            return BadRequest(new { error = "MinTicketsPerInterval cannot exceed MaxTicketsPerInterval" });
+        }
+
+        // Apply configuration
+        _runtimeConfig.SetTicketGeneratorConfig(request.IntervalMinutes, request.MinTicketsPerInterval, request.MaxTicketsPerInterval);
+
+        // Calculate estimated throughput
+        var intervalsPerDay = 1440 / request.IntervalMinutes;
+        var avgTicketsPerInterval = (request.MinTicketsPerInterval + request.MaxTicketsPerInterval) / 2.0;
+        var estimatedPerDay = (int)(intervalsPerDay * avgTicketsPerInterval);
+
+        _logger.LogInformation("Ticket generator configuration updated via API: Interval={Interval}min, Min={Min}, Max={Max}, Estimated={Estimated}/day",
+            request.IntervalMinutes, request.MinTicketsPerInterval, request.MaxTicketsPerInterval, estimatedPerDay);
+
+        _activityLog.LogActivity("TicketGenerator", "ConfigUpdated",
+            $"Runtime config: {request.MinTicketsPerInterval}-{request.MaxTicketsPerInterval} tickets every {request.IntervalMinutes} minutes (~{estimatedPerDay}/day)",
+            false);
+
+        return Ok(new
+        {
+            message = "Ticket generator configuration updated",
+            intervalMinutes = request.IntervalMinutes,
+            minTicketsPerInterval = request.MinTicketsPerInterval,
+            maxTicketsPerInterval = request.MaxTicketsPerInterval,
+            estimatedTicketsPerDay = estimatedPerDay,
+            note = "Configuration is runtime-only and will reset on service restart. To make permanent, update appsettings.json"
+        });
+    }
+
+    /// <summary>
+    /// Reset order generator configuration to appsettings.json defaults
+    /// </summary>
+    [HttpPost("config/orders/reset")]
+    public IActionResult ResetOrderConfig()
+    {
+        _runtimeConfig.ClearOrderGeneratorOverride();
+        var config = _runtimeConfig.GetOrderGeneratorConfig(_configuration);
+
+        _logger.LogInformation("Order generator configuration reset to defaults: Interval={Interval}min, Min={Min}, Max={Max}",
+            config.intervalMinutes, config.minOrders, config.maxOrders);
+
+        _activityLog.LogActivity("OrderGenerator", "ConfigReset", "Runtime override cleared - using appsettings.json defaults", false);
+
+        return Ok(new
+        {
+            message = "Order generator configuration reset to defaults",
+            intervalMinutes = config.intervalMinutes,
+            minOrdersPerInterval = config.minOrders,
+            maxOrdersPerInterval = config.maxOrders,
+            source = "appsettings.json"
+        });
+    }
+
+    /// <summary>
+    /// Reset ticket generator configuration to appsettings.json defaults
+    /// </summary>
+    [HttpPost("config/tickets/reset")]
+    public IActionResult ResetTicketConfig()
+    {
+        _runtimeConfig.ClearTicketGeneratorOverride();
+        var config = _runtimeConfig.GetTicketGeneratorConfig(_configuration);
+
+        _logger.LogInformation("Ticket generator configuration reset to defaults: Interval={Interval}min, Min={Min}, Max={Max}",
+            config.intervalMinutes, config.minTickets, config.maxTickets);
+
+        _activityLog.LogActivity("TicketGenerator", "ConfigReset", "Runtime override cleared - using appsettings.json defaults", false);
+
+        return Ok(new
+        {
+            message = "Ticket generator configuration reset to defaults",
+            intervalMinutes = config.intervalMinutes,
+            minTicketsPerInterval = config.minTickets,
+            maxTicketsPerInterval = config.maxTickets,
+            source = "appsettings.json"
+        });
+    }
+}
+
+public class OrderConfigRequest
+{
+    public int IntervalMinutes { get; set; }
+    public int MinOrdersPerInterval { get; set; }
+    public int MaxOrdersPerInterval { get; set; }
+}
+
+public class TicketConfigRequest
+{
+    public int IntervalMinutes { get; set; }
+    public int MinTicketsPerInterval { get; set; }
+    public int MaxTicketsPerInterval { get; set; }
 }
