@@ -71,6 +71,11 @@
                         Icon="📦" 
                         Color="blue"
                         OnClick="NavigateToOrders" />
+            <MetricCard Title="Total Invoices" 
+                        Value="@_dashboardData.TotalInvoices.ToString()" 
+                        Icon="💰" 
+                        Color="cyan"
+                        OnClick="NavigateToInvoices" />
             <MetricCard Title="Open Tickets" 
                         Value="@_dashboardData.OpenTickets.ToString()" 
                         Icon="🎫" 
@@ -78,12 +83,8 @@
                         OnClick="NavigateToSupportTickets" />
             <MetricCard Title="Total Revenue" 
                         Value="@($"${_dashboardData.TotalRevenue:N0}")" 
-                        Icon="💰" 
+                        Icon="�" 
                         Color="green" />
-            <MetricCard Title="Avg Order Value" 
-                        Value="@($"${_dashboardData.AverageOrderValue:N0}")" 
-                        Icon="📊" 
-                        Color="purple" />
         </div>
 
         <!-- Charts Section -->
@@ -350,6 +351,11 @@
     private void NavigateToOrders()
     {
         Navigation.NavigateTo("/orders");
+    }
+
+    private void NavigateToInvoices()
+    {
+        Navigation.NavigateTo("/invoices");
     }
 
     private void NavigateToSupportTickets()

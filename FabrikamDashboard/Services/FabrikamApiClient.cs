@@ -2,6 +2,7 @@ using System.Net.Http.Json;
 using FabrikamContracts.DTOs.Orders;
 using FabrikamContracts.DTOs.Support;
 using FabrikamContracts.DTOs.Customers;
+using FabrikamContracts.DTOs.Invoices;
 
 namespace FabrikamDashboard.Services;
 
@@ -187,6 +188,66 @@ public class FabrikamApiClient
         {
             _logger.LogError(ex, "Error fetching customers from API");
             return new List<CustomerListItemDto>();
+        }
+    }
+
+    /// <summary>
+    /// Get all invoices from the API
+    /// </summary>
+    public async Task<List<InvoiceDto>> GetInvoicesAsync(
+        string? status = null,
+        string? vendor = null,
+        DateTime? fromDate = null, 
+        DateTime? toDate = null, 
+        CancellationToken cancellationToken = default)
+    {
+        try
+        {
+            // pageSize=0 means "get all records" (API supports unlimited)
+            var queryParams = new List<string> { "pageSize=0" };
+            
+            if (!string.IsNullOrEmpty(status))
+            {
+                queryParams.Add($"status={Uri.EscapeDataString(status)}");
+            }
+            
+            if (!string.IsNullOrEmpty(vendor))
+            {
+                queryParams.Add($"vendor={Uri.EscapeDataString(vendor)}");
+            }
+            
+            if (fromDate.HasValue)
+            {
+                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
+            }
+            
+            if (toDate.HasValue)
+            {
+                queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
+            }
+            
+            var queryString = string.Join("&", queryParams);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/invoices?{queryString}");
+            var response = await _httpClient.SendAsync(request, cancellationToken);
+            
+            if (response.IsSuccessStatusCode)
+            {
+                var invoices = await response.Content.ReadFromJsonAsync<List<InvoiceDto>>(cancellationToken) 
+                    ?? new List<InvoiceDto>();
+                Console.WriteLine($"✅ Successfully fetched {invoices.Count} invoices");
+                return invoices;
+            }
+
+            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+            Console.WriteLine($"❌ Failed to get invoices: {response.StatusCode} - {errorContent}");
+            _logger.LogWarning("Failed to get invoices: {StatusCode} - {Error}", response.StatusCode, errorContent);
+            return new List<InvoiceDto>();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"💥 Exception fetching invoices: {ex.Message}");
+            _logger.LogError(ex, "Error fetching invoices from API");
+            return new List<InvoiceDto>();
         }
     }
 }

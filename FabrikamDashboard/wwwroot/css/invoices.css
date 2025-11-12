@@ -1,0 +1,361 @@
+/* Invoices Page Styles */
+
+.invoices-container {
+    padding: 2rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+.invoices-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 2rem;
+}
+
+.invoices-title {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin: 0;
+}
+
+.invoices-filters {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.filter-select {
+    padding: 0.5rem 1rem;
+    border: 1px solid #e2e8f0;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    background: white;
+    cursor: pointer;
+    transition: border-color 0.2s;
+}
+
+.filter-select:hover {
+    border-color: #cbd5e1;
+}
+
+.filter-select:focus {
+    outline: none;
+    border-color: #3b82f6;
+    box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.1);
+}
+
+.refresh-button {
+    padding: 0.5rem 1rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 0.875rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.refresh-button:hover {
+    background: #2563eb;
+}
+
+/* Stats Cards */
+.invoices-stats {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+    gap: 1rem;
+    margin-bottom: 2rem;
+}
+
+.stat-card {
+    background: white;
+    padding: 1.5rem;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    border-left: 4px solid #cbd5e1;
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.stat-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
+}
+
+.stat-card.stat-pending {
+    border-left-color: #3b82f6; /* Blue */
+}
+
+.stat-card.stat-approved {
+    border-left-color: #10b981; /* Green */
+}
+
+.stat-card.stat-paid {
+    border-left-color: #06b6d4; /* Cyan */
+}
+
+.stat-card.stat-rejected {
+    border-left-color: #ef4444; /* Red */
+}
+
+.stat-card.stat-duplicate {
+    border-left-color: #f59e0b; /* Amber */
+}
+
+.stat-card.stat-cancelled {
+    border-left-color: #6b7280; /* Gray */
+}
+
+.stat-value {
+    font-size: 2rem;
+    font-weight: 700;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.stat-label {
+    font-size: 0.875rem;
+    color: #64748b;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+/* Table Styles */
+.invoices-table {
+    background: white;
+    border-radius: 12px;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    overflow: hidden;
+    margin-bottom: 1.5rem;
+}
+
+.invoices-table table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.invoices-table thead {
+    background: #f8fafc;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+.invoices-table th {
+    padding: 1rem;
+    text-align: left;
+    font-size: 0.875rem;
+    font-weight: 600;
+    color: #475569;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.invoices-table tbody tr {
+    border-bottom: 1px solid #f1f5f9;
+    transition: background-color 0.2s;
+}
+
+.invoices-table tbody tr:hover {
+    background: #f8fafc;
+}
+
+.invoices-table tbody tr:last-child {
+    border-bottom: none;
+}
+
+.invoices-table td {
+    padding: 1rem;
+    font-size: 0.875rem;
+    color: #1e293b;
+}
+
+.invoice-row {
+    cursor: pointer;
+}
+
+.invoice-id {
+    font-weight: 600;
+}
+
+.invoice-number {
+    color: #3b82f6;
+    font-family: 'Courier New', monospace;
+}
+
+.vendor-info {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+
+.vendor-name {
+    font-weight: 600;
+    color: #1e293b;
+}
+
+.created-by {
+    font-size: 0.75rem;
+    color: #64748b;
+}
+
+.invoice-date,
+.due-date {
+    white-space: nowrap;
+}
+
+.overdue-badge {
+    display: inline-block;
+    margin-left: 0.5rem;
+    font-size: 0.75rem;
+    color: #dc2626;
+    font-weight: 600;
+}
+
+.invoice-amount {
+    font-weight: 600;
+    font-family: 'Courier New', monospace;
+    color: #059669;
+}
+
+/* Status Badges */
+.status-badge {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 9999px;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.status-badge.status-pending {
+    background: #dbeafe;
+    color: #1e40af;
+}
+
+.status-badge.status-approved {
+    background: #d1fae5;
+    color: #065f46;
+}
+
+.status-badge.status-paid {
+    background: #cffafe;
+    color: #155e75;
+}
+
+.status-badge.status-rejected {
+    background: #fee2e2;
+    color: #991b1b;
+}
+
+.status-badge.status-duplicate {
+    background: #fef3c7;
+    color: #92400e;
+}
+
+.status-badge.status-cancelled {
+    background: #f3f4f6;
+    color: #374151;
+}
+
+/* Summary */
+.invoices-summary {
+    text-align: center;
+    font-size: 0.875rem;
+    color: #64748b;
+    padding: 1rem 0;
+}
+
+/* Loading and Error States */
+.loading-container,
+.error-container,
+.empty-state {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4rem 2rem;
+    text-align: center;
+}
+
+.loading-spinner {
+    font-size: 3rem;
+    animation: spin 1.5s linear infinite;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.loading-container p {
+    margin-top: 1rem;
+    color: #64748b;
+    font-size: 1rem;
+}
+
+.error-icon,
+.empty-icon {
+    font-size: 4rem;
+    margin-bottom: 1rem;
+}
+
+.error-container h3,
+.empty-state h3 {
+    font-size: 1.5rem;
+    font-weight: 600;
+    color: #1e293b;
+    margin-bottom: 0.5rem;
+}
+
+.error-container p,
+.empty-state p {
+    color: #64748b;
+    margin-bottom: 1.5rem;
+}
+
+.retry-button {
+    padding: 0.75rem 1.5rem;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.retry-button:hover {
+    background: #2563eb;
+}
+
+/* Responsive Design */
+@media (max-width: 768px) {
+    .invoices-header {
+        flex-direction: column;
+        align-items: flex-start;
+        gap: 1rem;
+    }
+
+    .invoices-filters {
+        flex-wrap: wrap;
+        width: 100%;
+    }
+
+    .filter-select {
+        flex: 1;
+        min-width: 120px;
+    }
+
+    .invoices-stats {
+        grid-template-columns: repeat(2, 1fr);
+    }
+
+    .invoices-table {
+        overflow-x: auto;
+    }
+
+    .invoices-table table {
+        min-width: 800px;
+    }
+}

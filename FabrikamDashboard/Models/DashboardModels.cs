@@ -30,6 +30,7 @@ public class DashboardDataDto
     public DateTime Timestamp { get; set; } = DateTime.UtcNow;
     public int TotalOrders { get; set; }
     public int OpenTickets { get; set; }
+    public int TotalInvoices { get; set; }
     public decimal TotalRevenue { get; set; }
     public decimal AverageOrderValue { get; set; }
     public Dictionary<string, int> OrdersByStatus { get; set; } = new();
