@@ -57,11 +57,25 @@ public class FabrikamApiClient
     /// <summary>
     /// Get all orders from the API
     /// </summary>
-    public async Task<List<OrderDto>> GetOrdersAsync(CancellationToken cancellationToken = default)
+    public async Task<List<OrderDto>> GetOrdersAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var request = CreateRequestWithGuid(HttpMethod.Get, "/api/orders");
+            // pageSize=0 means "get all records" (API supports unlimited)
+            var queryParams = new List<string> { "pageSize=0" };
+            
+            if (fromDate.HasValue)
+            {
+                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
+            }
+            
+            if (toDate.HasValue)
+            {
+                queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
+            }
+            
+            var queryString = string.Join("&", queryParams);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/orders?{queryString}");
             var response = await _httpClient.SendAsync(request, cancellationToken);
             
             if (response.IsSuccessStatusCode)
@@ -113,11 +127,25 @@ public class FabrikamApiClient
     /// <summary>
     /// Get all support tickets
     /// </summary>
-    public async Task<List<SupportTicketListItemDto>> GetSupportTicketsAsync(CancellationToken cancellationToken = default)
+    public async Task<List<SupportTicketListItemDto>> GetSupportTicketsAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            using var request = CreateRequestWithGuid(HttpMethod.Get, "/api/supporttickets");
+            // pageSize=0 means "get all records" (API supports unlimited)
+            var queryParams = new List<string> { "pageSize=0" };
+            
+            if (fromDate.HasValue)
+            {
+                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
+            }
+            
+            if (toDate.HasValue)
+            {
+                queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
+            }
+            
+            var queryString = string.Join("&", queryParams);
+            using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/supporttickets?{queryString}");
             var response = await _httpClient.SendAsync(request, cancellationToken);
             
             if (response.IsSuccessStatusCode)

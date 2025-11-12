@@ -34,9 +34,9 @@ public class FabrikamBusinessIntelligenceTools : AuthenticatedMcpToolBase
             // Fetch data from multiple APIs concurrently
             var salesTask = SendAuthenticatedRequest($"{baseUrl}/api/orders/analytics?fromDate={fromDate:yyyy-MM-dd}&toDate={toDate:yyyy-MM-dd}");
             var supportTask = SendAuthenticatedRequest($"{baseUrl}/api/supporttickets/analytics?fromDate={fromDate:yyyy-MM-dd}&toDate={toDate:yyyy-MM-dd}");
-            var productsTask = SendAuthenticatedRequest($"{baseUrl}/api/products?pageSize=1000");
-            var ordersTask = SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=100");
-            var ticketsTask = SendAuthenticatedRequest($"{baseUrl}/api/supporttickets?pageSize=100");
+            var productsTask = SendAuthenticatedRequest($"{baseUrl}/api/products?pageSize=0");
+            var ordersTask = SendAuthenticatedRequest($"{baseUrl}/api/orders?pageSize=0");
+            var ticketsTask = SendAuthenticatedRequest($"{baseUrl}/api/supporttickets?pageSize=0");
 
             await Task.WhenAll(salesTask, supportTask, productsTask, ordersTask, ticketsTask);
 
@@ -304,9 +304,9 @@ public class FabrikamBusinessIntelligenceTools : AuthenticatedMcpToolBase
             var baseUrl = _configuration["FabrikamApi:BaseUrl"] ?? "https://fabrikam-api-dev.levelupcsp.com";
 
             // Fetch current data to analyze for alerts
-            var productsTask = SendAuthenticatedRequest($"{baseUrl}/api/products?pageSize=1000");
-            var ordersTask = SendAuthenticatedRequest($"{baseUrl}/api/orders?status=Pending&pageSize=100");
-            var urgentTicketsTask = SendAuthenticatedRequest($"{baseUrl}/api/supporttickets?urgent=true&pageSize=100");
+            var productsTask = SendAuthenticatedRequest($"{baseUrl}/api/products?pageSize=0");
+            var ordersTask = SendAuthenticatedRequest($"{baseUrl}/api/orders?status=Pending&pageSize=0");
+            var urgentTicketsTask = SendAuthenticatedRequest($"{baseUrl}/api/supporttickets?urgent=true&pageSize=0");
 
             await Task.WhenAll(productsTask, ordersTask, urgentTicketsTask);
 
