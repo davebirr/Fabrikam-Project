@@ -3,6 +3,7 @@
 @using FabrikamContracts.DTOs.Support
 @using FabrikamDashboard.Services
 @inject FabrikamApiClient ApiClient
+@inject DashboardStateService StateService
 @inject ILogger<SupportTickets> Logger
 
 <PageTitle>Support Tickets - Fabrikam Dashboard</PageTitle>
@@ -11,6 +12,16 @@
     <div class="tickets-header">
         <h1 class="tickets-title">🎫 Support Tickets</h1>
         <div class="tickets-filters">
+            <div class="timeframe-selector">
+                <label for="timeframe">📅 Timeframe:</label>
+                <select id="timeframe" class="filter-select" @bind="_selectedTimeframe" @bind:after="OnTimeframeChanged">
+                    <option value="7days">Last 7 Days</option>
+                    <option value="30days">Last 30 Days</option>
+                    <option value="90days">Last 90 Days</option>
+                    <option value="365days">Last Year</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
             <select class="filter-select" @onchange="FilterByStatus">
                 <option value="">All Statuses</option>
                 <option value="Open">Open</option>
@@ -140,9 +151,12 @@
     private string _errorMessage = "";
     private string _selectedStatus = "";
     private string _selectedPriority = "";
+    private string _selectedTimeframe = "365days"; // Default
 
     protected override async Task OnInitializedAsync()
     {
+        // Use the timeframe from state service (persists across pages)
+        _selectedTimeframe = StateService.CurrentTimeframe;
         await LoadTickets();
     }
 
@@ -153,7 +167,8 @@
         
         try
         {
-            _tickets = await ApiClient.GetSupportTicketsAsync();
+            var (fromDate, toDate) = GetDateRange(_selectedTimeframe);
+            _tickets = await ApiClient.GetSupportTicketsAsync(fromDate, toDate);
             ApplyFilters();
             Logger.LogInformation("Loaded {Count} support tickets", _tickets.Count);
         }
@@ -212,5 +227,34 @@
             "Complaint" => "😠",
             _ => "📋"
         };
+    }
+
+    private async Task OnTimeframeChanged()
+    {
+        // Update the state service (persists across pages)
+        StateService.UpdateTimeframe(_selectedTimeframe);
+        
+        // Reload tickets with new timeframe
+        await LoadTickets();
+    }
+
+    private static (DateTime? fromDate, DateTime? toDate) GetDateRange(string? timeframe)
+    {
+        if (string.IsNullOrEmpty(timeframe) || timeframe == "all")
+        {
+            return (null, null); // No filtering
+        }
+
+        var toDate = DateTime.UtcNow;
+        var fromDate = timeframe.ToLower() switch
+        {
+            "7days" or "week" => toDate.AddDays(-7),
+            "30days" or "month" => toDate.AddDays(-30),
+            "90days" or "quarter" => toDate.AddDays(-90),
+            "365days" or "year" => toDate.AddDays(-365),
+            _ => toDate.AddDays(-365) // Default to year
+        };
+
+        return (fromDate, toDate);
     }
 }
