@@ -115,9 +115,13 @@ public class DataPollingService : BackgroundService
         var apiClient = scope.ServiceProvider.GetRequiredService<FabrikamApiClient>();
         var simulatorClient = scope.ServiceProvider.GetRequiredService<SimulatorClient>();
 
-        // Fetch data from APIs in parallel
-        var ordersTask = apiClient.GetOrdersAsync(cancellationToken);
-        var ticketsTask = apiClient.GetSupportTicketsAsync(cancellationToken);
+        // Get current timeframe from state service
+        var timeframe = _stateService.CurrentTimeframe;
+        var (fromDate, toDate) = GetDateRange(timeframe);
+
+        // Fetch data from APIs in parallel with date filtering
+        var ordersTask = apiClient.GetOrdersAsync(fromDate, toDate, cancellationToken);
+        var ticketsTask = apiClient.GetSupportTicketsAsync(fromDate, toDate, cancellationToken);
         var analyticsTask = apiClient.GetOrderAnalyticsAsync(cancellationToken);
         var simulatorStatusTask = simulatorClient.GetStatusAsync(cancellationToken);
 
@@ -137,8 +141,8 @@ public class DataPollingService : BackgroundService
         // Also broadcast via SignalR for any external clients
         await _hubContext.Clients.All.SendAsync("DashboardUpdate", dashboardData, cancellationToken);
 
-        _logger.LogInformation("📡 Updated dashboard state: {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue",
-            dashboardData.TotalOrders, dashboardData.OpenTickets, dashboardData.TotalRevenue);
+        _logger.LogInformation("📡 Updated dashboard state ({Timeframe}): {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue",
+            timeframe, dashboardData.TotalOrders, dashboardData.OpenTickets, dashboardData.TotalRevenue);
     }
 
     private DashboardDataDto CalculateDashboardMetrics(
@@ -171,5 +175,25 @@ public class DataPollingService : BackgroundService
             .ToDictionary(g => g.Key, g => g.Count());
 
         return data;
+    }
+
+    private static (DateTime? fromDate, DateTime? toDate) GetDateRange(string? timeframe)
+    {
+        if (string.IsNullOrEmpty(timeframe) || timeframe == "all")
+        {
+            return (null, null); // No filtering
+        }
+
+        var toDate = DateTime.UtcNow;
+        var fromDate = timeframe.ToLower() switch
+        {
+            "7days" or "week" => toDate.AddDays(-7),
+            "30days" or "month" => toDate.AddDays(-30),
+            "90days" or "quarter" => toDate.AddDays(-90),
+            "365days" or "year" => toDate.AddDays(-365),
+            _ => toDate.AddDays(-365) // Default to year
+        };
+
+        return (fromDate, toDate);
     }
 }

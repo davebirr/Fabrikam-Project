@@ -247,7 +247,7 @@ public class FabrikamProductTools : AuthenticatedMcpToolBase
             var baseUrl = GetApiBaseUrl();
 
             // Get all products for analytics
-            var queryParams = new List<string> { "pageSize=1000" }; // Get all products
+            var queryParams = new List<string> { "pageSize=0" }; // Get all products
 
             if (!string.IsNullOrEmpty(category))
             {

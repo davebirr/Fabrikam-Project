@@ -38,6 +38,12 @@ public class SupportTicketsController : ControllerBase
     {
         try
         {
+            // Allow unlimited results for dashboards/MCP tools
+            // pageSize=0 or pageSize > 10000 means "get all records"
+            const int MaxPageSize = 10000;
+            var isUnlimited = pageSize == 0 || pageSize > MaxPageSize;
+            var effectivePageSize = isUnlimited ? int.MaxValue : Math.Min(pageSize, MaxPageSize);
+
             var query = _context.SupportTickets
                 .Include(t => t.Customer)
                 .AsQueryable();
@@ -105,8 +111,8 @@ public class SupportTicketsController : ControllerBase
             // Apply pagination
             var tickets = await query
                 .OrderByDescending(t => t.CreatedDate)
-                .Skip((page - 1) * pageSize)
-                .Take(pageSize)
+                .Skip((page - 1) * effectivePageSize)
+                .Take(effectivePageSize)
                 .Select(t => new SupportTicketListItemDto
                 {
                     Id = t.Id,

@@ -17,6 +17,8 @@
     margin-bottom: 2rem;
     padding-bottom: 1rem;
     border-bottom: 2px solid #e1e8ed;
+    flex-wrap: wrap;
+    gap: 1rem;
 }
 
 .dashboard-title {
@@ -24,6 +26,51 @@
     font-weight: 700;
     color: #2c3e50;
     margin: 0;
+}
+
+.dashboard-controls {
+    display: flex;
+    gap: 1rem;
+    align-items: center;
+}
+
+.timeframe-selector {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    background: #fff;
+    padding: 0.5rem 1rem;
+    border-radius: 8px;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+}
+
+.timeframe-selector label {
+    font-weight: 600;
+    color: #2c3e50;
+    margin: 0;
+    white-space: nowrap;
+}
+
+.timeframe-selector select {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid #ddd;
+    border-radius: 6px;
+    background: white;
+    color: #2c3e50;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    min-width: 140px;
+}
+
+.timeframe-selector select:hover {
+    border-color: #3498db;
+}
+
+.timeframe-selector select:focus {
+    outline: none;
+    border-color: #3498db;
+    box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
 }
 
 .dashboard-status {

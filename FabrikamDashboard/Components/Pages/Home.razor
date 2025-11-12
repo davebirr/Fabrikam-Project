@@ -13,6 +13,18 @@
 <div class="dashboard-container">
     <div class="dashboard-header">
         <h1 class="dashboard-title">🏭 Fabrikam Modular Homes - Live Dashboard</h1>
+        <div class="dashboard-controls">
+            <div class="timeframe-selector">
+                <label for="timeframe">📅 Timeframe:</label>
+                <select id="timeframe" @bind="_selectedTimeframe" @bind:after="OnTimeframeChanged">
+                    <option value="7days">Last 7 Days</option>
+                    <option value="30days">Last 30 Days</option>
+                    <option value="90days">Last 90 Days</option>
+                    <option value="365days">Last Year</option>
+                    <option value="all">All Time</option>
+                </select>
+            </div>
+        </div>
         <div class="dashboard-status">
             @if (_isConnected)
             {
@@ -183,6 +195,7 @@
     private int _consecutiveErrors = 0;
     private const int MaxConsecutiveErrors = 3;
     private DateTime _loadingStartTime = DateTime.UtcNow;
+    private string _selectedTimeframe = "365days"; // Default to year to match MCP tool
 
     protected override async Task OnInitializedAsync()
     {
@@ -190,6 +203,9 @@
 
         // Subscribe to state service changes
         StateService.OnDataChanged += HandleDataChanged;
+        
+        // Get current timeframe from state service
+        _selectedTimeframe = StateService.CurrentTimeframe;
         
         // Get initial data if available
         var initialData = StateService.CurrentData;
@@ -242,6 +258,18 @@
                 InvokeAsync(StateHasChanged);
             }
         }
+    }
+
+    private void OnTimeframeChanged()
+    {
+        // Update the state service with new timeframe
+        StateService.UpdateTimeframe(_selectedTimeframe);
+        
+        // Trigger immediate refresh with new timeframe
+        _isLoading = true;
+        _hasError = false;
+        
+        Logger.LogInformation("Timeframe changed to: {Timeframe}", _selectedTimeframe);
     }
 
     private async Task RequestManualRefresh()
