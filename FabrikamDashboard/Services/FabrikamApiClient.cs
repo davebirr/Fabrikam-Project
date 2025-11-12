@@ -63,8 +63,8 @@ public class FabrikamApiClient
     {
         try
         {
-            // pageSize=0 means "get all records" (API supports unlimited)
-            var queryParams = new List<string> { "pageSize=0" };
+            // Use maximum page size allowed by API validation (1-100)
+            var queryParams = new List<string> { $"pageSize={MaxPageSize}" };
             
             if (fromDate.HasValue)
             {
@@ -133,8 +133,8 @@ public class FabrikamApiClient
     {
         try
         {
-            // pageSize=0 means "get all records" (API supports unlimited)
-            var queryParams = new List<string> { "pageSize=0" };
+            // Use maximum page size allowed by API validation (1-100)
+            var queryParams = new List<string> { $"pageSize={MaxPageSize}" };
             
             if (fromDate.HasValue)
             {
