@@ -71,10 +71,8 @@ public class FabrikamApiClient
                 queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
             }
             
-            if (toDate.HasValue)
-            {
-                queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
-            }
+            // Don't send toDate - we want all data up to "now" without truncating current day
+            // (sending toDate=2025-11-12 excludes orders created later that same day)
             
             var queryString = string.Join("&", queryParams);
             using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/orders?{queryString}");
@@ -141,10 +139,7 @@ public class FabrikamApiClient
                 queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
             }
             
-            if (toDate.HasValue)
-            {
-                queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
-            }
+            // Don't send toDate - we want all data up to "now" without truncating current day
             
             var queryString = string.Join("&", queryParams);
             using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/supporttickets?{queryString}");
