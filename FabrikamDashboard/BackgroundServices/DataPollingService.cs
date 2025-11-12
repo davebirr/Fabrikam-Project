@@ -3,6 +3,7 @@ using FabrikamDashboard.Services;
 using FabrikamDashboard.Models;
 using FabrikamContracts.DTOs.Orders;
 using FabrikamContracts.DTOs.Support;
+using FabrikamContracts.DTOs.Invoices;
 
 namespace FabrikamDashboard.BackgroundServices;
 
@@ -122,18 +123,20 @@ public class DataPollingService : BackgroundService
         // Fetch data from APIs in parallel with date filtering
         var ordersTask = apiClient.GetOrdersAsync(fromDate, toDate, cancellationToken);
         var ticketsTask = apiClient.GetSupportTicketsAsync(fromDate, toDate, cancellationToken);
+        var invoicesTask = apiClient.GetInvoicesAsync(null, null, fromDate, toDate, cancellationToken);
         var analyticsTask = apiClient.GetOrderAnalyticsAsync(cancellationToken);
         var simulatorStatusTask = simulatorClient.GetStatusAsync(cancellationToken);
 
-        await Task.WhenAll(ordersTask, ticketsTask, analyticsTask, simulatorStatusTask);
+        await Task.WhenAll(ordersTask, ticketsTask, invoicesTask, analyticsTask, simulatorStatusTask);
 
         var orders = ordersTask.Result;
         var tickets = ticketsTask.Result;
+        var invoices = invoicesTask.Result;
         var analytics = analyticsTask.Result;
         var simulatorStatus = simulatorStatusTask.Result;
 
         // Calculate dashboard metrics
-        var dashboardData = CalculateDashboardMetrics(orders, tickets, analytics, simulatorStatus);
+        var dashboardData = CalculateDashboardMetrics(orders, tickets, invoices, analytics, simulatorStatus);
 
         // Update state service (triggers component updates)
         _stateService.UpdateData(dashboardData);
@@ -141,13 +144,14 @@ public class DataPollingService : BackgroundService
         // Also broadcast via SignalR for any external clients
         await _hubContext.Clients.All.SendAsync("DashboardUpdate", dashboardData, cancellationToken);
 
-        _logger.LogInformation("📡 Updated dashboard state ({Timeframe}): {Orders} orders, {Tickets} tickets, ${Revenue:N0} revenue",
-            timeframe, dashboardData.TotalOrders, dashboardData.OpenTickets, dashboardData.TotalRevenue);
+        _logger.LogInformation("📡 Updated dashboard state ({Timeframe}): {Orders} orders, {Invoices} invoices, {Tickets} tickets, ${Revenue:N0} revenue",
+            timeframe, dashboardData.TotalOrders, dashboardData.TotalInvoices, dashboardData.OpenTickets, dashboardData.TotalRevenue);
     }
 
     private DashboardDataDto CalculateDashboardMetrics(
         List<OrderDto> orders,
         List<SupportTicketListItemDto> tickets,
+        List<InvoiceDto> invoices,
         SalesAnalyticsDto? analytics,
         SimulatorStatusDto? simulatorStatus)
     {
@@ -156,6 +160,7 @@ public class DataPollingService : BackgroundService
             Timestamp = DateTime.UtcNow,
             TotalOrders = orders.Count,
             OpenTickets = tickets.Count(t => t.Status == "Open" || t.Status == "InProgress"),
+            TotalInvoices = invoices.Count,
             TotalRevenue = orders.Sum(o => o.Total),
             SimulatorStatus = simulatorStatus
         };
