@@ -57,39 +57,70 @@ public class FabrikamApiClient
     }
 
     /// <summary>
-    /// Get all orders from the API
+    /// Get all orders from the API with automatic pagination
     /// </summary>
     public async Task<List<OrderDto>> GetOrdersAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            // Use maximum page size allowed by API validation (1-100)
-            var queryParams = new List<string> { $"pageSize={MaxPageSize}" };
+            var allOrders = new List<OrderDto>();
+            var page = 1;
+            var totalCount = 0;
+            var pageSize = MaxPageSize; // Use maximum page size (100) for efficiency
             
-            if (fromDate.HasValue)
+            do
             {
-                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
-            }
-            
-            // Don't send toDate - we want all data up to "now" without truncating current day
-            // (sending toDate=2025-11-12 excludes orders created later that same day)
-            
-            var queryString = string.Join("&", queryParams);
-            using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/orders?{queryString}");
-            var response = await _httpClient.SendAsync(request, cancellationToken);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var orders = await response.Content.ReadFromJsonAsync<List<OrderDto>>(cancellationToken) 
+                // Build query parameters
+                var queryParams = new List<string> 
+                { 
+                    $"page={page}",
+                    $"pageSize={pageSize}"
+                };
+                
+                if (fromDate.HasValue)
+                {
+                    queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
+                }
+                
+                // Don't send toDate - we want all data up to "now" without truncating current day
+                // (sending toDate=2025-11-12 excludes orders created later that same day)
+                
+                var queryString = string.Join("&", queryParams);
+                using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/orders?{queryString}");
+                var response = await _httpClient.SendAsync(request, cancellationToken);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                    Console.WriteLine($"❌ Failed to get orders (page {page}): {response.StatusCode} - {errorContent}");
+                    _logger.LogWarning("Failed to get orders (page {Page}): {StatusCode} - {Error}", page, response.StatusCode, errorContent);
+                    break;
+                }
+                
+                // Parse X-Total-Count header to know how many total records exist
+                if (response.Headers.TryGetValues("X-Total-Count", out var totalCountValues))
+                {
+                    totalCount = int.Parse(totalCountValues.First());
+                }
+                
+                var pageOrders = await response.Content.ReadFromJsonAsync<List<OrderDto>>(cancellationToken) 
                     ?? new List<OrderDto>();
-                Console.WriteLine($"✅ Successfully fetched {orders.Count} orders");
-                return orders;
-            }
-
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            Console.WriteLine($"❌ Failed to get orders: {response.StatusCode} - {errorContent}");
-            _logger.LogWarning("Failed to get orders: {StatusCode} - {Error}", response.StatusCode, errorContent);
-            return new List<OrderDto>();
+                
+                allOrders.AddRange(pageOrders);
+                Console.WriteLine($"📄 Fetched page {page}: {pageOrders.Count} orders (total so far: {allOrders.Count}/{totalCount})");
+                
+                // If we got less than pageSize, we're done
+                if (pageOrders.Count < pageSize)
+                {
+                    break;
+                }
+                
+                page++;
+                
+            } while (allOrders.Count < totalCount);
+            
+            Console.WriteLine($"✅ Successfully fetched all {allOrders.Count} orders across {page} page(s)");
+            return allOrders;
         }
         catch (Exception ex)
         {
@@ -125,34 +156,61 @@ public class FabrikamApiClient
     }
 
     /// <summary>
-    /// Get all support tickets
+    /// Get all support tickets with automatic pagination
     /// </summary>
     public async Task<List<SupportTicketListItemDto>> GetSupportTicketsAsync(DateTime? fromDate = null, DateTime? toDate = null, CancellationToken cancellationToken = default)
     {
         try
         {
-            // Use maximum page size allowed by API validation (1-100)
-            var queryParams = new List<string> { $"pageSize={MaxPageSize}" };
+            var allTickets = new List<SupportTicketListItemDto>();
+            var page = 1;
+            var totalCount = 0;
+            var pageSize = MaxPageSize;
             
-            if (fromDate.HasValue)
+            do
             {
-                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
-            }
-            
-            // Don't send toDate - we want all data up to "now" without truncating current day
-            
-            var queryString = string.Join("&", queryParams);
-            using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/supporttickets?{queryString}");
-            var response = await _httpClient.SendAsync(request, cancellationToken);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                return await response.Content.ReadFromJsonAsync<List<SupportTicketListItemDto>>(cancellationToken) 
+                var queryParams = new List<string> 
+                { 
+                    $"page={page}",
+                    $"pageSize={pageSize}"
+                };
+                
+                if (fromDate.HasValue)
+                {
+                    queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
+                }
+                
+                var queryString = string.Join("&", queryParams);
+                using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/supporttickets?{queryString}");
+                var response = await _httpClient.SendAsync(request, cancellationToken);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    _logger.LogWarning("Failed to get support tickets (page {Page}): {StatusCode}", page, response.StatusCode);
+                    break;
+                }
+                
+                if (response.Headers.TryGetValues("X-Total-Count", out var totalCountValues))
+                {
+                    totalCount = int.Parse(totalCountValues.First());
+                }
+                
+                var pageTickets = await response.Content.ReadFromJsonAsync<List<SupportTicketListItemDto>>(cancellationToken) 
                     ?? new List<SupportTicketListItemDto>();
-            }
-
-            _logger.LogWarning("Failed to get support tickets: {StatusCode}", response.StatusCode);
-            return new List<SupportTicketListItemDto>();
+                
+                allTickets.AddRange(pageTickets);
+                
+                if (pageTickets.Count < pageSize)
+                {
+                    break;
+                }
+                
+                page++;
+                
+            } while (allTickets.Count < totalCount);
+            
+            Console.WriteLine($"✅ Successfully fetched all {allTickets.Count} support tickets across {page} page(s)");
+            return allTickets;
         }
         catch (Exception ex)
         {
@@ -188,7 +246,7 @@ public class FabrikamApiClient
     }
 
     /// <summary>
-    /// Get all invoices from the API
+    /// Get all invoices from the API with automatic pagination
     /// </summary>
     public async Task<List<InvoiceDto>> GetInvoicesAsync(
         string? status = null,
@@ -199,45 +257,73 @@ public class FabrikamApiClient
     {
         try
         {
-            // Use maximum allowed page size for dashboard overview
-            var queryParams = new List<string> { $"pageSize={MaxPageSize}" };
+            var allInvoices = new List<InvoiceDto>();
+            var page = 1;
+            var totalCount = 0;
+            var pageSize = MaxPageSize;
             
-            if (!string.IsNullOrEmpty(status))
+            do
             {
-                queryParams.Add($"status={Uri.EscapeDataString(status)}");
-            }
-            
-            if (!string.IsNullOrEmpty(vendor))
-            {
-                queryParams.Add($"vendor={Uri.EscapeDataString(vendor)}");
-            }
-            
-            if (fromDate.HasValue)
-            {
-                queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
-            }
-            
-            if (toDate.HasValue)
-            {
-                queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
-            }
-            
-            var queryString = string.Join("&", queryParams);
-            using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/invoices?{queryString}");
-            var response = await _httpClient.SendAsync(request, cancellationToken);
-            
-            if (response.IsSuccessStatusCode)
-            {
-                var invoices = await response.Content.ReadFromJsonAsync<List<InvoiceDto>>(cancellationToken) 
+                var queryParams = new List<string> 
+                { 
+                    $"page={page}",
+                    $"pageSize={pageSize}"
+                };
+                
+                if (!string.IsNullOrEmpty(status))
+                {
+                    queryParams.Add($"status={Uri.EscapeDataString(status)}");
+                }
+                
+                if (!string.IsNullOrEmpty(vendor))
+                {
+                    queryParams.Add($"vendor={Uri.EscapeDataString(vendor)}");
+                }
+                
+                if (fromDate.HasValue)
+                {
+                    queryParams.Add($"fromDate={fromDate.Value:yyyy-MM-dd}");
+                }
+                
+                if (toDate.HasValue)
+                {
+                    queryParams.Add($"toDate={toDate.Value:yyyy-MM-dd}");
+                }
+                
+                var queryString = string.Join("&", queryParams);
+                using var request = CreateRequestWithGuid(HttpMethod.Get, $"/api/invoices?{queryString}");
+                var response = await _httpClient.SendAsync(request, cancellationToken);
+                
+                if (!response.IsSuccessStatusCode)
+                {
+                    var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
+                    Console.WriteLine($"❌ Failed to get invoices (page {page}): {response.StatusCode} - {errorContent}");
+                    _logger.LogWarning("Failed to get invoices (page {Page}): {StatusCode} - {Error}", page, response.StatusCode, errorContent);
+                    break;
+                }
+                
+                if (response.Headers.TryGetValues("X-Total-Count", out var totalCountValues))
+                {
+                    totalCount = int.Parse(totalCountValues.First());
+                }
+                
+                var pageInvoices = await response.Content.ReadFromJsonAsync<List<InvoiceDto>>(cancellationToken) 
                     ?? new List<InvoiceDto>();
-                Console.WriteLine($"✅ Successfully fetched {invoices.Count} invoices");
-                return invoices;
-            }
-
-            var errorContent = await response.Content.ReadAsStringAsync(cancellationToken);
-            Console.WriteLine($"❌ Failed to get invoices: {response.StatusCode} - {errorContent}");
-            _logger.LogWarning("Failed to get invoices: {StatusCode} - {Error}", response.StatusCode, errorContent);
-            return new List<InvoiceDto>();
+                
+                allInvoices.AddRange(pageInvoices);
+                Console.WriteLine($"📄 Fetched page {page}: {pageInvoices.Count} invoices (total so far: {allInvoices.Count}/{totalCount})");
+                
+                if (pageInvoices.Count < pageSize)
+                {
+                    break;
+                }
+                
+                page++;
+                
+            } while (allInvoices.Count < totalCount);
+            
+            Console.WriteLine($"✅ Successfully fetched all {allInvoices.Count} invoices across {page} page(s)");
+            return allInvoices;
         }
         catch (Exception ex)
         {
