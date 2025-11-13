@@ -1,6 +1,0 @@
-@FabrikamSimulator_HostAddress = http://localhost:5152
-
-GET {{FabrikamSimulator_HostAddress}}/weatherforecast/
-Accept: application/json
-
-###
