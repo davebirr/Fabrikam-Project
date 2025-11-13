@@ -55,6 +55,16 @@ bld/
 [Ll]og/
 [Ll]ogs/
 
+# Azure diagnostic logs and deployment artifacts
+dashboard-logs/
+dashboard-logs-*/
+dash-logs/
+temp-logs/
+*-logs/
+
+# Zip archives
+*.zip
+
 # NuGet Packages
 *.nupkg
 # NuGet Symbol Packages
