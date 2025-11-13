@@ -198,6 +198,10 @@ DocProject/Help/html
 # Click-Once directory
 publish/
 
+# Temporary publish directories
+publish-temp/
+temp-publish/
+
 # Publish Web Output
 *.[Pp]ublish.xml
 *.azurePubxml
