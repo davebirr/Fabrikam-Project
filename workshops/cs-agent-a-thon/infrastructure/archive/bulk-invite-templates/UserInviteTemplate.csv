@@ -1,0 +1,3 @@
+﻿version:v1.0
+Email address to invite [inviteeEmail] Required,Redirection url [inviteRedirectURL] Required,Send invitation message (true or false) [sendEmail],Customized invitation message [customizedMessageBody]
+Example: Istokes@fabrikam.com, https://myapplications.microsoft.com, TRUE, Welcome to the Contoso organization!

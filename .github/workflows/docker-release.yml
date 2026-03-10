@@ -1,0 +1,253 @@
+name: 🐋 Docker Release Build
+
+on:
+  push:
+    tags:
+      - 'v*.*.*'  # Trigger on semantic version tags (v1.2.3)
+  workflow_dispatch:  # Allow manual trigger
+    inputs:
+      version:
+        description: 'Version tag (e.g., v1.2.0)'
+        required: true
+        default: 'v0.0.0'
+
+env:
+  REGISTRY: docker.io
+  REGISTRY_USERNAME: ${{ secrets.DOCKER_USERNAME }}  # Set in GitHub repository secrets
+
+jobs:
+  build-and-push:
+    name: Build & Push Docker Images
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+      packages: write
+    
+    strategy:
+      matrix:
+        include:
+          - service: fabrikam-api
+            dockerfile: FabrikamApi/Dockerfile
+            context: .
+          - service: fabrikam-mcp
+            dockerfile: FabrikamMcp/Dockerfile
+            context: .
+          - service: fabrikam-simulator
+            dockerfile: FabrikamSimulator/Dockerfile
+            context: .
+          - service: fabrikam-dashboard
+            dockerfile: FabrikamDashboard/Dockerfile
+            context: .
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+      
+      - name: 🏷️ Extract version from tag
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+          echo "VERSION_NO_V=${VERSION#v}" >> $GITHUB_OUTPUT
+          echo "📦 Building version: $VERSION"
+      
+      - name: 🔧 Set up Docker Buildx
+        uses: docker/setup-buildx-action@v3
+        with:
+          platforms: linux/amd64,linux/arm64
+      
+      - name: 🔐 Login to Docker Hub
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ env.REGISTRY }}
+          username: ${{ env.REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_PASSWORD }}
+      
+      - name: 📋 Extract metadata (tags, labels)
+        id: meta
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ env.REGISTRY_USERNAME }}/${{ matrix.service }}
+          tags: |
+            type=semver,pattern={{version}},value=${{ steps.version.outputs.VERSION }}
+            type=semver,pattern={{major}}.{{minor}},value=${{ steps.version.outputs.VERSION }}
+            type=semver,pattern={{major}},value=${{ steps.version.outputs.VERSION }}
+            type=raw,value=latest,enable={{is_default_branch}}
+          labels: |
+            org.opencontainers.image.title=Fabrikam ${{ matrix.service }}
+            org.opencontainers.image.description=Fabrikam modular homes business platform - ${{ matrix.service }}
+            org.opencontainers.image.vendor=CSP Level Up
+            org.opencontainers.image.version=${{ steps.version.outputs.VERSION }}
+      
+      - name: 🐋 Build and push Docker image
+        uses: docker/build-push-action@v5
+        with:
+          context: ${{ matrix.context }}
+          file: ${{ matrix.dockerfile }}
+          platforms: linux/amd64,linux/arm64
+          push: true
+          tags: ${{ steps.meta.outputs.tags }}
+          labels: ${{ steps.meta.outputs.labels }}
+          cache-from: type=registry,ref=${{ env.REGISTRY_USERNAME }}/${{ matrix.service }}:buildcache
+          cache-to: type=registry,ref=${{ env.REGISTRY_USERNAME }}/${{ matrix.service }}:buildcache,mode=max
+          build-args: |
+            BUILD_VERSION=${{ steps.version.outputs.VERSION }}
+            BUILD_DATE=${{ github.event.head_commit.timestamp }}
+            GIT_SHA=${{ github.sha }}
+      
+      - name: ✅ Image build summary
+        run: |
+          echo "### 🎉 Docker Image Published" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Service:** ${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Version:** ${{ steps.version.outputs.VERSION }}" >> $GITHUB_STEP_SUMMARY
+          echo "**Registry:** ${{ env.REGISTRY }}/${{ env.REGISTRY_USERNAME }}/${{ matrix.service }}" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Tags:**" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+          echo "${{ steps.meta.outputs.tags }}" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+  create-release:
+    name: Create GitHub Release
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    permissions:
+      contents: write
+    
+    steps:
+      - name: 📥 Checkout code
+        uses: actions/checkout@v4
+        with:
+          fetch-depth: 0  # Needed for changelog generation
+      
+      - name: 🏷️ Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: 📝 Generate changelog
+        id: changelog
+        run: |
+          PREVIOUS_TAG=$(git tag --sort=-v:refname | grep -v "${{ steps.version.outputs.VERSION }}" | head -n1)
+          if [ -z "$PREVIOUS_TAG" ]; then
+            CHANGELOG="Initial release"
+          else
+            CHANGELOG=$(git log ${PREVIOUS_TAG}..${{ steps.version.outputs.VERSION }} --pretty=format:"- %s (%h)" --no-merges)
+          fi
+          echo "CHANGELOG<<EOF" >> $GITHUB_OUTPUT
+          echo "$CHANGELOG" >> $GITHUB_OUTPUT
+          echo "EOF" >> $GITHUB_OUTPUT
+      
+      - name: 🚀 Create GitHub Release
+        uses: actions/create-release@v1
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ steps.version.outputs.VERSION }}
+          release_name: Release ${{ steps.version.outputs.VERSION }}
+          body: |
+            ## 🐋 Docker Images
+            
+            All services have been published to Docker Hub:
+            
+            - `${{ env.REGISTRY_USERNAME }}/fabrikam-api:${{ steps.version.outputs.VERSION }}`
+            - `${{ env.REGISTRY_USERNAME }}/fabrikam-mcp:${{ steps.version.outputs.VERSION }}`
+            - `${{ env.REGISTRY_USERNAME }}/fabrikam-simulator:${{ steps.version.outputs.VERSION }}`
+            - `${{ env.REGISTRY_USERNAME }}/fabrikam-dashboard:${{ steps.version.outputs.VERSION }}`
+            
+            ## 🚀 Deployment
+            
+            Update your `.env` file:
+            ```bash
+            VERSION=${{ steps.version.outputs.VERSION }}
+            ```
+            
+            Then deploy:
+            ```bash
+            docker-compose -f docker-compose.prod.yml pull
+            docker-compose -f docker-compose.prod.yml up -d
+            ```
+            
+            Or let Watchtower auto-update (5 minute polling interval).
+            
+            ## 📋 Changes
+            
+            ${{ steps.changelog.outputs.CHANGELOG }}
+            
+            ## 🔗 Links
+            
+            - [Docker Hub Registry](https://hub.docker.com/u/${{ env.REGISTRY_USERNAME }})
+            - [Deployment Guide](https://github.com/${{ github.repository }}/blob/main/docs/deployment/UBUNTU-DEPLOYMENT.md)
+            - [Troubleshooting](https://github.com/${{ github.repository }}/blob/main/docs/deployment/DOCKER-TROUBLESHOOTING.md)
+          draft: false
+          prerelease: false
+
+  notify:
+    name: Notify Deployment
+    runs-on: ubuntu-latest
+    needs: create-release
+    if: success()
+    
+    steps:
+      - name: 🏷️ Extract version
+        id: version
+        run: |
+          if [ "${{ github.event_name }}" == "workflow_dispatch" ]; then
+            VERSION="${{ github.event.inputs.version }}"
+          else
+            VERSION=${GITHUB_REF#refs/tags/}
+          fi
+          echo "VERSION=$VERSION" >> $GITHUB_OUTPUT
+      
+      - name: 📢 Deployment summary
+        run: |
+          echo "### 🎉 Release ${{ steps.version.outputs.VERSION }} Complete!" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "All Docker images have been built and pushed to Docker Hub." >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "**Watchtower will automatically update containers within 5 minutes.**" >> $GITHUB_STEP_SUMMARY
+          echo "" >> $GITHUB_STEP_SUMMARY
+          echo "Or manually update:" >> $GITHUB_STEP_SUMMARY
+          echo '```bash' >> $GITHUB_STEP_SUMMARY
+          echo "VERSION=${{ steps.version.outputs.VERSION }} docker-compose -f docker-compose.prod.yml up -d" >> $GITHUB_STEP_SUMMARY
+          echo '```' >> $GITHUB_STEP_SUMMARY
+
+# ============================================================================
+# Workflow Summary:
+# ============================================================================
+# Trigger: Push tags matching v*.*.* (e.g., v1.2.3) or manual dispatch
+# 
+# Steps:
+# 1. Build all 4 Docker images in parallel (matrix strategy)
+# 2. Push images with multiple tags:
+#    - Specific version: v1.2.3
+#    - Minor version: v1.2
+#    - Major version: v1
+#    - Latest (if default branch)
+# 3. Create GitHub Release with changelog
+# 4. Notify completion (Watchtower auto-updates within 5 min)
+#
+# Required Secrets (set in GitHub Settings > Secrets > Actions):
+# - DOCKER_USERNAME: Your Docker Hub username
+# - DOCKER_PASSWORD: Docker Hub access token (not password!)
+#   Generate at: https://hub.docker.com/settings/security
+#
+# Usage:
+# 1. Create and push version tag:
+#    git tag v1.2.3
+#    git push origin v1.2.3
+#
+# 2. Or trigger manually from Actions tab with version input
+#
+# 3. Monitor workflow at: https://github.com/{owner}/{repo}/actions
+# ============================================================================

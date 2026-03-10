@@ -1,0 +1,4 @@
+workshops/cs-agent-a-thon/archive/infrastructure-docs/PROCTOR-DR-RUNBOOK.md
+workshops/cs-agent-a-thon/archive/infrastructure-docs/SURVEY-INTEGRATION.md
+workshops/cs-agent-a-thon/infrastructure/scripts/Generate-Team-Assignments.ps1
+workshops/cs-agent-a-thon/infrastructure/scripts/Provision-B2B-Access.ps1

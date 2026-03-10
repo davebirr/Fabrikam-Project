@@ -1,0 +1,138 @@
+# Git
+.git
+.gitignore
+.gitattributes
+
+# CI/CD
+.github
+
+# Documentation
+*.md
+docs/
+workshops/
+
+# IDE
+.vs
+.vscode
+.idea
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+
+# Build results
+**/bin/
+**/obj/
+**/out/
+publish/
+publish-temp/
+temp-publish/
+
+# Test results
+TestResults/
+*.trx
+*.coverage
+
+# User-specific files
+*.suo
+*.user
+*.userosscache
+*.sln.docstates
+*.userprefs
+
+# Mono auto generated files
+mono_crash.*
+
+# Build results
+[Dd]ebug/
+[Dd]ebugPublic/
+[Rr]elease/
+[Rr]eleases/
+x64/
+x86/
+[Aa][Rr][Mm]/
+[Aa][Rr][Mm]64/
+bld/
+[Bb]in/
+[Oo]bj/
+[Ll]og/
+[Ll]ogs/
+
+# Visual Studio cache/options directory
+.vs/
+
+# Visual Studio Code
+.vscode/
+
+# ReSharper
+_ReSharper*/
+*.[Rr]e[Ss]harper
+*.DotSettings.user
+
+# TeamCity
+_TeamCity*
+
+# DotCover
+*.dotCover
+
+# Azure deployment
+deployment/
+*.deploy.json
+
+# Logs
+logs/
+*.log
+npm-debug.log*
+dashboard-logs/
+temp-logs/
+dash-logs/
+
+# OS Files
+.DS_Store
+Thumbs.db
+
+# Temporary files
+*.tmp
+*.temp
+*.swp
+*.swo
+*~
+
+# Secrets (should never be in Docker image)
+appsettings.Development.json
+appsettings.Production.json
+appsettings.Authentication.json
+*.secrets.json
+.env
+.env.local
+.env.production
+
+# Test files
+test.ps1
+*.http
+api-tests.http
+
+# Archives
+*.zip
+*.tar.gz
+*.rar
+
+# Workshop participant data (contains PII)
+workshop-participants*.csv
+
+# Scripts (not needed in container)
+scripts/
+*.ps1
+
+# Node modules (if any)
+node_modules/
+
+# NuGet packages
+*.nupkg
+*.snupkg
+.nuget/
+
+# Docker
+Dockerfile
+.dockerignore
+docker-compose*.yml

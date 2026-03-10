@@ -1,0 +1,143 @@
+services:
+  # ============================================================================
+  # Fabrikam API - Core business logic REST API
+  # ============================================================================
+  fabrikam-api:
+    build:
+      context: .
+      dockerfile: FabrikamApi/Dockerfile
+    container_name: fabrikam-api
+    ports:
+      - "7297:8080"  # Map to original development port
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  # ============================================================================
+  # Fabrikam MCP - Model Context Protocol server for AI integration
+  # ============================================================================
+  fabrikam-mcp:
+    build:
+      context: .
+      dockerfile: FabrikamMcp/Dockerfile
+    container_name: fabrikam-mcp
+    ports:
+      - "5000:8080"  # HTTP
+      - "5001:8081"  # HTTPS (if configured)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - FabrikamApi__BaseUrl=http://fabrikam-api:8080
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+      # Authentication disabled for local development
+      - Authentication__Mode=Disabled
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  # ============================================================================
+  # Fabrikam Simulator - Business activity simulator
+  # ============================================================================
+  fabrikam-simulator:
+    build:
+      context: .
+      dockerfile: FabrikamSimulator/Dockerfile
+    container_name: fabrikam-simulator
+    ports:
+      - "5174:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - FabrikamApi__BaseUrl=http://fabrikam-api:8080
+      - Logging__LogLevel__Default=Information
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+  # ============================================================================
+  # Fabrikam Dashboard - Blazor real-time business dashboard
+  # ============================================================================
+  fabrikam-dashboard:
+    build:
+      context: .
+      dockerfile: FabrikamDashboard/Dockerfile
+    container_name: fabrikam-dashboard
+    ports:
+      - "5173:8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Development
+      - ASPNETCORE_URLS=http://+:8080
+      - FabrikamApi__BaseUrl=http://fabrikam-api:8080
+      - Logging__LogLevel__Default=Information
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: unless-stopped
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  fabrikam-net:
+    driver: bridge
+    name: fabrikam-network
+
+# ============================================================================
+# Usage:
+# ============================================================================
+# Start all services:
+#   docker-compose up -d
+#
+# View logs:
+#   docker-compose logs -f
+#
+# Stop all services:
+#   docker-compose down
+#
+# Rebuild and start:
+#   docker-compose up --build
+#
+# Access services:
+#   API:       http://localhost:7297
+#   MCP:       http://localhost:5000
+#   Simulator: http://localhost:5174
+#   Dashboard: http://localhost:5173
+# ============================================================================

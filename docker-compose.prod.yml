@@ -1,0 +1,278 @@
+services:
+  # ============================================================================
+  # Fabrikam API - Core business logic REST API
+  # ============================================================================
+  fabrikam-api:
+    image: ${DOCKER_REGISTRY:-davebirr}/fabrikam-api:${VERSION:-latest}
+    container_name: fabrikam-api-prod
+    expose:
+      - "8080"  # Exposed to Cloudflare Tunnel for workshop access
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - Logging__LogLevel__Default=Warning
+      - Logging__LogLevel__Microsoft.AspNetCore=Error
+      # JWT Authentication (REQUIRED for workshop participants)
+      - Authentication__AspNetIdentity__Jwt__SecretKey=${JWT_SECRET_KEY:-}
+      - Authentication__AspNetIdentity__Jwt__Issuer=${JWT_ISSUER:-https://fabrikam-api.csplevelup.com}
+      - Authentication__AspNetIdentity__Jwt__Audience=${JWT_AUDIENCE:-FabrikamApi}
+      - Authentication__AspNetIdentity__Jwt__RequireHttpsMetadata=false
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 10s
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Fabrikam MCP - Model Context Protocol server with Cloudflare Tunnel
+  # ============================================================================
+  fabrikam-mcp:
+    image: ${DOCKER_REGISTRY:-davebirr}/fabrikam-mcp:${VERSION:-latest}
+    container_name: fabrikam-mcp-prod
+    expose:
+      - "8080"  # Only exposed to internal network (Cloudflare Tunnel handles HTTPS)
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - FabrikamApi__BaseUrl=http://fabrikam-api:8080
+      - Logging__LogLevel__Default=Information
+      - Logging__LogLevel__Microsoft.AspNetCore=Warning
+      # Authentication configuration (configure via environment variables or Azure Key Vault)
+      - Authentication__Mode=${AUTH_MODE:-Disabled}
+      - Authentication__Jwt__SecretKey=${JWT_SECRET_KEY:-}
+      - Authentication__Jwt__Issuer=${JWT_ISSUER:-https://fabrikam-mcp.csplevelup.com}
+      - Authentication__Jwt__Audience=${JWT_AUDIENCE:-FabrikamMcp}
+      - Authentication__Jwt__RequireHttpsMetadata=false  # Cloudflare Tunnel handles HTTPS
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/status"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Cloudflare Tunnel - MCP Server (AI Assistant access)
+  # ============================================================================
+  cloudflared-mcp:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel-mcp
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN_MCP}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_MCP}
+    depends_on:
+      fabrikam-mcp:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ============================================================================
+  # Cloudflare Tunnel - API (Workshop participant access)
+  # ============================================================================
+  cloudflared-api:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel-api
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN_API}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_API}
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ============================================================================
+  # Cloudflare Tunnel - Dashboard (Workshop participant access)
+  # ============================================================================
+  cloudflared-dashboard:
+    image: cloudflare/cloudflared:latest
+    container_name: cloudflare-tunnel-dashboard
+    command: tunnel --no-autoupdate run --token ${CLOUDFLARE_TUNNEL_TOKEN_DASHBOARD}
+    environment:
+      - TUNNEL_TOKEN=${CLOUDFLARE_TUNNEL_TOKEN_DASHBOARD}
+    depends_on:
+      fabrikam-dashboard:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+  # ============================================================================
+  # Fabrikam Simulator - Business activity simulator (optional in production)
+  # ============================================================================
+  fabrikam-simulator:
+    image: ${DOCKER_REGISTRY:-davebirr}/fabrikam-simulator:${VERSION:-latest}
+    container_name: fabrikam-simulator-prod
+    expose:
+      - "8080"
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - FabrikamApi__BaseUrl=http://fabrikam-api:8080
+      - Logging__LogLevel__Default=Warning
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+    profiles:
+      - simulator  # Only start with: docker-compose --profile simulator up
+
+  # ============================================================================
+  # Fabrikam Dashboard - Blazor real-time dashboard (workshop access)
+  # ============================================================================
+  fabrikam-dashboard:
+    image: ${DOCKER_REGISTRY:-davebirr}/fabrikam-dashboard:${VERSION:-latest}
+    container_name: fabrikam-dashboard-prod
+    expose:
+      - "8080"  # Exposed to Cloudflare Tunnel for workshop access
+    environment:
+      - ASPNETCORE_ENVIRONMENT=Production
+      - ASPNETCORE_URLS=http://+:8080
+      - FabrikamApi__BaseUrl=http://fabrikam-api:8080
+      - Logging__LogLevel__Default=Warning
+      # JWT Authentication (REQUIRED for workshop participants)
+      - Authentication__JwtBearer__SecretKey=${JWT_SECRET_KEY:-}
+      - Authentication__JwtBearer__Issuer=${JWT_ISSUER:-https://fabrikam-api.csplevelup.com}
+      - Authentication__JwtBearer__Audience=${JWT_AUDIENCE:-FabrikamApi}
+      - Authentication__JwtBearer__RequireHttpsMetadata=false
+    depends_on:
+      fabrikam-api:
+        condition: service_healthy
+    networks:
+      - fabrikam-net
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 15s
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  # ============================================================================
+  # Watchtower - Automatic container updates
+  # ============================================================================
+  watchtower:
+    image: containrrr/watchtower
+    container_name: watchtower
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    environment:
+      - WATCHTOWER_CLEANUP=true
+      - WATCHTOWER_POLL_INTERVAL=300  # Check every 5 minutes
+      - WATCHTOWER_INCLUDE_RESTARTING=true
+      - WATCHTOWER_LABEL_ENABLE=false  # Update all containers
+    restart: always
+    logging:
+      driver: "json-file"
+      options:
+        max-size: "5m"
+        max-file: "2"
+
+# ============================================================================
+# Networks
+# ============================================================================
+networks:
+  fabrikam-net:
+    driver: bridge
+    name: fabrikam-network-prod
+
+# ============================================================================
+# Environment Variables (create .env file):
+# ============================================================================
+# DOCKER_REGISTRY=davebirr                          # Your Docker Hub username
+# VERSION=latest                                     # Or specific version like v1.2.0
+# 
+# Cloudflare Tunnel Tokens (from Zero Trust dashboard):
+# CLOUDFLARE_TUNNEL_TOKEN_MCP=eyJh...               # MCP Server tunnel
+# CLOUDFLARE_TUNNEL_TOKEN_API=eyJh...               # API Server tunnel
+# CLOUDFLARE_TUNNEL_TOKEN_DASHBOARD=eyJh...         # Dashboard tunnel
+# 
+# JWT Authentication (REQUIRED for workshop participants):
+# JWT_SECRET_KEY=your-secret-key                    # Generate with: openssl rand -base64 32
+# JWT_ISSUER=https://fabrikam-api.csplevelup.com   # API issuer URL
+# JWT_AUDIENCE=FabrikamApi                          # Token audience
+# 
+# MCP Authentication (optional):
+# AUTH_MODE=Disabled                                 # Or BearerToken for MCP
+# ============================================================================
+
+# ============================================================================
+# Usage:
+# ============================================================================
+# 1. Create .env file with required variables (see above)
+#
+# 2. Start all services (API + MCP + Dashboard + 3 Cloudflare Tunnels):
+#    docker-compose -f docker-compose.prod.yml up -d
+#
+# 3. Start with optional simulator:
+#    docker-compose -f docker-compose.prod.yml --profile simulator up -d
+#
+# 4. View logs:
+#    docker-compose -f docker-compose.prod.yml logs -f
+#
+# 5. Stop services:
+#    docker-compose -f docker-compose.prod.yml down
+#
+# 6. Update to latest version (Watchtower does this automatically):
+#    docker-compose -f docker-compose.prod.yml pull
+#    docker-compose -f docker-compose.prod.yml up -d
+#
+# 7. Access Services (all require JWT authentication):
+#    https://fabrikam-api.csplevelup.com       (API - workshop access)
+#    https://fabrikam-mcp.csplevelup.com       (MCP - AI assistants)
+#    https://fabrikam-dashboard.csplevelup.com (Dashboard - workshop access)
+# ============================================================================

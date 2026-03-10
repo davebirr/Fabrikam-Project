@@ -46,7 +46,7 @@ Write-Host $message -ForegroundColor Green
 
 **After running the setup script above**, click the button below to deploy:
 
-[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdavebirr%2FFabrikam-Project%2Ffeature%2Fphase-1-authentication%2Fdeployment%2FAzureDeploymentTemplate.modular.json)
+[![Deploy to Azure](https://aka.ms/deploytoazurebutton)](https://portal.azure.com/#create/Microsoft.Template/uri/https%3A%2F%2Fraw.githubusercontent.com%2Fdavebirr%2FFabrikam-Project%2Fmain%2Fdeployment%2FAzureDeploymentTemplate.modular.json)
 
 > 💡 **Tip**: Right-click the button and select "Open link in new tab" to keep this page open for reference during deployment.
 
@@ -164,6 +164,8 @@ This improves deployment reliability, especially when multiple users fork and de
 
 - 🌐 **API App Service** (with authentication)
 - 🤖 **MCP App Service** (Model Context Protocol)
+- � **Dashboard App Service** (Blazor real-time dashboard)
+- 🎲 **Simulator App Service** (business activity simulator)
 - 🔐 **Key Vault** (with JWT secret)
 - 📊 **Application Insights** (monitoring)
 - 📱 **App Service Plan**
@@ -172,27 +174,90 @@ This improves deployment reliability, especially when multiple users fork and de
 
 - 🌐 **API App Service** (with authentication)
 - 🤖 **MCP App Service** (Model Context Protocol)
+- 📊 **Dashboard App Service** (Blazor real-time dashboard)
+- 🎲 **Simulator App Service** (business activity simulator)
 - 🔐 **Key Vault** (with JWT + SQL secrets)
 - 🗃️ **SQL Server & Database**
 - 📊 **Application Insights** (monitoring)
 - 📱 **App Service Plan**
 
-## 🔄 CI/CD Integration Testing
+## 🔄 Setting Up CI/CD (Fork Users)
 
-After deployment, test the auto-fix CI/CD functionality:
+The ARM template creates **4 empty App Services**. You need to set up CI/CD to deploy code to them.
 
-1. **Repository Variables Setup**:
-   - `AZURE_RESOURCE_GROUP`: Your deployed resource group name
-   - `AZURE_API_APP_NAME`: API app name from deployment output
-   - `AZURE_MCP_APP_NAME`: MCP app name from deployment output
+### Step 1: Delete Instance-Specific Workflow Files
 
-2. **Trigger Auto-Fix Workflow**:
-   - Push changes to trigger detection
-   - Verify workflow auto-corrects any Azure Portal-generated workflows
+Your fork includes workflow files tied to the original repo's Azure instance. Delete these — they won't work for your deployment:
 
-3. **Validate Key Vault Integration**:
-   - Check API can read JWT secrets from Key Vault
-   - Verify authentication endpoints work correctly
+```bash
+rm .github/workflows/main_fabrikam-api-development-tzjeje.yml
+rm .github/workflows/main_fabrikam-mcp-development-tzjeje.yml
+rm .github/workflows/main_fabrikam-dash-development-tzjeje.yml
+rm .github/workflows/main_fabrikam-sim-development-tzjeje.yml
+rm .github/workflows/deploy-team-24-main.yml
+rm .github/workflows/deploy-workshop-instances.yml
+rm .github/workflows/deploy-full-stack.yml
+rm .github/workflows/deploy-api.yml
+```
+
+> 💡 Keep `testing.yml` — it runs tests on PRs and has no Azure dependencies.
+
+### Step 2: Set Up CI/CD via Azure Portal
+
+For **each** of the 4 App Services, use the Azure Portal's Deployment Center:
+
+1. Go to your App Service in the [Azure Portal](https://portal.azure.com)
+2. Navigate to **Deployment Center** (left sidebar)
+3. Select **GitHub** as the source
+4. Authorize and select your **forked repo**, branch `main`
+5. Azure will auto-generate a GitHub Actions workflow file
+
+Repeat for all 4 App Services: API, MCP, Dashboard, and Simulator.
+
+### Step 3: Fix Project Paths for Monorepo
+
+**⚠️ Critical**: Azure Portal generates workflows assuming a single-project repo. Since this is a **monorepo**, you must update the `dotnet build` and `dotnet publish` lines in each generated workflow to use the correct project path.
+
+Update the `build` and `publish` steps in each workflow file:
+
+| App Service | Project Path |
+|---|---|
+| **API** | `FabrikamApi/src/FabrikamApi.csproj` |
+| **MCP** | `FabrikamMcp/src/FabrikamMcp.csproj` |
+| **Dashboard** | `FabrikamDashboard/FabrikamDashboard.csproj` |
+| **Simulator** | `FabrikamSimulator/src/FabrikamSimulator.csproj` |
+
+For example, in your API workflow, change:
+
+```yaml
+# ❌ Azure Portal generates (wrong for monorepo):
+- name: Build with dotnet
+  run: dotnet build --configuration Release
+- name: dotnet publish
+  run: dotnet publish -c Release -o ${{env.DOTNET_ROOT}}/myapp
+
+# ✅ Correct — specify the project path:
+- name: Build with dotnet
+  run: dotnet build FabrikamApi/src/FabrikamApi.csproj --configuration Release
+- name: dotnet publish
+  run: dotnet publish FabrikamApi/src/FabrikamApi.csproj -c Release -o ${{env.DOTNET_ROOT}}/myapp
+```
+
+### Step 4: Configure Dashboard App Settings
+
+The Dashboard needs to know where the API and Simulator are. In the Azure Portal, go to your Dashboard App Service > **Configuration** > **Application settings** and add:
+
+| Setting | Value |
+|---|---|
+| `FabrikamApi__BaseUrl` | `https://your-api-app-name.azurewebsites.net` |
+| `FabrikamSimulator__BaseUrl` | `https://your-sim-app-name.azurewebsites.net` |
+
+The MCP and Simulator also need the API URL:
+
+| App Service | Setting | Value |
+|---|---|---|
+| **MCP** | `FabrikamApi__BaseUrl` | `https://your-api-app-name.azurewebsites.net` |
+| **Simulator** | `FabrikamApi__BaseUrl` | `https://your-api-app-name.azurewebsites.net` |
 
 ## 🔍 Testing Your Deployment
 
