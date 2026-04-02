@@ -271,17 +271,23 @@ All deployments include:
 
 ## Cost Optimization
 
+### Free Tier (F1 SKU) - Recommended Default
+- Free for limited usage
+- No dedicated worker quota required — works on all subscriptions
+- Ideal for training, demos, and initial testing
+- Limitations: no AlwaysOn, no custom SSL, 60 min CPU/day
+
 ### Development (B1 SKU)
 - Estimated cost: ~$13-15/month
-- Suitable for demos and testing
+- Requires dedicated App Service Basic worker quota
+- Suitable for extended demos and development
 
 ### Production (P1v3 SKU)  
 - Estimated cost: ~$75-85/month
 - Includes auto-scaling and high availability
+- Requires dedicated App Service Premium worker quota
 
-### Free Tier (F1 SKU)
-- Free for limited usage
-- Suitable for initial testing only
+> **⚠️ Quota Note**: B1+ SKUs require dedicated App Service worker quotas. New subscriptions often start with zero quota. If deployment fails with `SubscriptionIsOverQuotaForSku`, use F1 or request a quota increase via Azure Portal > Quotas > Microsoft.Web.
 
 ## Next Steps
 

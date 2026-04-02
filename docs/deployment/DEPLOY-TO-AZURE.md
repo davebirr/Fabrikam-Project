@@ -50,6 +50,21 @@ Write-Host $message -ForegroundColor Green
 
 > 💡 **Tip**: Right-click the button and select "Open link in new tab" to keep this page open for reference during deployment.
 
+### ⚠️ App Service SKU & Quota Requirements
+
+The template defaults to **F1 (Free tier)**, which works on **all subscriptions** with no quota requirements. If you select a paid tier (B1, S1, etc.), your subscription must have **dedicated App Service worker quotas** allocated for that region.
+
+| SKU | Compute Type | Quota Required | Cost | Best For |
+|-----|-------------|----------------|------|----------|
+| **F1** | Shared | ❌ None | Free | Training, demos, initial testing |
+| **B1** | Dedicated | ✅ Basic workers | ~$13/mo | Development, extended demos |
+| **S1** | Dedicated | ✅ Standard workers | ~$73/mo | Production (AlwaysOn, staging slots) |
+| **P1v2** | Dedicated | ✅ Premium workers | ~$81/mo | High-performance production |
+
+> **🏫 Training attendees**: Use **F1** (the default) to avoid quota issues. You can upgrade the App Service Plan later from the Azure Portal without redeploying.
+
+> **⚡ New subscriptions**: Many new subscriptions (including MSFT internal test tenants) start with **zero** dedicated App Service worker quota. If you get a `SubscriptionIsOverQuotaForSku` error, either use F1 or request a quota increase (see [Troubleshooting](#-troubleshooting) below).
+
 ## 🎯 Choose Your Authentication Mode During Deployment
 
 The ARM template will prompt you to select one of three authentication modes:
@@ -298,3 +313,49 @@ curl -X POST https://your-api-app-name.azurewebsites.net/api/auth/login \
 ## Summary
 
 Ready to deploy with enhanced security and Key Vault integration! 🚀
+
+## 🔧 Troubleshooting
+
+### SubscriptionIsOverQuotaForSku Error
+
+**Error message**: `This region has quota of 0 instances for your subscription. Try selecting different region or SKU.`
+
+**Cause**: Your subscription has zero dedicated App Service worker quota for the selected SKU tier (Basic/Standard/Premium) in the target region. This is common on:
+- New Azure subscriptions
+- MSFT internal test/sandbox subscriptions
+- Free trial subscriptions
+- Azure for Students subscriptions
+
+**Important**: This is **NOT** the same as Compute VM quotas (IaaS). App Service worker quotas are managed separately under the `Microsoft.Web` resource provider.
+
+**Solutions (choose one)**:
+
+1. **Use F1 (Free tier)** — Immediate fix, no quota needed:
+   - Re-deploy with `skuName` = `F1`
+   - Or via script: `.\Deploy-FabrikamApi.ps1 -AppServiceSku F1 ...`
+   - You can upgrade the plan later without redeploying
+
+2. **Request quota increase** — For paid tiers:
+   - Go to [Azure Portal](https://portal.azure.com) → search **"Quotas"**
+   - Select **Microsoft.Web** provider (NOT Compute)
+   - Find your region and request an increase for the worker tier you need:
+     - **Basic workers** → for B1/B2 SKUs
+     - **Standard workers** → for S1/S2 SKUs
+     - **Premium workers** → for P1v2/P2v2 SKUs
+   - If the quota is non-adjustable, you'll need to file a **support request**
+
+3. **Try a different region** — Some regions have default quota:
+   - Re-deploy with a different `location` parameter
+   - East US, West US 2, and West Europe often have available quota
+
+### Deployment Hangs or Times Out
+
+- ARM template deployments typically take 3-5 minutes
+- If it times out, check the deployment in Azure Portal → Resource Group → Deployments
+- The modular template deploys linked templates from GitHub — ensure network access to `raw.githubusercontent.com`
+
+### Key Vault Access Denied
+
+- Ensure the `userObjectId` parameter matches your Azure AD user
+- Get your ID: `az ad signed-in-user show --query id -o tsv`
+- The template uses RBAC (not access policies) — verify you have the `Key Vault Secrets Officer` role

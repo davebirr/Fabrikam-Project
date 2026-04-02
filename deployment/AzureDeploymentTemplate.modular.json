@@ -63,7 +63,7 @@
     },
     "skuName": {
       "type": "string",
-      "defaultValue": "S1",
+      "defaultValue": "F1",
       "allowedValues": [
         "F1",
         "B1",
@@ -74,7 +74,7 @@
         "P2v2"
       ],
       "metadata": {
-        "description": "App Service Plan pricing tier (S1+ recommended for AlwaysOn support)"
+        "description": "App Service Plan pricing tier. F1 (Free) works on all subscriptions with no quota requirements - ideal for demos and training. B1+ tiers require dedicated App Service worker quotas which may be zero on new subscriptions - check Azure Portal > Quotas > Microsoft.Web before selecting. S1+ recommended for AlwaysOn support in production."
       }
     },
     "databaseProvider": {

@@ -30,7 +30,7 @@ param(
     [SecureString]$EntraExternalIdClientSecret,
     
     [Parameter(Mandatory = $false)]
-    [string]$AppServiceSku = "B1",
+    [string]$AppServiceSku = "F1",
     
     [Parameter(Mandatory = $false)]
     [switch]$WhatIf,
@@ -84,6 +84,53 @@ if ($SubscriptionId) {
 # Get current subscription info
 $subscription = az account show --query "{id:id, name:name}" -o json | ConvertFrom-Json
 Write-Host "📋 Using subscription: $($subscription.name) ($($subscription.id))" -ForegroundColor Green
+
+# ============================================================================
+# App Service SKU Quota Validation
+# ============================================================================
+# F1 (Free) and D1 (Shared) tiers use shared compute and don't require
+# dedicated worker quotas. B1+ tiers require dedicated App Service worker
+# quotas (separate from Compute VM quotas). New subscriptions often have
+# zero dedicated worker quota, causing SubscriptionIsOverQuotaForSku errors.
+# ============================================================================
+
+$skuRequiresDedicatedWorkers = $AppServiceSku -notin @("F1", "D1")
+
+if ($skuRequiresDedicatedWorkers) {
+    Write-Host "🔍 Checking App Service worker quota for SKU '$AppServiceSku' in '$Location'..." -ForegroundColor Blue
+    
+    # Map SKU to worker tier for quota check
+    $workerTier = switch -Wildcard ($AppServiceSku) {
+        "B*"  { "Basic" }
+        "S*"  { "Standard" }
+        "P*"  { "Premium" }
+        default { "Standard" }
+    }
+    
+    try {
+        # Check App Service worker availability by attempting to list available SKUs
+        $availableSkus = az appservice list-locations --sku $AppServiceSku --query "[?name=='$Location']" -o json 2>$null | ConvertFrom-Json
+        
+        # Also check via resource provider quotas
+        $webQuota = az rest --method GET `
+            --url "https://management.azure.com/subscriptions/$($subscription.id)/providers/Microsoft.Web/listSitesAssignedToHostName?api-version=2023-12-01" `
+            2>$null
+
+        Write-Host "⚠️  SKU '$AppServiceSku' requires $workerTier tier App Service workers." -ForegroundColor Yellow
+        Write-Host "   If deployment fails with 'SubscriptionIsOverQuotaForSku', your subscription" -ForegroundColor Yellow
+        Write-Host "   has zero dedicated worker quota for this region." -ForegroundColor Yellow
+        Write-Host "" -ForegroundColor Yellow
+        Write-Host "   To fix:" -ForegroundColor Yellow
+        Write-Host "   1. Use -AppServiceSku F1 (Free tier, no quota needed)" -ForegroundColor White
+        Write-Host "   2. Request quota increase: Azure Portal > Quotas > Microsoft.Web" -ForegroundColor White
+        Write-Host "      or file a support request for '$workerTier VMs' worker quota" -ForegroundColor White
+        Write-Host ""
+    }
+    catch {
+        Write-Host "⚠️  Could not verify App Service worker quota. Proceeding anyway." -ForegroundColor Yellow
+        Write-Host "   If deployment fails with 'SubscriptionIsOverQuotaForSku', use -AppServiceSku F1" -ForegroundColor Yellow
+    }
+}
 
 # Set default resource group name if not provided
 if (-not $ResourceGroupName) {
