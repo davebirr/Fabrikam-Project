@@ -1,3 +1,4 @@
+// Fabrikam MCP - mxawus deployment trigger
 using FabrikamMcp.Tools;
 using FabrikamMcp.Models;
 using FabrikamMcp.Models.Authentication; // Add MCP-specific authentication settings
