@@ -16,19 +16,22 @@ public abstract class AuthenticatedMcpToolBase
     protected readonly IAuthenticationService _authService;
     protected readonly ILogger _logger;
     protected readonly IHttpContextAccessor? _httpContextAccessor;
+    protected readonly A365ObservabilityService? _observability;
 
     protected AuthenticatedMcpToolBase(
         HttpClient httpClient, 
         IConfiguration configuration, 
         IAuthenticationService authService,
         ILogger logger,
-        IHttpContextAccessor? httpContextAccessor = null)
+        IHttpContextAccessor? httpContextAccessor = null,
+        A365ObservabilityService? observability = null)
     {
         _httpClient = httpClient;
         _configuration = configuration;
         _authService = authService;
         _logger = logger;
         _httpContextAccessor = httpContextAccessor;
+        _observability = observability;
     }
 
     /// <summary>

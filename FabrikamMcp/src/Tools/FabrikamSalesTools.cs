@@ -15,8 +15,9 @@ public class FabrikamSalesTools : AuthenticatedMcpToolBase
         IConfiguration configuration,
         IAuthenticationService authService,
         ILogger<FabrikamSalesTools> logger,
-        IHttpContextAccessor httpContextAccessor) 
-        : base(httpClient, configuration, authService, logger, httpContextAccessor)
+        IHttpContextAccessor httpContextAccessor,
+        A365ObservabilityService? observability = null) 
+        : base(httpClient, configuration, authService, logger, httpContextAccessor, observability)
     {
     }
 

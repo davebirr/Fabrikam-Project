@@ -73,6 +73,9 @@ builder.Services.AddDbContext<FabrikamDbContext>(options =>
 builder.Services.AddScoped<IUserRegistrationService, UserRegistrationService>();
 builder.Services.AddScoped<IServiceJwtService, ServiceJwtService>();
 
+// Register A365 Observability service
+builder.Services.AddSingleton<A365ObservabilityService>();
+
 // Add controllers for user registration endpoints
 builder.Services.AddControllers();
 

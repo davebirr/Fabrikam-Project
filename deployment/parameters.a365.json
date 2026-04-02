@@ -1,0 +1,33 @@
+{
+  "$schema": "https://schema.management.azure.com/schemas/2019-04-01/deploymentParameters.json#",
+  "contentVersion": "1.0.0.0",
+  "parameters": {
+    "environmentName": {
+      "value": "a365"
+    },
+    "location": {
+      "value": "East US"
+    },
+    "authenticationMode": {
+      "value": "Disabled"
+    },
+    "enableUserTracking": {
+      "value": true
+    },
+    "entraExternalIdTenant": {
+      "value": ""
+    },
+    "entraExternalIdClientId": {
+      "value": ""
+    },
+    "entraExternalIdClientSecret": {
+      "value": ""
+    },
+    "deploymentUserId": {
+      "value": ""
+    },
+    "appServiceSku": {
+      "value": "B1"
+    }
+  }
+}
